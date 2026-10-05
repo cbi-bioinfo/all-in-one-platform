@@ -1,0 +1,12 @@
+{
+  "id": "B2",
+  "category": "boundary",
+  "title": "입체 표기(@) 포함 분자 vs 입체 제거 분자 — '@'는 SE 어휘에 없어 <unk>로 인코딩, 두 예측이 다름(W-ENC-001)",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

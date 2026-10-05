@@ -1,0 +1,7 @@
+# Model weights are distributed as separate files (see models/SHA256SUMS)
+models/*.pt
+models/se_encoder/*.pt
+models/se_encoder/*.nb
+__pycache__/
+*.pyc
+tests/_runs/

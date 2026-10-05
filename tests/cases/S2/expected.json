@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "E-INPUT-006",
+    "message": "Input contains no molecules",
+    "detail": "'smiles' is an empty list"
+  }
+}

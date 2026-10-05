@@ -1,0 +1,59 @@
+# SE-MTDNN Toxicity Predictor 1.0.0 (`bsp-tox-mtdnn`)
+
+Offline, inference-only container that predicts the probability of 631 toxicity
+endpoints (Tox21 12 · ClinTox 2 · ToxCast 617) for small molecules given as
+SMILES/SDF/MOL. SMILES are encoded with the SE (SMILES Embedding) GRU-VAE
+encoder and scored by a multi-task deep neural network (SE-MTDNN).
+
+* Deployment type **T2 (batch)**: runs one job and exits, with progress logs,
+  checkpoint/restart and run-time reporting. An optional HTTP mode is included.
+* Runs with **no network** (`--network none`), as a **non-root** user, on
+  **linux/amd64**, GPU (CUDA 11.7 runtime bundled) or CPU.
+* No login or user management.
+
+```bash
+docker run --rm --gpus all --network none \
+  -v "$PWD/input:/data/input:ro" -v "$PWD/output:/data/output" \
+  -e INPUT_PATH=/data/input/molecules.csv \
+  pzkeung/bio-synergy-platform:mtdnn-1.0.0
+# -> output/predictions.csv, output/run_summary.json
+```
+
+## Repository layout
+
+| Path | Content |
+|---|---|
+| `tool.yaml` | Tool metadata: id/version, inputs, parameters, outputs, performance, seed/tolerance, T2 type, resources, limitations |
+| `Dockerfile`, `requirements.in`, `requirements.lock` | Reproducible image build (pinned base digest, hash-locked dependencies) |
+| `docker-compose.yml` | Deployment manifest (batch job with `network_mode: none`; optional `serve` profile) |
+| `src/mtdnn_tox/` | Inference package (`python -m mtdnn_tox batch|serve|openapi|version`) |
+| `src/moses/` | Vendored SE-encoder model code (MOSES, MIT, unmodified) |
+| `api/openapi.yaml` | HTTP API specification (OpenAPI 3.0.3) for `serve` mode |
+| `models/` | Weights (separate `.pt` files, not in git) + `SHA256SUMS` + `README.md` |
+| `tests/golden/` | Golden set: N1–N3 normal, B1–B2 boundary, E1–E2 error (input/expected file pairs) |
+| `tests/cases/` | Supplementary cases S1–S8 (limits, format errors, checkpoint restart, standardization) |
+| `tests/run_tests.py`, `tests/make_report.py` | Self-test runner and report generator (Python stdlib + Docker only) |
+| `docs/user_manual.md` | How to run, input formats, environment variables, output interpretation, error codes |
+| `docs/model_card.md` | Training data, procedure, performance, limitations |
+| `docs/selftest_report.md` | Self-test results |
+| `docs/reference_data.md` | Reference/training data: type, size, source, license |
+| `docs/license_confirmation.md` | License review of code, weights, dependencies, data |
+| `docs/deployment.md` | Build, registry, offline installation and run procedure |
+| `docs/release_info.md` | Submission commit hash, image ID/digest |
+
+## Key numbers
+
+| | |
+|---|---|
+| Training data (*trainset*) | Tox21 + ClinTox + ToxCast merged, 10,974 molecules, 631 tasks |
+| Model | holdout split seed 0 (best validation AUROC of 5 seeds) |
+| Test performance (seed 0 test, 506 molecules) | macro AUROC 0.699 · F1 0.263 · sensitivity 0.254 · specificity 0.872 |
+| 5-seed test AUROC | 0.674 ± 0.018 |
+| Reproducibility | seed 42, float64, deterministic; tolerance 1e-6 on probabilities (measured difference 0) |
+| Throughput | ~70 molecules/s on RTX 2080 Ti (0.7/s on CPU), model load ~35 s |
+
+See `docs/model_card.md` for limitations before interpreting results.
+
+## License
+
+Apache-2.0 (`LICENSE`). Third-party components: `docs/license_confirmation.md`.
