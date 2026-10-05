@@ -47,7 +47,7 @@ image:
   repository: pzkeung/bio-synergy-platform
   tag: toxkg-gps-1.0.0
   alias_tags: [toxkg-gps]
-  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  digest: sha256:910c4b58ee1202469bb91f8a8fafbc0a18ada19786f4824888a2820de562cbfc  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none           # no network access needed at run time
