@@ -1,0 +1,12 @@
+{
+  "id": "N3",
+  "category": "normal",
+  "title": "나트륨 염·이온화 raw SMILES (.smi 입력) — 학습과 같이 염 포함 그대로 예측, W-STD 경고",
+  "mode": "batch",
+  "input": "input.smi",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

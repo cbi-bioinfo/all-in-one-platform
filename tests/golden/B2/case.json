@@ -1,0 +1,12 @@
+{
+  "id": "B2",
+  "category": "boundary",
+  "title": "입체 표기 [C@H] 포함 vs 제거 분자 — 원자 특징이 총 수소 수·키랄성 없음이라 두 예측이 동일",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

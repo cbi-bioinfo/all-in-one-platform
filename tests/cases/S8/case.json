@@ -1,0 +1,12 @@
+{
+  "id": "S8",
+  "category": "normal",
+  "title": "전하 분리 없이 표기한 니트로기 raw SMILES — RDKit이 [N+](=O)[O-]로 자동 정규화, 올바른 표기와 동일 예측",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

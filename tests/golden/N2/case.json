@@ -1,0 +1,12 @@
+{
+  "id": "N2",
+  "category": "normal",
+  "title": "10건 일괄 예측 (CSV, seed0 test 분자)",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}
