@@ -45,7 +45,7 @@ image:
   repository: pzkeung/bio-synergy-platform
   tag: ssl-gcn-1.0.0
   alias_tags: [ssl-gcn]
-  digest: sha256:1bccf6ef6b635c8b197175b507a37310d2327391acbd7c357754425cb7308c48  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
+  digest: sha256:1ad8f0e52ff2becaa5991f1e1871e8b28c82222c5315e297de70cb349347ecb2  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none           # no network access needed at run time
