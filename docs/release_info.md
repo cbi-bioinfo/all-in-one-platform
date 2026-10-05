@@ -7,7 +7,8 @@
 | **제출 시점 커밋 해시** | `2841c6c7428c0b11c32df18cc5e25bb0c85abed0` |
 | 컨테이너 이미지 | `pzkeung/bio-synergy-platform:mtdnn-1.0.0` (별칭 `:mtdnn`) |
 | 이미지 ID (로컬 빌드) | `sha256:a678943f6619046550792a21667ef7b956bf8cd15328a073b635d6c2b0d6f688` |
-| 레지스트리 digest | push 후 기입 — `docker inspect --format '{{index .RepoDigests 0}}' pzkeung/bio-synergy-platform:mtdnn-1.0.0` |
+| **레지스트리 digest** | `pzkeung/bio-synergy-platform@sha256:ad487678f942525a22f7597040338a229c39b7e3b7935afb982d2e0e77567c43` (2026-10-06 push, 태그 `mtdnn-1.0.0`·`mtdnn` 동일) |
+| pull 명령 | `docker pull pzkeung/bio-synergy-platform@sha256:ad487678f942525a22f7597040338a229c39b7e3b7935afb982d2e0e77567c43` |
 | 플랫폼 | linux/amd64 |
 | 베이스 이미지 | `python:3.10-slim@sha256:c1aaf3d03e14944a039a1647e0b3f6f34c6bee517bac6ff380215ee099c4e808` |
 | 가중치 체크섬 | `models/SHA256SUMS` |

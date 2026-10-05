@@ -45,7 +45,7 @@ image:
   repository: pzkeung/bio-synergy-platform
   tag: mtdnn-1.0.0
   alias_tags: [mtdnn]
-  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  digest: sha256:ad487678f942525a22f7597040338a229c39b7e3b7935afb982d2e0e77567c43  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none           # no network access needed at run time
