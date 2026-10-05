@@ -6,9 +6,9 @@
 
 | 구분 | 결론 |
 |---|---|
-| 본 저장소 코드 (`src/sslgcn_tox/`, `tests/`) | Apache-2.0 (`LICENSE`) — 본 과제 작성 |
+| 본 저장소 코드 (`src/sslgcn_tox/`, `tests/`) | **라이선스 미기재** — 원 저장소에 라이선스가 없어 본 저장소도 라이선스를 붙이지 않음(본 과제 작성) |
 | 원 논문 저장소 코드 | **포함하지 않음** (원 저장소에 라이선스 파일 없음 — 2절) |
-| 모델 가중치 (601개) | 본 과제에서 학습 → Apache-2.0으로 배포 |
+| 모델 가중치 (601개) | 본 과제에서 학습 — 라이선스 미기재 |
 | 모델 구현 라이브러리 | DGL-LifeSci `GCNPredictor` (Apache-2.0), DGL (Apache-2.0) |
 | Python 의존성 | 허용형(BSD/MIT/Apache/PSF), 약한 카피레프트 MPL-2.0 2종(certifi, tqdm), NVIDIA CUDA 재배포 구성요소 — 3절 |
 | 베이스 이미지 | `nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04` — NVIDIA Deep Learning Container License |
@@ -19,9 +19,9 @@
 
 | 구성요소 | 경로 | 출처 | 라이선스 | 비고 |
 |---|---|---|---|---|
-| 추론 패키지 | `src/sslgcn_tox/` | 본 과제 작성 | Apache-2.0 | 원 저장소 코드를 복사하지 않고 dgllife API로 작성 |
+| 추론 패키지 | `src/sslgcn_tox/` | 본 과제 작성 | 미기재 | 원 저장소 코드를 복사하지 않고 dgllife API로 작성 |
 | 모델 구조 | (dgllife 라이브러리) | DGL-LifeSci `GCNPredictor`, `CanonicalAtomFeaturizer`, `mol_to_bigraph` | Apache-2.0 | 이미지의 pip 패키지로 포함 |
-| 모델 가중치 | `models/tasks/*/model.pth`, `configure.json` | 본 과제 학습 산출물 (trainset holdout seed 0) | Apache-2.0 | 하이퍼파라미터 값은 원 논문의 공개 설정을 따름 |
+| 모델 가중치 | `models/tasks/*/model.pth`, `configure.json` | 본 과제 학습 산출물 (trainset holdout seed 0) | 미기재 | 하이퍼파라미터 값은 원 논문의 공개 설정을 따름 |
 | 원 논문 저장소 | — | https://github.com/chen709847237/SSL-GCN (2021-07-11 커밋 `b0df79c`) | **라이선스 파일 없음** | 평가 코드만 공개. 본 패키지는 이 저장소의 코드·가중치·데이터를 포함하지 않는다. 학습 루프는 논문의 식과 설명을 바탕으로 플랫폼에서 재구성했다(학습 코드는 제출 범위 밖) |
 
 라이선스 표기가 없는 저장소는 저작권법상 기본적으로 모든 권리가 저작자에게

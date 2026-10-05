@@ -4,8 +4,8 @@
 
 | 이름 | 종류 | 경로 | 용량 | 출처 | 라이선스 |
 |---|---|---|--:|---|---|
-| 태스크 목록 | JSON | `models/tasks.json` | 약 17 KB | 본 과제 (trainset 열 순서, 모델 없는 30개 태스크 목록) | Apache-2.0 |
-| 태스크별 모델 설정 | JSON × 601 | `models/tasks/*/configure.json` | 약 300 KB | 본 과제 학습 산출물 | Apache-2.0 |
+| 태스크 목록 | JSON | `models/tasks.json` | 약 17 KB | 본 과제 (trainset 열 순서, 모델 없는 30개 태스크 목록) | 미기재 |
+| 태스크별 모델 설정 | JSON × 601 | `models/tasks/*/configure.json` | 약 300 KB | 본 과제 학습 산출물 | 미기재 |
 | 원자 특징화기 정의 | 라이브러리 코드 | dgllife 0.3.2 `CanonicalAtomFeaturizer` (pip 패키지) | — | DGL-LifeSci | Apache-2.0 |
 
 모델 가중치 자체(`models/tasks/*/model.pth`)는 `models/README.md`에 정리했다. 추론에는

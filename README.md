@@ -58,5 +58,5 @@ ranking. See `docs/model_card.md` before interpreting results.
 
 ## License
 
-Apache-2.0 (`LICENSE`). The original SSL-GCN repository has no license file; no
-code from it is included. Third-party components: `docs/license_confirmation.md`.
+No license file is provided: the original SSL-GCN repository has no license,
+so none is added here either. No code from that repository is included. Third-party components: `docs/license_confirmation.md`.
