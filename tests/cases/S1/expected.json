@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "E-INPUT-003",
+    "message": "Too many molecules in one request",
+    "detail": "101 > 100"
+  }
+}

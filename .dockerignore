@@ -1,0 +1,9 @@
+.git
+.gitignore
+.dockerignore
+docs/
+tests/
+api/
+**/__pycache__
+*.pyc
+work/

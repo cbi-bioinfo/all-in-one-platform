@@ -1,0 +1,12 @@
+{
+  "id": "S9",
+  "category": "boundary",
+  "title": "RDKit 버전 의존 구조 — [AlH3] 알루미늄 착물(구버전 RDKit에서는 유효)은 E-INPUT-002, 나머지 행은 계속",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

@@ -1,0 +1,5 @@
+# Model weights are distributed as separate files (see models/SHA256SUMS)
+models/tasks/*/model.pth
+__pycache__/
+*.pyc
+tests/_runs/

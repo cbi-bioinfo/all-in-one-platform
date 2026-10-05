@@ -1,0 +1,11 @@
+{
+  "id": "E1",
+  "category": "error",
+  "title": "고리 미종결 SMILES (serve, 단일 요청)",
+  "mode": "serve",
+  "request": "request.json",
+  "expect": {
+    "http_status": 422,
+    "body": "expected.json"
+  }
+}

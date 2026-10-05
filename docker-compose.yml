@@ -1,0 +1,63 @@
+# Deployment manifest — SSL-GCN Toxicity Predictor 1.0.0
+#
+# Batch job (T2, default):
+#   INPUT_FILE=molecules.csv docker compose run --rm sslgcn-batch
+# HTTP API (optional):
+#   docker compose --profile serve up -d sslgcn-serve
+#
+# Host directories: ./input (read-only) and ./output (must be writable by
+# UID 10001, or set RUN_AS="$(id -u):$(id -g)").
+# Measured on 506 molecules: peak RAM 0.7 GiB, peak GPU memory 0.7 GB,
+# model load ~60 s (601 task models + checksum verification).
+
+x-common: &common
+  image: pzkeung/bio-synergy-platform:ssl-gcn-1.0.0
+  platform: linux/amd64
+  user: "${RUN_AS:-10001:10001}"
+  deploy:
+    resources:
+      limits:
+        memory: 4g
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
+services:
+  sslgcn-batch:
+    <<: *common
+    command: ["batch"]
+    network_mode: none            # no network access at run time
+    environment:
+      INPUT_PATH: /data/input/${INPUT_FILE:-molecules.csv}
+      OUTPUT_DIR: /data/output
+      OUTPUT_FORMAT: ${OUTPUT_FORMAT:-csv}
+      DEVICE: ${DEVICE:-auto}
+      CHUNK_SIZE: ${CHUNK_SIZE:-1000}
+      SEED: "42"
+    volumes:
+      - ./input:/data/input:ro
+      - ./output:/data/output
+
+  sslgcn-serve:
+    <<: *common
+    profiles: ["serve"]
+    command: ["serve"]
+    environment:
+      DEVICE: ${DEVICE:-auto}
+      MAX_REQUEST_ITEMS: "100"
+    ports:
+      - "127.0.0.1:${PORT:-8000}:8000"   # loopback only — the API has no authentication
+    networks: [sslgcn-internal]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 180s            # model load takes ~60 s on GPU, longer on CPU
+      retries: 3
+
+networks:
+  sslgcn-internal:
+    driver: bridge

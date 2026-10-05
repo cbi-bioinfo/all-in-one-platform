@@ -1,0 +1,3 @@
+smiles,id
+CN(C)(CCOc1ccccc1)Cc1cccs1.I,trainset_009947_raw
+C[N+](C)(CCOc1ccccc1)Cc1cccs1.[I-],trainset_009947

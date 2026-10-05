@@ -1,0 +1,169 @@
+# Analysis-tool metadata — SSL-GCN Toxicity Predictor
+schema_version: "1.0"
+
+# ── 기술 식별자 · 명칭 · 버전 ───────────────────────────────────────────────────
+id: bsp-tox-sslgcn
+name: SSL-GCN Toxicity Predictor
+version: 1.0.0
+description: >-
+  SMILES 입력 화합물에 대해 601개 독성 태스크(Tox21 12, ClinTox 2, ToxCast 587)의
+  양성 확률을 예측하는 태스크별 그래프 합성곱 신경망(GCN). 각 태스크 모델은
+  Mean Teacher 반지도학습(SSL)으로 학습한 teacher 가중치다. 추론 전용, 오프라인 실행.
+category: toxicity-prediction
+references:
+  - "SSL-GCN: Chen J. et al., J. Cheminform. 13, 93 (2021), doi:10.1186/s13321-021-00570-8"
+  - "GCN implementation: DGL-LifeSci GCNPredictor (dgllife 0.3.2)"
+
+# ── 탑재 유형 ─────────────────────────────────────────────────────────────────
+deployment:
+  type_code: T2
+  type_name: 배치 분석형
+  target: 대용량 입력 처리 및 장시간 수행 파이프라인
+  execution: 작업 단위 가동 후 종료 (기본 명령 `batch`)
+  progress_log: "stderr에 청크마다 '[progress] 처리/전체 (%) chunk i/n elapsed eta rate' 한 줄 출력"
+  checkpoint_restart: >-
+    CHUNK_SIZE 단위로 처리 결과를 CHECKPOINT_DIR에 원자적으로 저장. 같은 명령을 다시
+    실행하면(RESUME=1) 완료된 청크를 건너뛰고 이어서 처리. MAX_CHUNKS_PER_RUN으로
+    작업을 나누어 실행 가능(중단 시 종료 코드 5, run_summary.json status=partial).
+  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 OUTPUT_DIR/run_summary.json에 기록"
+  expected_duration:
+    model_load_sec: 60                    # 601개 모델 체크섬 검증 + 구성
+    gpu_throughput_mol_per_sec: 50        # RTX 2080 Ti 실측
+    cpu_throughput_mol_per_sec: 0.9       # GPU 미사용 시 실측 (다른 작업 없는 상태)
+    example: "10,000 분자 ≈ 4.5분 (GPU) / ≈ 3시간 (CPU)"
+  exit_codes:
+    0: 완료 (분자 단위 오류는 결과 파일의 status/error_code에 기록)
+    2: 입력 오류 (E-INPUT-*)
+    3: 모델 오류 (E-MODEL-*)
+    4: 시스템·설정 오류 (E-SYS-*)
+    5: MAX_CHUNKS_PER_RUN 도달로 일시 중단 — 같은 명령으로 재시작
+  optional_modes:
+    serve: "HTTP API (api/openapi.yaml, OpenAPI 3.0.3), 요청당 최대 MAX_REQUEST_ITEMS건, 인증 없음"
+
+# ── 컨테이너 · 소스 ───────────────────────────────────────────────────────────
+image:
+  repository: pzkeung/bio-synergy-platform
+  tag: ssl-gcn-1.0.0
+  alias_tags: [ssl-gcn]
+  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  platform: linux/amd64
+  user: "10001:10001 (non-root)"
+  network: none           # no network access needed at run time
+source:
+  repository: https://github.com/pzkeung/DrugDevPlatform.git
+  branch: ssl-gcn
+  tag: ssl-gcn-v1.0.0     # commit hash — docs/release_info.md
+entrypoint: ["python", "-m", "sslgcn_tox"]
+default_command: ["batch"]
+
+# ── 입력 항목 ─────────────────────────────────────────────────────────────────
+inputs:
+  - name: input_file
+    env: INPUT_PATH
+    type: file
+    required: true
+    encoding: UTF-8
+    formats:
+      - {ext: .csv, content: "헤더 행 필수. 'smiles' 또는 'canonical_smiles' 열 필수(대소문자 무관). 'id'/'mol_id'/'name'/'compound_id' 열 선택"}
+      - {ext: .smi, content: "한 줄에 'SMILES [ID]'"}
+      - {ext: .txt, content: "한 줄에 'SMILES [ID]'"}
+      - {ext: .sdf, content: "다중 분자 SDF, 분자명(_Name)을 ID로 사용"}
+      - {ext: .mol, content: "단일 분자 MOL"}
+    constraints:
+      max_smiles_length: 1000    # MAX_SMILES_LENGTH
+      max_molecules: null        # batch 모드는 제한 없음
+  - name: smiles
+    mode: serve
+    type: array[string]
+    required: true
+    description: "POST /predict 본문 'smiles' (1–100건)"
+  - name: ids
+    mode: serve
+    type: array[string]
+    required: false
+
+# ── 파라미터 및 기본값 ────────────────────────────────────────────────────────
+parameters:
+  - {name: OUTPUT_DIR,          type: path, default: /data/output,    description: 결과 저장 경로}
+  - {name: OUTPUT_FORMAT,       type: enum, default: csv, values: [csv, json], description: 결과 파일 형식}
+  - {name: MODEL_DIR,           type: path, default: /opt/app/models, description: "tasks.json, tasks/<태스크>/{model.pth,configure.json}, SHA256SUMS"}
+  - {name: CHECKPOINT_DIR,      type: path, default: "${OUTPUT_DIR}/.checkpoint"}
+  - {name: RESUME,              type: bool, default: 1,    description: 체크포인트에서 재시작}
+  - {name: CHUNK_SIZE,          type: int,  default: 1000, description: 체크포인트 단위(분자 수)}
+  - {name: MAX_CHUNKS_PER_RUN,  type: int,  default: 0,    description: "1회 실행당 최대 청크 수 (0=제한 없음)"}
+  - {name: DEVICE,              type: enum, default: auto, values: [auto, cuda, cpu]}
+  - {name: SEED,                type: int,  default: 42}
+  - {name: STANDARDIZE,         type: bool, default: 0,    description: "1이면 최대 유기 조각만 남기고 전하 중화 (학습 전처리와 달라 기본 끔)"}
+  - {name: MAX_SMILES_LENGTH,   type: int,  default: 1000}
+  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: serve 모드 요청당 최대 분자 수}
+  - {name: VERIFY_CHECKSUM,     type: bool, default: 1,    description: 시작 시 가중치 SHA-256 검증}
+  - {name: PORT,                type: int,  default: 8000, description: serve 모드 포트}
+  - {name: LOG_LEVEL,           type: enum, default: INFO, values: [DEBUG, INFO, WARNING, ERROR]}
+
+# ── 출력 항목 · 자료형 · 단위 ─────────────────────────────────────────────────
+outputs:
+  files:
+    - {name: "predictions.csv | predictions.json", description: 분자별 예측 결과}
+    - {name: run_summary.json, description: "상태(completed/partial), 건수, 시작/종료 시각, 소요 시간, 처리량, 장치, 가중치 집합 SHA-256"}
+  fields:
+    - {name: index,            type: integer, unit: null, description: "입력 순서 (0부터)"}
+    - {name: id,               type: string,  unit: null, description: "입력 ID, 없으면 mol_<index>"}
+    - {name: input_smiles,     type: string,  unit: null}
+    - {name: canonical_smiles, type: string,  unit: null, description: "RDKit canonical SMILES (표시용; 그래프는 입력에서 파싱한 분자로 생성)"}
+    - {name: status,           type: enum,    unit: null, values: [ok, error]}
+    - {name: error_code,       type: string,  unit: null, description: "오류 코드 (docs/user_manual.md)"}
+    - {name: error_message,    type: string,  unit: null, description: "오류 설명 + RDKit 원문 메시지"}
+    - {name: warnings,         type: "string (';' 구분)", unit: null, values: [W-STD-001, W-STD-002, W-STD-003, W-FEAT-001]}
+    - {name: "<task>_prob",    type: float,   unit: "probability (0–1)", count: 601, description: "해당 태스크 양성(독성/활성) 확률, 소수점 8자리"}
+    - {name: "<task>_label",   type: integer, unit: "binary (0/1)",      count: 601, description: "<task>_prob ≥ 0.5 이면 1"}
+  task_list: "models/tasks.json 또는 GET /info (모델 없는 30개 태스크 목록 포함)"
+
+# ── 성능지표 및 측정 조건 ─────────────────────────────────────────────────────
+performance:
+  submitted_model: "trainset 홀드아웃 seed0 모델 (5개 seed 중 val macro AUROC 최고; test 기준으로도 최고)"
+  metrics:
+    - {name: macro AUROC,       value: 0.5993, five_seed_mean: 0.5834, five_seed_sd: 0.0122}
+    - {name: macro F1,          value: 0.1540, five_seed_mean: 0.1476, five_seed_sd: 0.0037}
+    - {name: macro sensitivity, value: 0.2649, five_seed_mean: 0.2720, five_seed_sd: 0.0099}
+    - {name: macro specificity, value: 0.7544, five_seed_mean: 0.7393, five_seed_sd: 0.0110}
+  conditions:
+    dataset: "trainset — Tox21 + ClinTox + ToxCast 병합·중복 제거 (10,974 분자, 631 태스크 중 모델 601개)"
+    split: "Murcko scaffold holdout, seed 0 (train 9,978 / val 490 / test 506)"
+    evaluation_set: "seed0 test — 학습과 체크포인트 선택에 사용하지 않음"
+    threshold: 0.5
+    averaging: "test에 양성·음성이 모두 있는 534개 태스크의 지표 단순 평균 (결측 라벨 제외)"
+    value_source: "value = 본 컨테이너 출력(float64)으로 계산. 학습 환경(float32) 재채점값은 AUROC 0.5972 — 포화 확률의 동점 처리 차이(docs/model_card.md 4.3)"
+    five_seed: "seed 0–4 모델을 각자의 test로 평가(학습 환경 재채점)한 값의 평균 ± 표준편차"
+    hardware: "NVIDIA GeForce RTX 2080 Ti, float64 추론"
+
+# ── 난수 시드 및 허용 오차 ────────────────────────────────────────────────────
+reproducibility:
+  seed: 42
+  seeded: [python random, numpy, torch, torch.cuda]
+  deterministic: "cudnn.deterministic=True, torch.use_deterministic_algorithms(True), float64 추론"
+  tolerance:
+    probability_abs: 1.0e-6
+    strings_and_labels: exact
+  measured:
+    gpu_repeat_max_abs_diff: 0.0    # 506 분자 × 601 태스크, RTX 2080 Ti와 GTX 1080 Ti에서 각 1회
+    gpu_vs_cpu_max_abs_diff: 0.0    # 같은 506 분자, DEVICE=cpu 실행과 비교 (라벨·문자열 열도 모두 일치)
+
+# ── 자원 요구량 ───────────────────────────────────────────────────────────────
+resources:
+  cpu: {min_cores: 2, recommended_cores: 4}
+  memory: {min: 4GiB, recommended: 8GiB, measured_peak: 0.7GiB}
+  gpu: {count: 1, required: false, min_vram: 2GB, measured_peak_vram: 0.7GB, driver: "NVIDIA driver ≥ 520 + NVIDIA Container Toolkit (CUDA 11.8)"}
+  disk: {image: 11.4GB}
+
+# ── 적용 한계 및 주의사항 ─────────────────────────────────────────────────────
+limitations:
+  - "scaffold holdout 기준 macro AUROC 약 0.60으로 성능이 제한적이다. 확률은 순위화 용도로만 쓴다."
+  - "출력이 과신(overconfident) 경향을 보인다: seed0 test 출력 확률의 25%가 소수점 8자리에서 정확히 0 또는 1이다. 확률을 보정된 위험도로 해석하지 않는다."
+  - "0.5 임계값에서 Tox21 민감도 0.02, ClinTox 민감도 0으로 양성을 거의 판정하지 않는다(라벨 열은 참고용)."
+  - "631개 trainset 태스크 중 30개는 seed0 검증 분할에 양성·음성이 모두 있지 않아 모델이 없으며 출력하지 않는다(models/tasks.json)."
+  - "원자 특징(CanonicalAtomFeaturizer)에 키랄성이 없어 입체이성질체를 구별하지 못한다. 반면 대괄호 원자([C@H] 등)는 암묵 원자가가 0으로 인코딩되어 같은 분자도 표기에 따라 예측이 크게 달라질 수 있다(시험 사례 B2, 최대 0.91). RDKit canonical SMILES 입력을 권장한다."
+  - "43개 원소 밖의 원소, 범위를 벗어난 차수·원자가·수소 수·혼성은 0으로 인코딩되며 W-FEAT-001 경고가 붙는다."
+  - "RDKit 2026.3.1의 원자가 규칙을 따른다. 구버전 RDKit에서 유효했던 일부 구조(예: [AlH3] 알루미늄 착물 — trainset의 8개 분자)는 E-INPUT-002로 거부된다(시험 사례 S9)."
+  - "trainset은 염·전하를 제거하지 않은 SMILES로 학습되었다. 기본 설정은 학습과 같으며 STANDARDIZE=1은 예측을 바꾼다."
+  - "적용영역(AD) 판정은 제공하지 않는다. 실험적 독성 평가를 대체하지 않는다. 연구용."
+  - "인증·사용자 관리 기능이 없다. serve 모드는 신뢰된 내부망에서만 사용한다."

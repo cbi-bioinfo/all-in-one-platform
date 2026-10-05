@@ -1,0 +1,14 @@
+{
+  "id": "S4",
+  "category": "error",
+  "title": "지원하지 않는 입력 형식 .xlsx (batch)",
+  "mode": "batch",
+  "input": "input.xlsx",
+  "env": {},
+  "expect": {
+    "exit_code": 2,
+    "log_contains": [
+      "E-INPUT-004"
+    ]
+  }
+}
