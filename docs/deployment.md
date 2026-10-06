@@ -107,7 +107,7 @@ docker compose --profile serve up -d fpgnn-serve     # 선택: HTTP API
 
 ```bash
 docker run --rm --network none pzkeung/bio-synergy-platform:fp-gnn-1.0.0 version
-# → bsp-tox-fpgnn 1.0.0
+# → tox-fpgnn 1.0.0
 python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:fp-gnn-1.0.0
 # → 18/18 passed (골든 7건 + 보조 11건)
 ```

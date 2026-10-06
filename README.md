@@ -1,4 +1,4 @@
-# FP-GNN Toxicity Predictor 1.0.0 (`bsp-tox-fpgnn`)
+# FP-GNN Toxicity Predictor 1.0.0 (`tox-fpgnn`)
 
 Offline, inference-only container that predicts the probability of 631 toxicity
 endpoints (Tox21 12 · ClinTox 2 · ToxCast 617) for small molecules given as

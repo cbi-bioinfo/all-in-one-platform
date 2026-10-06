@@ -1,5 +1,5 @@
 {
-  "tool_id": "bsp-tox-fpgnn",
+  "tool_id": "tox-fpgnn",
   "version": "1.0.0",
   "n_items": 3,
   "n_ok": 2,
