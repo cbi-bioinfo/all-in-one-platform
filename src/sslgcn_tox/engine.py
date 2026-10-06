@@ -106,6 +106,9 @@ class Predictor:
             if c.get("model") != "GCN" or c.get("atom_featurizer_type") != "canonical":
                 raise ValueError(f"unsupported configuration {c.get('model')}/{c.get('atom_featurizer_type')}")
             n = c["num_gnn_layers"]
+            # Release each float32 state_dict once its float64 model is built, so the
+            # whole bundle and all models are never held in memory at the same time.
+            state_dicts = bundle.pop("state_dicts")
             self.models = []
             for task in self.tasks:
                 model = GCNPredictor(
@@ -114,7 +117,7 @@ class Predictor:
                     batchnorm=[c["batchnorm"]] * n, dropout=[c["dropout"]] * n,
                     predictor_hidden_feats=c["predictor_hidden_feats"],
                     predictor_dropout=c["dropout"], n_tasks=c["n_tasks"])
-                model.load_state_dict(bundle["state_dicts"][task])
+                model.load_state_dict(state_dicts.pop(task))
                 self.models.append(model.double().to(self.device).eval())
             self._featurizer = CanonicalAtomFeaturizer()
             self._to_graph = mol_to_bigraph

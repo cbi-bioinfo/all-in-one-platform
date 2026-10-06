@@ -85,7 +85,7 @@ docker run --rm --network none cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0 v
 
 GPU를 쓰려면 호스트에 NVIDIA 드라이버(CUDA 11.8 지원, 520 이상)와 NVIDIA Container
 Toolkit이 있어야 한다. CUDA 런타임과 cuDNN은 이미지에 들어 있다. GPU가 없으면 CPU로
-동작하지만 약 55배 느리다(0.9 분자/초).
+동작하지만 약 70배 느리다(0.6–0.7 분자/초).
 
 ## 5. 실행
 

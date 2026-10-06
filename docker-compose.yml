@@ -7,8 +7,8 @@
 #
 # Host directories: ./input (read-only) and ./output (must be writable by
 # UID 10001, or set RUN_AS="$(id -u):$(id -g)").
-# Measured on 506 molecules: peak RAM 0.7 GiB, peak GPU memory 0.7 GB,
-# model load ~60 s (checksum verification + 601 task models).
+# Measured on 506 molecules: peak RAM 1.0 GiB (GPU run; 1.9 GiB on CPU), peak GPU memory 0.7 GB,
+# model load ~55 s (checksum verification + 601 task models).
 
 x-common: &common
   image: cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0
@@ -58,7 +58,7 @@ services:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=5)"]
       interval: 30s
       timeout: 10s
-      start_period: 180s            # model load takes ~60 s on GPU, longer on CPU
+      start_period: 180s            # model load takes ~55 s on GPU, longer on CPU
       retries: 3
 
 networks:

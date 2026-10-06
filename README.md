@@ -57,7 +57,7 @@ Model weights are not stored in git; they are built into the image
 | Test performance (seed 0 test, 506 molecules) | macro AUROC 0.599 · F1 0.154 · sensitivity 0.265 · specificity 0.754 |
 | 5-seed test AUROC | 0.583 ± 0.012 |
 | Reproducibility | seed 42, float64, deterministic; tolerance 1e-6 on probabilities (measured difference 0) |
-| Throughput | ~50 molecules/s on RTX 2080 Ti, model load ~60 s |
+| Throughput | ~48 molecules/s on RTX 2080 Ti (0.6–0.7/s on CPU), model load ~55 s |
 
 Predictions are over-confident (a quarter of test probabilities are exactly 0 or 1)
 and the 0.5 labels miss most Tox21/ClinTox positives — use the probabilities for

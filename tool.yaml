@@ -38,10 +38,10 @@ deployment:
     작업을 나누어 실행 가능(중단 시 종료 코드 5, run_summary.json status=partial).
   runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 run_summary.json(작업 API는 GET /jobs/{job_id})에 기록"
   expected_duration:
-    model_load_sec: 60                    # 가중치 체크섬 검증 + 601개 모델 구성 (재측정 전 값)
-    gpu_throughput_mol_per_sec: 50        # RTX 2080 Ti 실측
-    cpu_throughput_mol_per_sec: 0.9       # GPU 미사용 시 실측 (다른 작업 없는 상태)
-    example: "10,000 분자 ≈ 4.5분 (GPU) / ≈ 3시간 (CPU)"
+    model_load_sec: 55                    # 가중치 체크섬 검증 + 601개 모델 구성 (RTX 2080 Ti 실측)
+    gpu_throughput_mol_per_sec: 48        # RTX 2080 Ti·GTX 1080 Ti 실측 47.5–47.9 (seed0 test 506분자)
+    cpu_throughput_mol_per_sec: 0.63      # GPU 미사용 시 실측 0.63–0.74 (506분자, 다른 작업이 있는 공유 서버)
+    example: "10,000 분자 ≈ 4.5분 (GPU) / ≈ 4–4.5시간 (CPU)"
   exit_codes:
     0: 완료 (분자 단위 오류는 결과 파일의 status/error_code에 기록)
     2: 입력 오류 (E-INPUT-*)
@@ -53,7 +53,7 @@ deployment:
 image:
   repository: cbibioinfolab/toxicity-prediction
   tag: ssl-gcn-1.0.0
-  digest: sha256:b84b47a24e426f912bb84474a099e3b8b68916bd403a79895ee242c13660c2f4  # 레지스트리 digest (이미지 안의 tool.yaml은 null: 이미지는 자신의 digest를 담을 수 없음)
+  digest: null              # push 후 docs/release_info.md 에 기록 (이미지는 자신의 digest를 담을 수 없음)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none
@@ -162,7 +162,7 @@ reproducibility:
 # ── 자원 요구량 ───────────────────────────────────────────────────────────────
 resources:
   cpu: {min_cores: 2, recommended_cores: 4}
-  memory: {min: 4GiB, recommended: 8GiB, measured_peak: 0.7GiB}
+  memory: {min: 4GiB, recommended: 8GiB, measured_peak: 1.9GiB}   # GPU 실행 최대 1.0GiB, CPU 실행 최대 1.9GiB (506분자)
   gpu: {count: 1, required: false, min_vram: 2GB, measured_peak_vram: 0.7GB, driver: "NVIDIA driver ≥ 520 + NVIDIA Container Toolkit (CUDA 11.8)"}
   disk: {image: 11.4GB}
 
