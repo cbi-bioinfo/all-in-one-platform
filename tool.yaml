@@ -56,7 +56,7 @@ deployment:
 image:
   repository: cbibioinfolab/toxicity-prediction
   tag: chemprop-1.0.0
-  digest: null              # push 후 docs/release_info.md 에 기록 (이미지는 자신의 digest를 담을 수 없음)
+  digest: sha256:7faa009eba9da06421784c345089d9c2f85eb0a621ff2f85ddd64e075ca97e61  # 레지스트리 digest (이미지 안의 tool.yaml은 null: 이미지는 자신의 digest를 담을 수 없음)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none
