@@ -53,7 +53,7 @@ deployment:
 image:
   repository: cbibioinfolab/toxicity-prediction
   tag: grover-1.0.0
-  digest: null              # push 후 docs/release_info.md 에 기록 (이미지는 자신의 digest를 담을 수 없음)
+  digest: sha256:2227c2aa8b551f26480fc9af78c069c9ad661a73335ec0289dc62ca0d67ccb64  # 레지스트리 digest (이미지 안의 tool.yaml은 null: 이미지는 자신의 digest를 담을 수 없음)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none
