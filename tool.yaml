@@ -48,7 +48,7 @@ image:
   repository: pzkeung/bio-synergy-platform
   tag: fp-gnn-1.0.0
   alias_tags: [fp-gnn]
-  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  digest: sha256:d5569f21c64badab478a60487671cb70765e82d240c871fd7a7122cf5b52720b  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none           # no network access needed at run time
