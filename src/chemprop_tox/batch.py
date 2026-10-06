@@ -8,6 +8,9 @@
                   OUTPUT_DIR/run_summary.json.
 * Time-boxing   — MAX_CHUNKS_PER_RUN=N stops after N new chunks with exit
                   code 5 (status "partial"); run again to continue.
+
+The serve-mode job API (jobs.py) runs the same function per job, passing the
+already-loaded predictor and a progress callback.
 """
 import csv
 import hashlib
@@ -50,7 +53,7 @@ def _atomic_write(path: Path, text: str):
     os.replace(tmp, path)
 
 
-def run(cfg) -> int:
+def run(cfg, predictor=None, on_progress=None) -> int:
     if cfg.input_path is None:
         raise ToxError("E-INPUT-001", "INPUT_PATH is not set")
     if cfg.output_format not in ("csv", "json"):
@@ -73,7 +76,7 @@ def run(cfg) -> int:
     chunks = [records[i:i + cfg.chunk_size] for i in range(0, total, cfg.chunk_size)]
     log.info("Input: %s — %d molecules in %d chunk(s) of %d", cfg.input_path, total, len(chunks), cfg.chunk_size)
 
-    predictor = Predictor(cfg)
+    predictor = predictor or Predictor(cfg)
     run_key = {
         "input_sha256": _file_sha256(cfg.input_path), "chunk_size": cfg.chunk_size,
         "standardize": cfg.standardize, "max_smiles_length": cfg.max_smiles_length,
@@ -95,6 +98,8 @@ def run(cfg) -> int:
     resumed = len(done)
 
     processed = sum(len(chunks[i]) for i in done)
+    if on_progress:
+        on_progress(processed, total, len(done), len(chunks))
     new_done, new_chunks, t_work = 0, 0, time.time()
     for i, chunk in enumerate(chunks):
         if i in done:
@@ -123,6 +128,8 @@ def run(cfg) -> int:
         log.info("[progress] %d/%d (%.1f%%) chunk %d/%d elapsed=%s eta=%s rate=%.1f mol/s",
                  processed, total, 100 * processed / total, i + 1, len(chunks),
                  _hms(time.time() - t0), _hms(eta), rate)
+        if on_progress:
+            on_progress(processed, total, len(done), len(chunks))
 
     # merge chunks -> final output
     out_path = cfg.output_dir / f"predictions.{cfg.output_format}"

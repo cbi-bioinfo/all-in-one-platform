@@ -4,10 +4,12 @@
 
 | 이름 | 종류 | 경로 | 용량 | 출처 | 라이선스 |
 |---|---|---|--:|---|---|
-| 모델 설정·태스크 목록 | JSON | `models/chemprop_trainset_seed0_config.json` | 17,410 B | 본 과제 학습 산출물 (631개 태스크 이름, 출력 순서) | MIT (`LICENSE`) |
+| 모델 설정·태스크 목록 | JSON | `models/chemprop_pretrained_config.json` | 17,410 B | 본 과제 학습 산출물 (631개 태스크 이름, 출력 순서) | MIT (`LICENSE`) |
 | 원자·결합 특징 정의 | Python 소스 | `src/chemprop/featurizers/` (chemprop 2.3.1) | — | Chemprop 개발팀 | MIT |
 
-모델 가중치는 `models/README.md`에 정리했다. 추론에는 그 밖의 데이터베이스, 사전 계산
+모델 가중치(`models/chemprop_pretrained.pt`, 2,061,832 B)는 소스 저장소에 넣지 않고 이미지에만
+포함한다(구성과 빌드 시 배치 방법은 `docs/deployment.md` 1.1절, 체크섬은 `models/SHA256SUMS`).
+추론에는 그 밖의 데이터베이스, 사전 계산
 값, 외부 서비스가 필요 없다(chemprop의 선택 기능인 RDKit 2D 기술자 등 추가 분자
 특징은 이 모델에서 쓰지 않는다).
 

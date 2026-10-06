@@ -1,17 +1,18 @@
 openapi: 3.0.3
 info:
   title: Chemprop Toxicity Predictor
-  description: Offline Chemprop D-MPNN multi-task toxicity prediction (631 tasks).
-    No authentication.
+  description: Chemprop D-MPNN multi-task toxicity prediction (631 tasks).
   version: 1.0.0
   license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
+    name: Apache-2.0
 paths:
-  /health:
+  /healthz:
     get:
-      summary: Health
-      operationId: health_health_get
+      tags:
+      - service
+      summary: Liveness
+      description: 200 while the process is running, also during model loading.
+      operationId: healthz_healthz_get
       responses:
         '200':
           description: Successful Response
@@ -19,9 +20,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /readyz:
+    get:
+      tags:
+      - service
+      summary: Readiness
+      description: 200 once the model is loaded and requests can be served; 503 while loading (`loading`) or after a load
+        error (`failed`).
+      operationId: readyz_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadyResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadyResponse'
   /info:
     get:
-      summary: Info
+      tags:
+      - service
+      summary: Tool information
       operationId: info_info_get
       responses:
         '200':
@@ -30,9 +54,199 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InfoResponse'
+  /schema:
+    get:
+      tags:
+      - service
+      summary: Input/output schema
+      description: Accepted inputs and the structure of results, including the 631 task names in output order. 503 until the
+        model is loaded.
+      operationId: schema_schema_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /jobs:
+    post:
+      tags:
+      - jobs
+      summary: Submit a batch job
+      description: Queue a batch prediction job and return at once with its `job_id`. Poll `GET /jobs/{job_id}` until `state`
+        is `completed` or `failed`, then download `GET /jobs/{job_id}/result`.
+      operationId: submit_job_jobs_post
+      parameters:
+      - name: input_format
+        in: query
+        required: false
+        schema:
+          enum:
+          - csv
+          - txt
+          - sdf
+          - mol
+          type: string
+          description: Format of a file body (ignored for application/json)
+          default: csv
+          title: Input Format
+        description: Format of a file body (ignored for application/json)
+      - name: output_format
+        in: query
+        required: false
+        schema:
+          enum:
+          - csv
+          - json
+          type: string
+          description: Result file format
+          default: csv
+          title: Output Format
+        description: Result file format
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Request Entity Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      requestBody:
+        required: true
+        description: Input file content in the format given by `input_format` (same formats as batch mode), or a JSON object
+          with a SMILES list.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobRequest'
+          text/csv:
+            schema:
+              type: string
+              format: binary
+          text/plain:
+            schema:
+              type: string
+              format: binary
+          chemical/x-mdl-sdfile:
+            schema:
+              type: string
+              format: binary
+          chemical/x-mdl-molfile:
+            schema:
+              type: string
+              format: binary
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+  /jobs/{job_id}:
+    get:
+      tags:
+      - jobs
+      summary: Job status
+      operationId: job_status_jobs__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+  /jobs/{job_id}/result:
+    get:
+      tags:
+      - jobs
+      summary: Job result
+      description: Predictions file of a completed job (same content as batch-mode `predictions.csv` / `predictions.json`).
+        409 while the job is queued, running or failed.
+      operationId: job_result_jobs__job_id__result_get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            text/csv:
+              schema:
+                type: string
+              example: index,id,input_smiles,canonical_smiles,status,...
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PredictionRecord'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
   /predict:
     post:
-      summary: Predict
+      tags:
+      - predict
+      summary: Synchronous prediction
+      description: Predict 1..MAX_REQUEST_ITEMS SMILES in one request. Use the job API for more.
       operationId: predict_predict_post
       requestBody:
         content:
@@ -103,21 +317,14 @@ components:
         status:
           type: string
           title: Status
+          description: '''ok'' while the process is alive'
         version:
           type: string
           title: Version
-        device:
-          type: string
-          title: Device
-        n_tasks:
-          type: integer
-          title: N Tasks
       type: object
       required:
       - status
       - version
-      - device
-      - n_tasks
       title: HealthResponse
     InfoResponse:
       properties:
@@ -130,34 +337,138 @@ components:
         version:
           type: string
           title: Version
+        deployment_type:
+          type: string
+          title: Deployment Type
+        model:
+          type: string
+          title: Model
+        model_sha256:
+          type: string
+          title: Model Sha256
+          description: SHA-256 of the Chemprop weights (null until ready)
+          nullable: true
+        device:
+          type: string
+          title: Device
+          description: Inference device (null until ready)
+          nullable: true
+        n_tasks:
+          type: integer
+          title: N Tasks
+          description: Number of predicted tasks (null until ready)
+          nullable: true
         threshold:
           type: number
           title: Threshold
         seed:
           type: integer
           title: Seed
-        max_request_items:
-          type: integer
-          title: Max Request Items
         standardize:
           type: boolean
           title: Standardize
-        tasks:
-          items:
-            type: string
-          type: array
-          title: Tasks
+        max_request_items:
+          type: integer
+          title: Max Request Items
+        max_smiles_length:
+          type: integer
+          title: Max Smiles Length
       type: object
       required:
       - tool_id
       - name
       - version
+      - deployment_type
+      - model
+      - model_sha256
+      - device
+      - n_tasks
       - threshold
       - seed
-      - max_request_items
       - standardize
-      - tasks
+      - max_request_items
+      - max_smiles_length
       title: InfoResponse
+    JobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - completed
+          - failed
+          title: State
+        input_format:
+          type: string
+          title: Input Format
+        output_format:
+          type: string
+          title: Output Format
+        submitted_at:
+          type: string
+          title: Submitted At
+        started_at:
+          type: string
+          title: Started At
+          nullable: true
+        finished_at:
+          type: string
+          title: Finished At
+          nullable: true
+        elapsed_sec:
+          type: number
+          title: Elapsed Sec
+          nullable: true
+        n_total:
+          type: integer
+          title: N Total
+          description: Molecules in the input (known once the job has started)
+          nullable: true
+        n_processed:
+          type: integer
+          title: N Processed
+        progress_percent:
+          type: number
+          title: Progress Percent
+        chunks:
+          type: integer
+          title: Chunks
+          nullable: true
+        chunks_completed:
+          type: integer
+          title: Chunks Completed
+        error:
+          description: Job-level error when state is 'failed'
+          allOf:
+          - $ref: '#/components/schemas/ErrorBody'
+          nullable: true
+        summary:
+          type: object
+          title: Summary
+          description: run_summary.json of the finished run (same as batch mode)
+          nullable: true
+      type: object
+      required:
+      - job_id
+      - state
+      - input_format
+      - output_format
+      - submitted_at
+      - started_at
+      - finished_at
+      - elapsed_sec
+      - n_total
+      - n_processed
+      - progress_percent
+      - chunks
+      - chunks_completed
+      - error
+      - summary
+      title: JobStatus
     PredictRequest:
       properties:
         smiles:
@@ -259,6 +570,62 @@ components:
       - warnings
       - predictions
       title: PredictionRecord
+    ReadyResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - ready
+          - loading
+          - failed
+          title: Status
+        device:
+          type: string
+          title: Device
+          nullable: true
+        n_tasks:
+          type: integer
+          title: N Tasks
+          nullable: true
+        error:
+          description: Model load error when status is 'failed'
+          allOf:
+          - $ref: '#/components/schemas/ErrorBody'
+          nullable: true
+      type: object
+      required:
+      - status
+      - device
+      - n_tasks
+      - error
+      title: ReadyResponse
+    SchemaResponse:
+      properties:
+        input:
+          type: object
+          title: Input
+          description: Accepted file formats, constraints and JSON request schemas
+        output:
+          type: object
+          title: Output
+          description: Result columns, task list (output order) and JSON record schema
+        error_codes:
+          additionalProperties:
+            type: string
+          type: object
+          title: Error Codes
+        warning_codes:
+          additionalProperties:
+            type: string
+          type: object
+          title: Warning Codes
+      type: object
+      required:
+      - input
+      - output
+      - error_codes
+      - warning_codes
+      title: SchemaResponse
     TaskPrediction:
       properties:
         probability:

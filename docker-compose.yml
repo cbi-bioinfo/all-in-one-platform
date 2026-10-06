@@ -2,17 +2,17 @@
 #
 # Batch job (T2, default):
 #   INPUT_FILE=molecules.csv docker compose run --rm chemprop-batch
-# HTTP API (optional):
+# HTTP API — T2 job interface (POST /jobs, GET /jobs/{job_id}[/result]) and /predict:
 #   docker compose --profile serve up -d chemprop-serve
 # CPU-only host: remove the `deploy.resources.reservations.devices` block
-# (CPU throughput measured at ~237 molecules/s, close to GPU).
+# (CPU throughput measured at 90-240 molecules/s depending on host load).
 #
 # Host directories: ./input (read-only) and ./output (must be writable by
 # UID 10001, or set RUN_AS="$(id -u):$(id -g)").
 # Measured on 10,974 molecules: peak RAM 1.1 GiB, peak GPU memory 1.6 GB.
 
 x-common: &common
-  image: pzkeung/bio-synergy-platform:chemprop-1.0.0
+  image: cbibioinfolab/toxicity-prediction:chemprop-1.0.0
   platform: linux/amd64
   user: "${RUN_AS:-10001:10001}"
   deploy:
@@ -48,12 +48,15 @@ services:
     environment:
       DEVICE: ${DEVICE:-auto}
       MAX_REQUEST_ITEMS: "100"
+      JOBS_DIR: /data/output/jobs
+    volumes:
+      - ./output:/data/output        # job inputs, results and checkpoints survive restarts
     ports:
       - "127.0.0.1:${PORT:-8000}:8000"   # loopback only — the API has no authentication
     networks: [chemprop-internal]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=5)"]
       interval: 30s
       timeout: 10s
       start_period: 60s

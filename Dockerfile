@@ -2,13 +2,13 @@
 #
 # Build (from the repository root, linux/amd64):
 #   docker buildx build --platform linux/amd64 \
-#     -t pzkeung/bio-synergy-platform:chemprop-1.0.0 -t pzkeung/bio-synergy-platform:chemprop --load .
+#     -t cbibioinfolab/toxicity-prediction:chemprop-1.0.0 --load .
 #
 # Run (T2 batch, no network):
 #   docker run --rm --gpus all --network none \
 #     -v $PWD/in:/data/input:ro -v $PWD/out:/data/output \
 #     -e INPUT_PATH=/data/input/molecules.csv \
-#     pzkeung/bio-synergy-platform:chemprop-1.0.0
+#     cbibioinfolab/toxicity-prediction:chemprop-1.0.0
 #
 # Same base image (CUDA 12.6 / Ubuntu 24.04 / Python 3.12), PyTorch, RDKit and
 # chemprop source as the training image (chemprop-train). chemprop 2.3.1 is

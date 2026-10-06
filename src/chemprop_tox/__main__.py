@@ -1,7 +1,8 @@
 """Entry point: python -m chemprop_tox [batch|serve|openapi|version]
 
 batch    (default) process INPUT_PATH -> OUTPUT_DIR and exit       [T2]
-serve    start the HTTP API on HOST:PORT (see /api/openapi.yaml)
+serve    start the HTTP API on HOST:PORT: job API (submit/status/result) and
+         /predict (see /api/openapi.yaml)
 openapi  print the OpenAPI document generated from the code (JSON)
 version  print the tool version
 """

@@ -1,12 +1,12 @@
 # 라이선스 확인서 — Chemprop Toxicity Predictor 1.0.0
 
-확인일: 2026-10-06 · 대상: 저장소 브랜치 `chemprop`, 이미지 `pzkeung/bio-synergy-platform:chemprop-1.0.0`
+확인일: 2026-10-06 · 대상: 저장소 브랜치 `chemprop`, 이미지 `cbibioinfolab/toxicity-prediction:chemprop-1.0.0`
 
 ## 1. 요약
 
 | 구분 | 결론 |
 |---|---|
-| 업스트림 모델 코드 | Chemprop 2.3.1 — **MIT** (© 2024 The Chemprop Development Team 외). 원문: `LICENSE`, `src/chemprop/LICENSE.txt` |
+| 업스트림 모델 코드 | Chemprop 2.3.1 — **MIT** (© 2024 The Chemprop Development Team 외). 원문: 루트 `LICENSE`(업스트림 v2.3.1 `LICENSE.txt`와 바이트 단위 동일, 이미지 `/opt/app/LICENSE`). 같은 내용의 `src/chemprop/LICENSE.txt` 사본은 중복이라 두지 않음 |
 | 본 저장소 코드 (`src/chemprop_tox/`, `tests/`) | 업스트림과 같은 MIT 조건으로 함께 배포(저장소 루트 `LICENSE`) |
 | 모델 가중치 | 본 과제에서 chemprop으로 학습 — 저장소 `LICENSE`(MIT) 조건으로 함께 배포 |
 | Python 의존성 79종 | 허용형(BSD/MIT/Apache/PSF), 약한 카피레프트 MPL-2.0 1종(tqdm, MIT 병기), NVIDIA CUDA 재배포 구성요소 — 3절 |
@@ -18,10 +18,10 @@
 
 | 구성요소 | 경로 | 출처 | 라이선스 | 의무 이행 |
 |---|---|---|---|---|
-| Chemprop 2.3.1 | `src/chemprop/` | https://github.com/chemprop/chemprop (플랫폼 vendored 사본) | MIT | 저작권·허가 고지 `src/chemprop/LICENSE.txt` 및 루트 `LICENSE` 유지 |
+| Chemprop 2.3.1 | `src/chemprop/` | https://github.com/chemprop/chemprop (플랫폼 vendored 사본) | MIT | 저작권·허가 고지를 루트 `LICENSE`에 유지 |
 | 업스트림 대비 변경 | `src/chemprop/UPSTREAM_pyproject.toml` 주석 | 플랫폼 vendoring 시 변경 | MIT | 의존성 선언 2개 제거(`cuik_molmaker_pin`, `myerson` — 미사용 선택 기능), `cuik_molmaker` 지연 import, 학습 지표 계산의 영(0)-라벨 태스크 예외 처리(`cli/train.py`). 변경 사실이 해당 파일에 주석으로 남아 있다. 추론에 쓰는 특징화·모델 계산은 변경 없음(`src/chemprop/featurizers/molgraph/molecule.py`는 import 방식만 변경) |
 | 추론 래퍼 | `src/chemprop_tox/` | 본 과제 작성 | MIT (저장소 `LICENSE`) | — |
-| 모델 가중치·설정 | `models/chemprop_trainset_seed0.pt`, `..._config.json` | 본 과제 학습 산출물 (trainset holdout seed 0) | MIT (저장소 `LICENSE`) | — |
+| 모델 가중치·설정 | `models/chemprop_pretrained.pt`, `..._config.json` | 본 과제 학습 산출물 (trainset holdout seed 0) | MIT (저장소 `LICENSE`) | — |
 
 ## 3. 컨테이너 포함 소프트웨어
 

@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import random
+import threading
 from pathlib import Path
 
 import numpy as np
@@ -83,6 +84,7 @@ def verify_checksums(model_dir: Path, files: list[Path]) -> dict[Path, str]:
 class Predictor:
     def __init__(self, cfg):
         set_determinism(cfg.seed)
+        self.lock = threading.Lock()  # serve mode: /predict and the job worker share one model
         self.device = resolve_device(cfg.device)
         for f in (cfg.model_path, cfg.model_config):
             if not f.is_file():

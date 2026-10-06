@@ -10,7 +10,7 @@
 | 구조 | Chemprop 2.3.1 D-MPNN: 방향성 결합 메시지 전달(`BondMessagePassing`, 깊이 3, 은닉 300) → 원자 벡터 합/100 (`NormAggregation`) → FFN 300 → 300 → ReLU → 631, sigmoid. 파라미터 507,931개 |
 | 원 논문·코드 | Chemprop v1: doi:10.1021/acs.jcim.3c01250 · Chemprop v2: doi:10.1021/acs.jcim.5c02332 · D-MPNN 이론: doi:10.1021/acs.jcim.9b00237 · https://github.com/chemprop/chemprop (MIT) |
 | 구현 | chemprop 2.3.1 소스를 `src/chemprop`에 그대로 포함(MIT). 학습·추론 모두 같은 소스. 추론 래퍼 `src/chemprop_tox`는 본 과제 작성 |
-| 가중치 | `models/chemprop_trainset_seed0.pt` (2.06 MB) |
+| 가중치 | `models/chemprop_pretrained.pt` (2.06 MB) |
 | 용도 | 연구용 독성 스크리닝 — 화합물 우선순위 선별 |
 | 비용도 | 규제 판단, 임상 의사결정, 실험 독성평가 대체 |
 
@@ -27,7 +27,7 @@ Tox21, ClinTox, ToxCast를 병합하고 canonical SMILES 기준으로 중복을 
 ## 3. 학습 절차
 
 학습 래퍼(`scripts/train_chemprop.py`, 원 플랫폼)가 `chemprop train`을 다음 설정으로 호출했다
-(설정값은 `models/chemprop_trainset_seed0_config.json`에 기록).
+(설정값은 `models/chemprop_pretrained_config.json`에 기록).
 
 | 항목 | 값 |
 |---|---|

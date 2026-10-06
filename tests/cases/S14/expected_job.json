@@ -1,0 +1,26 @@
+{
+  "state": "completed",
+  "input_format": "csv",
+  "output_format": "csv",
+  "n_total": 2,
+  "n_processed": 2,
+  "progress_percent": 100.0,
+  "chunks": 1,
+  "chunks_completed": 1,
+  "error": null,
+  "summary": {
+    "tool_id": "tox-chemprop",
+    "version": "1.0.0",
+    "status": "completed",
+    "n_total": 2,
+    "n_ok": 1,
+    "n_error": 1,
+    "n_with_warnings": 1,
+    "chunks": 1,
+    "chunks_resumed": 0,
+    "seed": 42,
+    "standardize": false,
+    "model_sha256": "198d8179c7196618c6bcdabffb844760351ec59b880e4a2036faef46879ea462",
+    "n_tasks": 631
+  }
+}

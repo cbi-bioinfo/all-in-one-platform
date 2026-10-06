@@ -4,26 +4,40 @@
 
 | 구성물 | 위치 | 설명 |
 |---|---|---|
-| 컨테이너 이미지 | `pzkeung/bio-synergy-platform:chemprop-1.0.0` (별칭 `:chemprop`) | linux/amd64, 비루트(UID 10001 `app`), 9.2 GB. 코드·의존성·가중치 포함, 실행 중 네트워크 불필요 |
+| 컨테이너 이미지 | `cbibioinfolab/toxicity-prediction:chemprop-1.0.0` | linux/amd64, 비루트(UID 10001 `app`), 9.2 GB. 코드·의존성·가중치 포함, 실행 중 네트워크 불필요 |
 | 이미지 정의 | `/Dockerfile` | 학습 이미지와 같은 베이스(CUDA 12.6 + cuDNN, Ubuntu 24.04, Python 3.12), digest·apt 버전 고정 |
 | 모델 코드 | `/src/chemprop` | chemprop 2.3.1 소스(MIT), 학습 이미지에 설치된 것과 같은 사본. `PYTHONPATH`로 import |
 | 의존성 정의 | `/requirements.in` | torch 2.6.0+cu126, rdkit 2026.3.6, chemprop의 선언 의존성, fastapi·pydantic·uvicorn |
 | 버전 제약 | `/constraints.txt` | 학습 이미지(`chemprop-train`)의 `pip freeze` — 학습 환경 패키지 전부 같은 버전으로 고정됨을 확인 |
 | 의존성 잠금 | `/requirements.lock` | `pip-compile --generate-hashes` 결과. 79개 패키지의 버전과 SHA-256 고정 |
-| 배포 매니페스트 | `/docker-compose.yml` | batch 작업(`network_mode: none`) + 선택적 serve 서비스(루프백 바인딩) |
-| 가중치 | `/models/*.pt`(git 제외) + 설정 JSON + `/models/SHA256SUMS` | 빌드 시 `/opt/app/models`로 복사, 시작 시 체크섬 검증 |
+| 배포 매니페스트 | `/docker-compose.yml` | batch 작업(`network_mode: none`) + serve 서비스(작업 API, 루프백 바인딩) |
+| 가중치 | `/models/chemprop_pretrained.pt`(git 제외) + `chemprop_pretrained_config.json` + `/models/SHA256SUMS` | 빌드 시 `/opt/app/models`로 복사, 시작 시 체크섬 검증 |
+
+### 1.1 가중치 파일
+
+`.pt`는 소스 저장소에 넣지 않는다. 빌드 전에 아래 경로에 배치한다. 배포된 이미지에는
+포함되어 있다.
+
+| 파일 | 크기 (bytes) | git | 내용 |
+|---|--:|---|---|
+| `models/chemprop_pretrained.pt` | 2,061,832 | 제외 | chemprop 2.3.1 모델 체크포인트(`chemprop train`이 쓴 `best.pt`): `MPNN`, 매개변수 507,931개, `chemprop.models.utils.load_model`로 읽음. trainset holdout **seed 0** 실행(5개 seed 중 val macro AUROC 최고, 학습에 쓰지 않은 test에서도 최고) |
+| `models/chemprop_pretrained_config.json` | 17,410 | 포함 | 학습 설정(`task_type` classification, `hidden_size` 300, `depth` 3, `ffn_hidden_size` 300, `ffn_num_layers` 1, `dropout` 0, `epochs` 50, `lr` 0.001, `batch_size` 64, `seed` 42)과 `tasks`(631개 이름, 출력 순서) |
+
+구조(체크포인트에서 읽은 값): `BondMessagePassing`(방향성 결합 메시지, 깊이 3, hidden 300,
+입력 = 원자 72차원 + 결합 14차원 특징) → `NormAggregation`(원자 벡터 합 / 100) → 배치 정규화
+없음 → `BinaryClassificationFFN`(300 → 300, ReLU, → 631, sigmoid). 특징화: chemprop 기본
+`SimpleMoleculeMolGraphFeaturizer`와 v2 `MultiHotAtomFeaturizer`.
 
 ## 2. 빌드 (인터넷이 되는 빌드 서버)
 
 ```bash
-git clone -b chemprop https://github.com/pzkeung/DrugDevPlatform.git
-cd DrugDevPlatform
-# models/chemprop_trainset_seed0.pt를 배치한 뒤 검증 (저장소에는 체크섬만 있음)
+git clone -b chemprop https://github.com/cbi-bioinfo/all-in-one-platform.git
+cd all-in-one-platform
+# 1.1절 models/chemprop_pretrained.pt를 배치한 뒤 검증
 (cd models && sha256sum -c SHA256SUMS)
 
 docker buildx build --platform linux/amd64 \
-  -t pzkeung/bio-synergy-platform:chemprop-1.0.0 \
-  -t pzkeung/bio-synergy-platform:chemprop --load .
+  -t cbibioinfolab/toxicity-prediction:chemprop-1.0.0 --load .
 ```
 
 빌드 과정과 재현 조건:
@@ -50,19 +64,20 @@ pip-compile --generate-hashes --allow-unsafe --strip-extras \
 
 ```bash
 # 인터넷 PC
-docker pull pzkeung/bio-synergy-platform:chemprop-1.0.0
-docker save pzkeung/bio-synergy-platform:chemprop-1.0.0 | gzip > chemprop-1.0.0.tar.gz
+docker pull cbibioinfolab/toxicity-prediction:chemprop-1.0.0
+docker save cbibioinfolab/toxicity-prediction:chemprop-1.0.0 | gzip > chemprop-1.0.0.tar.gz
 sha256sum chemprop-1.0.0.tar.gz > chemprop-1.0.0.tar.gz.sha256
 
 # 분석 서버 (오프라인)
 sha256sum -c chemprop-1.0.0.tar.gz.sha256
 docker load < chemprop-1.0.0.tar.gz
-docker run --rm --network none pzkeung/bio-synergy-platform:chemprop-1.0.0 version
+docker run --rm --network none cbibioinfolab/toxicity-prediction:chemprop-1.0.0 version
 ```
 
 GPU를 쓰려면 호스트에 NVIDIA 드라이버(525 이상, CUDA 12 호환)와 NVIDIA Container Toolkit이
 있어야 한다. CUDA 런타임은 이미지에 들어 있다. 이 모델은 CPU에서도 GPU와 비슷한 속도로
-동작하므로(506분자 실측 GPU 약 249 / CPU 약 237 분자/초) GPU 없는 서버에도 배포할 수 있다.
+동작하므로(506분자 실측 GPU 약 155–250 / CPU 89–237 분자/초, 서버 부하에 따라 다름) GPU 없는
+서버에도 배포할 수 있다.
 
 ## 4. 실행
 
@@ -74,11 +89,11 @@ cp molecules.csv input/
 docker run --rm --gpus all --network none \
   -v "$PWD/input:/data/input:ro" -v "$PWD/output:/data/output" \
   -e INPUT_PATH=/data/input/molecules.csv \
-  pzkeung/bio-synergy-platform:chemprop-1.0.0
+  cbibioinfolab/toxicity-prediction:chemprop-1.0.0
 
 # 매니페스트 사용
 INPUT_FILE=molecules.csv docker compose run --rm chemprop-batch
-docker compose --profile serve up -d chemprop-serve     # 선택: HTTP API
+docker compose --profile serve up -d chemprop-serve     # HTTP 작업 API (사용법: user_manual 5절)
 ```
 
 ## 5. 보안·네트워크
@@ -95,8 +110,8 @@ docker compose --profile serve up -d chemprop-serve     # 선택: HTTP API
 ## 6. 설치 확인
 
 ```bash
-docker run --rm --network none pzkeung/bio-synergy-platform:chemprop-1.0.0 version
+docker run --rm --network none cbibioinfolab/toxicity-prediction:chemprop-1.0.0 version
 # → tox-chemprop 1.0.0
-python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:chemprop-1.0.0
-# → 19/19 passed (골든 7건 + 보조 12건)
+python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:chemprop-1.0.0
+# → 25/25 passed (골든 7건 + 보조 18건)
 ```
