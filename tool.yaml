@@ -49,7 +49,7 @@ image:
   repository: pzkeung/bio-synergy-platform
   tag: chemprop-1.0.0
   alias_tags: [chemprop]
-  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  digest: sha256:437899eb36eee5ccfeaffe36dc56a0996b8d112ff85c6252862965a254e1da0a  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none           # no network access needed at run time
