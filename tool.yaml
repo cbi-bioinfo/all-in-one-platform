@@ -53,7 +53,7 @@ deployment:
 image:
   repository: cbibioinfolab/toxicity-prediction
   tag: ssl-gcn-1.0.0
-  digest: null              # push 후 docs/release_info.md 에 기록 (이미지는 자신의 digest를 담을 수 없음)
+  digest: sha256:b2bcb1087798bff7e196dca892f27d167f9116eb47104afedfe5917a592f7870  # 레지스트리 digest (이미지 안의 tool.yaml은 null: 이미지는 자신의 digest를 담을 수 없음)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none
