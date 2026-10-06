@@ -4,8 +4,8 @@
 
 | 이름 | 종류 | 경로 | 용량 | 출처 | 라이선스 |
 |---|---|---|--:|---|---|
-| 미세조정 체크포인트 | PyTorch 체크포인트(args·state_dict) | `models/grover_trainset_seed2.pt` | 195,924,310 B | 본 과제 학습 산출물(업스트림 GROVER-base에서 미세조정) | MIT(업스트림 GROVER, 4절) |
-| 태스크 목록·구조 요약 | JSON | `models/grover_trainset_seed2_config.json` | 17,538 B | 본 과제 | MIT |
+| 미세조정 체크포인트 | PyTorch 체크포인트(args·state_dict) | `models/grover_pretrained.pt` | 195,924,310 B | 본 과제 학습 산출물(업스트림 GROVER-base에서 미세조정) | MIT(업스트림 GROVER, 4절) |
+| 태스크 목록·구조 요약 | JSON | `models/grover_pretrained_config.json` | 17,538 B | 본 과제 | MIT |
 | 원자 특징 SMARTS 패턴 | 소스 코드 상수 | `src/grover/data/molgraph.py` | — | GROVER(chemprop 유래) | MIT |
 
 사전학습 체크포인트 `grover_base.pt`(업스트림 공개본)의 가중치는 미세조정 체크포인트 안에

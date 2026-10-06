@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import random
+import threading
 from argparse import Namespace
 from pathlib import Path
 from typing import List
@@ -141,6 +142,7 @@ def _fixed_width_batch(mol_graphs, width: int):
 class Predictor:
     def __init__(self, cfg):
         set_determinism(cfg.seed)
+        self.lock = threading.Lock()  # serve mode: /predict and the job worker share one model
         self.device = resolve_device(cfg.device)
         for f in (cfg.model_path, cfg.model_config):
             if not f.is_file():

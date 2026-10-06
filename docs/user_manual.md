@@ -13,20 +13,21 @@
 | Docker | 20.10 이상 | |
 | GPU (권장) | NVIDIA GPU, 드라이버 520 이상, NVIDIA Container Toolkit | 이미지에 CUDA 11.8 런타임 포함 |
 | GPU 메모리 | 6 GB 이상 권장 | 10,974분자 실행 시 최대 4.0 GB 실측 |
-| 메모리 | 2 GiB 이상 | 최대 0.94 GiB 실측 |
+| 메모리 | 3 GiB 이상 | GPU 실행 최대 0.93 GiB(10,974분자), CPU 실행 최대 2.1 GiB(1,104분자) 실측 |
 | 디스크 | 이미지 9.9 GB | |
 
-GPU 처리 속도는 약 35 분자/초(RTX 2080 Ti), CPU는 약 1.7 분자/초다. 모델 로드는 약 7초.
+GPU 처리 속도는 약 30 분자/초(RTX 2080 Ti), CPU는 1.0–1.7 분자/초(서버 부하에 따라 다름)다.
+모델 로드는 약 5–7초.
 
 ### 1.1 이미지 반입 (오프라인 환경)
 
 ```bash
 # 인터넷이 되는 PC
-docker pull pzkeung/bio-synergy-platform:grover-1.0.0
-docker save pzkeung/bio-synergy-platform:grover-1.0.0 | gzip > grover-1.0.0.tar.gz
+docker pull cbibioinfolab/toxicity-prediction:grover-1.0.0
+docker save cbibioinfolab/toxicity-prediction:grover-1.0.0 | gzip > grover-1.0.0.tar.gz
 # 분석 서버
 docker load < grover-1.0.0.tar.gz
-docker run --rm --network none pzkeung/bio-synergy-platform:grover-1.0.0 version
+docker run --rm --network none cbibioinfolab/toxicity-prediction:grover-1.0.0 version
 # → tox-grover 1.0.0
 ```
 
@@ -38,7 +39,7 @@ cp molecules.csv input/
 docker run --rm --gpus all --network none \
   -v "$PWD/input:/data/input:ro" -v "$PWD/output:/data/output" \
   -e INPUT_PATH=/data/input/molecules.csv \
-  pzkeung/bio-synergy-platform:grover-1.0.0
+  cbibioinfolab/toxicity-prediction:grover-1.0.0
 ```
 
 출력 디렉터리 권한을 바꾸기 어려우면 `--user "$(id -u):$(id -g)"`를 추가한다.
@@ -48,7 +49,7 @@ docker run --rm --gpus all --network none \
 | 확장자 | 형식 | 분자 ID |
 |---|---|---|
 | `.csv` | 헤더 필수, `smiles` 또는 `canonical_smiles` 열 필수(대소문자 무관) | `id`/`mol_id`/`name`/`compound_id` 중 처음 발견된 열, 없으면 `mol_<순번>` |
-| `.smi`, `.txt` | 한 줄에 `SMILES [ID]` | 둘째 칸, 없으면 `mol_<순번>` |
+| `.txt` | 한 줄에 `SMILES [ID]`. 표준 SMILES 목록(`.smi`) 파일은 확장자만 `.txt`로 바꿔 쓴다 | 둘째 칸, 없으면 `mol_<순번>` |
 | `.sdf` | 다중 분자 | 분자 이름 |
 | `.mol` | 단일 분자 | 파일 이름 |
 
@@ -72,12 +73,14 @@ UTF-8, 분자 수 제한 없음, SMILES 최대 1,000자. 모델은 **입력한 S
 | `MAX_SMILES_LENGTH` | `1000` | SMILES 최대 길이 |
 | `SEED` | `42` | 난수 시드 |
 | `MODEL_DIR` | `/opt/app/models` | 가중치 디렉터리(`SHA256SUMS` 포함) |
-| `MODEL_PATH` | `$MODEL_DIR/grover_trainset_seed2.pt` | 미세조정 체크포인트 |
-| `MODEL_CONFIG` | `$MODEL_DIR/grover_trainset_seed2_config.json` | 태스크 목록 |
+| `MODEL_PATH` | `$MODEL_DIR/grover_pretrained.pt` | 미세조정 체크포인트 |
+| `MODEL_CONFIG` | `$MODEL_DIR/grover_pretrained_config.json` | 태스크 목록 |
 | `VERIFY_CHECKSUM` | `1` | 시작 시 SHA-256 검증 |
 | `LOG_LEVEL` | `INFO` | 로그 수준 |
 | `HOST`, `PORT` | `0.0.0.0`, `8000` | serve 모드 주소·포트 |
-| `MAX_REQUEST_ITEMS` | `100` | serve 요청당 최대 분자 수 |
+| `MAX_REQUEST_ITEMS` | `100` | `POST /predict` 요청 1건당 최대 분자 수 |
+| `JOBS_DIR` | `$OUTPUT_DIR/jobs` | serve 모드 작업 API의 입력·결과·체크포인트 저장 경로 |
+| `JOB_MAX_UPLOAD_MB` | `1024` | `POST /jobs` 본문 최대 크기(MB) |
 
 ### 2.3 진행률·수행 시간
 
@@ -124,7 +127,7 @@ INFO grover_tox: Finished at 2026-10-06T00:12:32+00:00 — elapsed 00:05:33; 109
 | `<태스크>_prob` | 원자 관점·결합 관점 두 헤드 확률의 평균(0–1, 소수점 8자리) |
 | `<태스크>_label` | `_prob` ≥ 0.5이면 1 |
 
-태스크 열 순서는 `models/grover_trainset_seed2_config.json`의 `tasks`(Tox21 12 → ClinTox 2 →
+태스크 열 순서는 `models/grover_pretrained_config.json`의 `tasks`(serve 모드 `GET /schema`의 `output.tasks`, Tox21 12 → ClinTox 2 →
 ToxCast 617)와 같다. `run_summary.json`의 `model_sha256`은 체크포인트 파일의 SHA-256이다.
 
 ## 4. 결과 해석
@@ -169,7 +172,10 @@ ToxCast 617)와 같다. `run_summary.json`의 `model_sha256`은 체크포인트 
 | `E-INPUT-008` | 422 | 분자 | SDF/MOL 레코드 읽기 실패 |
 | `E-INPUT-009` | 422 | 분자 | 표준화 후 남은 분자 없음 |
 | `E-INPUT-010` | 422 | 분자 | SMILES 길이 초과 |
-| `E-INPUT-011` | 422 | 요청 | serve 요청 본문 스키마 불일치 |
+| `E-INPUT-011` | 422 | 요청 | serve 요청 본문·쿼리가 API 스키마와 맞지 않음 |
+| `E-INPUT-012` | 413 | 요청 | `POST /jobs` 본문이 `JOB_MAX_UPLOAD_MB` 초과 |
+| `E-JOB-001` | 404 | 요청 | 없는 `job_id` |
+| `E-JOB-002` | 409 | 요청 | 작업이 완료되지 않아 결과가 없음(`queued`/`running`/`failed`) |
 | `E-INPUT-012` | 422 | 분자 | 수소 외 원자가 없음(예: `[H][H]`) |
 | `E-INPUT-013` | 422 | 분자 | 형식 전하 +6 이상 또는 −7 이하(GROVER가 인코딩 불가) |
 | `E-MODEL-001` | 503 | 작업 | 가중치·설정 누락 또는 로드 실패 |
@@ -179,6 +185,7 @@ ToxCast 617)와 같다. `run_summary.json`의 `model_sha256`은 체크포인트 
 | `E-SYS-002` | 500 | 작업 | `DEVICE=cuda`인데 GPU 없음 |
 | `E-SYS-003` | 500 | 작업 | 예기치 않은 내부 오류 |
 | `E-SYS-004` | 400 | 작업 | 환경 변수 값 오류 |
+| `E-SYS-005` | 503 | 요청 | serve 모드에서 모델 로딩 중 (`GET /readyz`가 200이 된 뒤 재시도) |
 
 ### 4.5 raw SMILES 처리 예 (본 이미지에서 확인)
 
@@ -192,22 +199,82 @@ ToxCast 617)와 같다. `run_summary.json`의 `model_sha256`은 체크포인트 
 | `[Cr+6]` / `[Fe+5]` / `[Og]` / `[H][H]` | `E-INPUT-013` / `W-FEAT-002` / `W-FEAT-002` / `E-INPUT-012` | S12 |
 | 빈 SMILES | `E-INPUT-007` | S7 |
 
-## 5. serve 모드
+## 5. serve 모드 (HTTP API)
+
+명세: `api/openapi.yaml` (OpenAPI 3.0.3).
+
+| 엔드포인트 | 용도 |
+|---|---|
+| `GET /healthz` | 생존 확인 — 프로세스가 떠 있으면 200 (모델 로딩 중에도) |
+| `GET /readyz` | 준비 확인 — 모델 로드가 끝나면 200 `ready`, 로딩 중 503 `loading`, 로드 실패 503 `failed` |
+| `GET /info` | 도구 id·버전·가중치 SHA-256·장치·임계값·시드 등 설정 |
+| `GET /schema` | 입력 형식, 결과 열 정의, 태스크 631개 목록(출력 순서), 오류·경고 코드 |
+| `POST /predict` | 소량(1–`MAX_REQUEST_ITEMS`건) 동기 예측 |
+| `POST /jobs` | 작업 제출 (T2) — 건수 제한 없음, 백그라운드 실행 |
+| `GET /jobs/{job_id}` | 작업 상태·진행률 조회 |
+| `GET /jobs/{job_id}/result` | 작업 결과 파일 조회 |
 
 ```bash
+mkdir -p output && chmod 777 output
 docker run -d --name grover --gpus all -p 127.0.0.1:8000:8000 \
-  pzkeung/bio-synergy-platform:grover-1.0.0 serve
-curl -s localhost:8000/health
-curl -s -X POST localhost:8000/predict -H 'Content-Type: application/json' \
-  -d '{"smiles": ["CCNc1nc(Cl)nc(NC(C)C)n1"], "ids": ["atrazine"]}'
+  -v "$PWD/output:/data/output" \
+  cbibioinfolab/toxicity-prediction:grover-1.0.0 serve
+curl -s localhost:8000/healthz    # 바로 200
+curl -s localhost:8000/readyz     # 모델 로드(약 7초) 후 200
 ```
 
-명세는 `api/openapi.yaml`(OpenAPI 3.0.3). 요청당 1–100개, 101개 이상은 `413 E-INPUT-003`,
-빈 목록은 `422 E-INPUT-006`. 일부만 실패하면 `200`과 항목별 `status: error`, 전부 실패하면
-첫 오류 코드로 `422` 또는 `500`. 응답 확률은 batch 모드와 같다(시험 사례 B1 대조, 차이 0).
-**인증이 없으므로** 신뢰된 내부망에서 `127.0.0.1`에만 바인딩해 쓴다.
+모델은 서버 시작 후 백그라운드에서 읽는다. 로딩 중 `/predict`·`/schema`는
+`503 E-SYS-005`를 반환하고, 그 사이 제출한 작업은 대기열에서 로드 완료를 기다린다.
+
+### 5.1 작업 API (제출 → 상태 → 결과)
+
+```bash
+# ① 제출: 파일 본문 그대로 전송 (input_format: csv|txt|sdf|mol, output_format: csv|json)
+curl -s -X POST 'localhost:8000/jobs?input_format=csv&output_format=csv' \
+  -H 'Content-Type: text/csv' --data-binary @molecules.csv
+# → 202 {"job_id": "3f2a...", "state": "queued", ...}   (Location: /jobs/3f2a...)
+
+#    또는 JSON SMILES 목록
+curl -s -X POST localhost:8000/jobs -H 'Content-Type: application/json' \
+  -d '{"smiles": ["CC(=O)Nc1ccc(O)cc1", "c1ccccc1"], "ids": ["acetaminophen", "benzene"]}'
+
+# ② 상태: state = queued → running → completed | failed
+curl -s localhost:8000/jobs/3f2a...
+# → {"state": "running", "n_total": 10000, "n_processed": 3000, "progress_percent": 30.0,
+#    "chunks": 10, "chunks_completed": 3, "started_at": ..., "error": null, "summary": null, ...}
+
+# ③ 결과: completed 이후 predictions 파일 (batch 모드 결과와 같은 형식)
+curl -s -o predictions.csv localhost:8000/jobs/3f2a.../result
+```
+
+* 작업은 제출 순서대로 하나씩 실행되며 batch 모드와 같은 코드(청크 단위
+  체크포인트)로 처리된다. 결과는 batch 결과와 같다(시험 사례 S14).
+* 완료 전 결과를 요청하면 `409 E-JOB-002`, 없는 `job_id`는 `404 E-JOB-001`.
+* 입력 내용 오류(예: smiles 열 없음)는 작업이 `failed`가 되고 `error`에 코드가
+  담긴다(시험 사례 S15). 분자 단위 오류는 결과 파일의 해당 행에 기록된다.
+* 작업 상태·결과는 `JOBS_DIR`(기본 `/data/output/jobs/<job_id>/`)에 저장된다.
+  위 예처럼 `/data/output`을 마운트하면 서버를 재시작해도 남아 있고, 실행 중이던
+  작업은 재시작 시 다시 대기열에 올라 완료된 청크 다음부터 이어서 처리된다.
+  끝난 작업 디렉터리는 자동으로 지우지 않는다.
+
+### 5.2 동기 예측 (`POST /predict`)
+
+```bash
+curl -s -X POST localhost:8000/predict -H 'Content-Type: application/json' \
+  -d '{"smiles": ["CC(=O)Nc1ccc(O)cc1"], "ids": ["acetaminophen"]}'
+```
+
+* 요청 1건에 1–100개. 101개 이상이면 `413 E-INPUT-003`(많은 분자는 작업 API 사용),
+  빈 목록이면 `422 E-INPUT-006`.
+* 일부 분자만 실패하면 `200`이고 해당 항목의 `status`가 `error`다. 모든 분자가
+  실패하면 첫 번째 오류 코드로 `422`(입력 오류) 또는 `500`을 반환한다.
+
+### 5.3 보안
+
+* **인증이 없다.** 신뢰된 내부망에서만 쓰고 위 예처럼 `127.0.0.1`에만 바인딩한다.
+  컨테이너 코드는 외부로 접속하지 않는다.
 
 ## 6. 재현성
 
 시드 42, 결정적 연산, float64, 배치 독립 패딩. 허용 오차: 확률 절대오차 1×10⁻⁶, 문자열·라벨
-완전 일치. 자체 시험: `python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:grover-1.0.0`.
+완전 일치. 자체 시험: `python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:grover-1.0.0`.

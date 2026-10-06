@@ -10,10 +10,11 @@ ERRORS = {
     # job-level input errors
     "E-INPUT-001": (422, 2, "Input file not found or not readable"),
     "E-INPUT-003": (413, 2, "Too many molecules in one request"),
-    "E-INPUT-004": (422, 2, "Unsupported input file format (use .csv, .sdf, .mol, .smi or .txt)"),
+    "E-INPUT-004": (422, 2, "Unsupported input file format (use .csv, .txt, .sdf or .mol)"),
     "E-INPUT-005": (422, 2, "CSV input has no 'smiles' column"),
     "E-INPUT-006": (422, 2, "Input contains no molecules"),
     "E-INPUT-011": (422, 2, "Request body does not match the API schema"),
+    "E-INPUT-012": (413, 2, "Uploaded job input is larger than JOB_MAX_UPLOAD_MB"),
     # record-level input errors
     "E-INPUT-002": (422, None, "SMILES could not be parsed by RDKit"),
     "E-INPUT-007": (422, None, "Empty SMILES"),
@@ -30,6 +31,10 @@ ERRORS = {
     "E-SYS-002": (500, 4, "DEVICE=cuda was requested but no GPU is visible"),
     "E-SYS-003": (500, 4, "Unexpected internal error"),
     "E-SYS-004": (400, 4, "Invalid configuration value"),
+    "E-SYS-005": (503, None, "Model is still loading (retry when GET /readyz returns 200)"),
+    # job API (serve mode)
+    "E-JOB-001": (404, None, "Job not found"),
+    "E-JOB-002": (409, None, "Job result is not available (job not completed)"),
 }
 
 WARNINGS = {

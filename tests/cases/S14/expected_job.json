@@ -1,0 +1,26 @@
+{
+  "state": "completed",
+  "input_format": "csv",
+  "output_format": "csv",
+  "n_total": 2,
+  "n_processed": 2,
+  "progress_percent": 100.0,
+  "chunks": 1,
+  "chunks_completed": 1,
+  "error": null,
+  "summary": {
+    "tool_id": "tox-grover",
+    "version": "1.0.0",
+    "status": "completed",
+    "n_total": 2,
+    "n_ok": 1,
+    "n_error": 1,
+    "n_with_warnings": 1,
+    "chunks": 1,
+    "chunks_resumed": 0,
+    "seed": 42,
+    "standardize": false,
+    "model_sha256": "2d6a3350a2d665dfa552427ba1b6f60cf2f07635641c2a7718f254d16076fc9e",
+    "n_tasks": 631
+  }
+}

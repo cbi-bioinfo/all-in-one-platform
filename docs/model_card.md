@@ -10,7 +10,7 @@
 | 구조 | GROVER-base 인코더(`dualtrans` 백본, 은닉 800, 메시지 전달 깊이 6, 다중 헤드 어텐션 블록 1개 × 4헤드, PReLU) → 원자 관점·결합 관점 임베딩 각각 평균 readout → 각자의 FFN(800→200→631) → sigmoid → 두 출력 평균. 파라미터 48,963,696개 |
 | 사전학습 | 업스트림 GROVER-base(`grover_base.pt`, 논문 기재 약 1,100만 분자 자기지도 학습)에서 시작해 미세조정 |
 | 원 논문·코드 | Rong Y. et al., NeurIPS 2020 (arXiv:2007.02835); https://github.com/tencent-ailab/grover (MIT) |
-| 가중치 | `models/grover_trainset_seed2.pt` (196 MB) |
+| 가중치 | `models/grover_pretrained.pt` (196 MB) |
 | 용도 | 연구용 독성 스크리닝 — 화합물 우선순위 선별 |
 | 비용도 | 규제 판단, 임상 의사결정, 실험 독성평가 대체 |
 

@@ -18,7 +18,7 @@ from rdkit.Chem.MolStandardize import rdMolStandardize
 
 from .errors import ToxError
 
-SUPPORTED_EXT = (".csv", ".sdf", ".mol", ".smi", ".txt")
+SUPPORTED_EXT = (".csv", ".sdf", ".mol", ".txt")
 ID_COLUMNS = ("id", "mol_id", "name", "compound_id")
 
 rdBase.LogToPythonLogger()

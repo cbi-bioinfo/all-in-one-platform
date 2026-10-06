@@ -1,0 +1,12 @@
+{
+  "id": "S15",
+  "category": "error",
+  "title": "T2 작업 — smiles 열이 없는 CSV 제출, 작업 상태 failed + E-INPUT-005",
+  "mode": "job",
+  "input": "input.csv",
+  "content_type": "text/csv",
+  "expect": {
+    "http_status": 202,
+    "job": "expected_job.json"
+  }
+}

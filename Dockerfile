@@ -2,13 +2,13 @@
 #
 # Build (from the repository root, linux/amd64):
 #   docker buildx build --platform linux/amd64 \
-#     -t pzkeung/bio-synergy-platform:grover-1.0.0 -t pzkeung/bio-synergy-platform:grover --load .
+#     -t cbibioinfolab/toxicity-prediction:grover-1.0.0 --load .
 #
 # Run (T2 batch, no network):
 #   docker run --rm --gpus all --network none \
 #     -v $PWD/in:/data/input:ro -v $PWD/out:/data/output \
 #     -e INPUT_PATH=/data/input/molecules.csv \
-#     pzkeung/bio-synergy-platform:grover-1.0.0
+#     cbibioinfolab/toxicity-prediction:grover-1.0.0
 #
 # Same base image, Python, PyTorch and RDKit versions as the training image
 # (grover-train). Code, dependencies and the fine-tuned checkpoint are all

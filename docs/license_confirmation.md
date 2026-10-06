@@ -1,12 +1,12 @@
 # 라이선스 확인서 — GROVER Toxicity Predictor 1.0.0
 
-확인일: 2026-10-06 · 대상: 브랜치 `grover`, 이미지 `pzkeung/bio-synergy-platform:grover-1.0.0`
+확인일: 2026-10-06 · 대상: 브랜치 `grover`, 이미지 `cbibioinfolab/toxicity-prediction:grover-1.0.0`
 
 ## 1. 요약
 
 | 구분 | 결론 |
 |---|---|
-| 업스트림 모델 코드 | **MIT** — tencent-ailab/grover, Copyright (c) 2021 Tencent AI Lab. 저장소 `LICENSE`와 `src/grover/LICENSE`에 원문(chemprop MIT 고지 포함) 그대로 수록 |
+| 업스트림 모델 코드 | **MIT** — tencent-ailab/grover, Copyright (c) 2021 Tencent AI Lab. 원문(chemprop MIT 고지 포함)을 루트 `LICENSE`에 그대로 수록(업스트림 `LICENSE`와 바이트 단위 동일, 이미지 `/opt/app/LICENSE`). 같은 내용의 `src/grover/LICENSE` 사본은 중복이라 두지 않음 |
 | 본 저장소 코드(`src/grover_tox/`, `tests/`) | 업스트림과 같은 MIT로 배포(루트 `LICENSE`) |
 | 모델 가중치 | 업스트림 MIT 공개 가중치(`grover_base.pt`)에서 미세조정한 본 과제 산출물 — MIT |
 | Python 의존성 42종 | 허용형(BSD/MIT/Apache/PSF), MPL-2.0 1종(tqdm, 수정 없이 사용), NVIDIA CUDA 재배포 구성요소 |
