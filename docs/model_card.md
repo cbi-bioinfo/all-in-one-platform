@@ -4,7 +4,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| 기술 식별자 | `bsp-tox-mtdnn` 1.0.0 |
+| 기술 식별자 | `tox-mtdnn` 1.0.0 |
 | 과제 | 화합물 독성 다중작업 이진 분류 — 631개 태스크의 양성 확률 |
 | 입력 | SMILES (RDKit canonical) |
 | 구조 | ① SE 인코더: 원 논문 저장소의 GRU 기반 VAE 번역 모델(무작위 SMILES → canonical SMILES; 구조는 Winter et al. 2019 CDDD를 따름)의 인코더 평균 μ, 128차원 ② MTDNN: 공유층 128→2048→1024 (BatchNorm, LeakyReLU 0.05) + 태스크별 1024→512→256→1 (BatchNorm, LeakyReLU, sigmoid) × 631 |

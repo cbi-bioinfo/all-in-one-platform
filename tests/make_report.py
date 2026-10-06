@@ -29,6 +29,8 @@ def expected_summary(case_dir: Path, case: dict) -> str:
         body = json.loads((case_dir / exp["body"]).read_text()) if "body" in exp else {}
         if "error" in body:
             return f"HTTP {exp['http_status']}, {body['error']['code']}"
+        if "n_ok" not in body:
+            return f"HTTP {exp['http_status']}"
         return f"HTTP {exp['http_status']}, {body.get('n_ok')} ok / {body.get('n_error')} error"
     parts = [f"exit {exp['exit_code']}"]
     if "output" in exp:

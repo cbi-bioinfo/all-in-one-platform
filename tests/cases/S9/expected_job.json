@@ -9,7 +9,7 @@
   "chunks_completed": 1,
   "error": null,
   "summary": {
-    "tool_id": "bsp-tox-mtdnn",
+    "tool_id": "tox-mtdnn",
     "version": "1.0.0",
     "status": "completed",
     "n_total": 2,

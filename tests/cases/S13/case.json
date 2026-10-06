@@ -1,0 +1,12 @@
+{
+  "id": "S13",
+  "category": "normal",
+  "title": "GET /schema — 입력 형식, 결과 열, 631개 태스크 목록(출력 순서), 오류·경고 코드 (serve)",
+  "mode": "serve",
+  "method": "GET",
+  "path": "/schema",
+  "expect": {
+    "http_status": 200,
+    "body": "expected.json"
+  }
+}

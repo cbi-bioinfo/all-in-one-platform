@@ -1,9 +1,9 @@
 {
   "id": "N3",
   "category": "normal",
-  "title": "나트륨 염·이온화 raw SMILES (.smi 입력) — 학습과 동일하게 그대로 예측, 경고 표시",
+  "title": "나트륨 염·이온화 raw SMILES (.txt 입력) — 학습과 동일하게 그대로 예측, 경고 표시",
   "mode": "batch",
-  "input": "input.smi",
+  "input": "input.txt",
   "env": {},
   "expect": {
     "exit_code": 0,

@@ -30,7 +30,7 @@ docker save cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 | gzip > mtdnn-1.0.0.t
 ```bash
 docker load < mtdnn-1.0.0.tar.gz
 docker run --rm --network none cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 version
-# → bsp-tox-mtdnn 1.0.0
+# → tox-mtdnn 1.0.0
 ```
 
 ## 2. 배치 실행 (기본 모드)
@@ -55,7 +55,7 @@ docker run --rm --gpus all --network none \
 | 확장자 | 형식 |
 |---|---|
 | `.csv` | 헤더 행 필수. `smiles`(또는 `canonical_smiles`) 열 필수(대소문자 무관). `id`, `mol_id`, `name`, `compound_id` 중 하나가 있으면 ID로 사용 |
-| `.smi`, `.txt` | 한 줄에 `SMILES [ID]` (공백 구분, 빈 줄 무시). `.smi`는 RDKit·Open Babel 등이 쓰는 표준 SMILES 목록 형식(Daylight)이고 `.txt`는 같은 내용의 일반 텍스트 |
+| `.txt` | 한 줄에 `SMILES [ID]` (공백 구분, 빈 줄 무시). 표준 SMILES 목록(`.smi`) 파일은 확장자만 `.txt`로 바꿔 쓴다 |
 | `.sdf` | 다중 분자. 분자 이름(첫 줄)을 ID로 사용 |
 | `.mol` | 단일 분자. 파일 이름을 ID로 사용 |
 
@@ -94,7 +94,7 @@ docker run --rm --gpus all --network none \
 로그는 표준 오류(stderr)로 출력된다.
 
 ```
-INFO mtdnn_tox: bsp-tox-mtdnn 1.0.0 — batch run started at 2026-10-06T01:25:00+09:00
+INFO mtdnn_tox: tox-mtdnn 1.0.0 — batch run started at 2026-10-06T01:25:00+09:00
 INFO mtdnn_tox: Input: /data/input/molecules.csv — 10000 molecules in 10 chunk(s) of 1000
 INFO mtdnn_tox: Verifying model checksums ...
 INFO mtdnn_tox: Model loaded: 631 tasks, device=cuda
@@ -150,7 +150,7 @@ INFO mtdnn_tox: Finished at ... — elapsed 00:03:02; 9998 ok, 2 error(s); outpu
 | `<태스크>_label` | `_prob` ≥ 0.5 이면 1, 아니면 0 |
 
 태스크 631개의 열 순서는 모델 출력 순서와 같다(Tox21 12개 → ClinTox 2개 →
-ToxCast 617개). 태스크 목록은 출력 헤더나 serve 모드의 `GET /info`로 확인한다.
+ToxCast 617개). 태스크 목록은 출력 헤더나 serve 모드의 `GET /schema`로 확인한다.
 
 ### 3.3 확률을 읽는 방법
 
@@ -198,6 +198,7 @@ ToxCast 617개). 태스크 목록은 출력 헤더나 serve 모드의 `GET /info
 | `E-SYS-002` | 500 | 작업 | `DEVICE=cuda`인데 GPU가 보이지 않음 |
 | `E-SYS-003` | 500 | 작업 | 예기치 않은 내부 오류 |
 | `E-SYS-004` | 400 | 작업 | 환경 변수 값이 잘못됨 |
+| `E-SYS-005` | 503 | 요청 | serve 모드에서 모델 로딩 중 (`GET /readyz`가 200이 된 뒤 재시도) |
 
 **분자** 범위 오류는 해당 행만 `status=error`로 표시하고 나머지는 계속 예측한다.
 **작업** 범위 오류는 실행을 멈추고 종료 코드 2–4를 반환한다.
@@ -218,24 +219,31 @@ ToxCast 617개). 태스크 목록은 출력 헤더나 serve 모드의 `GET /info
 
 | 엔드포인트 | 용도 |
 |---|---|
+| `GET /healthz` | 생존 확인 — 프로세스가 떠 있으면 200 (모델 로딩 중에도) |
+| `GET /readyz` | 준비 확인 — 모델 로드가 끝나면 200 `ready`, 로딩 중 503 `loading`, 로드 실패 503 `failed` |
+| `GET /info` | 도구 id·버전·모델 SHA-256·장치·임계값·시드 등 설정 |
+| `GET /schema` | 입력 형식, 결과 열 정의, 태스크 631개 목록(출력 순서), 오류·경고 코드 |
+| `POST /predict` | 소량(1–`MAX_REQUEST_ITEMS`건) 동기 예측 |
 | `POST /jobs` | 작업 제출 (T2) — 건수 제한 없음, 백그라운드 실행 |
 | `GET /jobs/{job_id}` | 작업 상태·진행률 조회 |
 | `GET /jobs/{job_id}/result` | 작업 결과 파일 조회 |
-| `POST /predict` | 소량(1–`MAX_REQUEST_ITEMS`건) 동기 예측 |
-| `GET /health`, `GET /info` | 상태, 태스크 목록·설정 |
 
 ```bash
 mkdir -p output && chmod 777 output
 docker run -d --name mtdnn --gpus all -p 127.0.0.1:8000:8000 \
   -v "$PWD/output:/data/output" \
   cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 serve
-curl -s localhost:8000/health
+curl -s localhost:8000/healthz    # 바로 200
+curl -s localhost:8000/readyz     # 모델 로드(약 35초) 후 200
 ```
+
+모델은 서버 시작 후 백그라운드에서 읽는다. 로딩 중 `/predict`·`/schema`는
+`503 E-SYS-005`를 반환하고, 그 사이 제출한 작업은 대기열에서 로드 완료를 기다린다.
 
 ### 4.1 작업 API (제출 → 상태 → 결과)
 
 ```bash
-# ① 제출: 파일 본문 그대로 전송 (input_format: csv|smi|txt|sdf|mol, output_format: csv|json)
+# ① 제출: 파일 본문 그대로 전송 (input_format: csv|txt|sdf|mol, output_format: csv|json)
 curl -s -X POST 'localhost:8000/jobs?input_format=csv&output_format=csv' \
   -H 'Content-Type: text/csv' --data-binary @molecules.csv
 # → 202 {"job_id": "3f2a...", "state": "queued", ...}   (Location: /jobs/3f2a...)

@@ -1,5 +1,5 @@
 {
-  "tool_id": "bsp-tox-mtdnn",
+  "tool_id": "tox-mtdnn",
   "version": "1.0.0",
   "n_items": 100,
   "n_ok": 100,

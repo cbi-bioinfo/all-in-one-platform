@@ -116,7 +116,7 @@ class Server:
         if p.returncode != 0:
             raise RuntimeError(p.stderr)
         for _ in range(180):
-            r = self.request("GET", "/health")
+            r = self.request("GET", "/readyz")
             if r and r.get("status") == 200:
                 return
             time.sleep(2)
@@ -225,6 +225,8 @@ def summarize_actual(case: dict, actual: dict) -> str:
         b = actual.get("body") or {}
         if "error" in b:
             return f"HTTP {actual['http_status']}, {b['error']['code']}"
+        if "n_ok" not in b:
+            return f"HTTP {actual['http_status']}"
         return f"HTTP {actual['http_status']}, {b.get('n_ok')} ok / {b.get('n_error')} error"
     rows = actual.get("output") or []
     codes = sorted({r["error_code"] for r in rows if r.get("error_code")})

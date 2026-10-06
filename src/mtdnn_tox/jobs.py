@@ -31,7 +31,7 @@ from .errors import ToxError
 
 log = logging.getLogger("mtdnn_tox")
 
-INPUT_FORMATS = ("csv", "smi", "txt", "sdf", "mol")
+INPUT_FORMATS = ("csv", "txt", "sdf", "mol")
 OUTPUT_FORMATS = ("csv", "json")
 _JOB_ID = re.compile(r"^[0-9a-f]{32}$")
 

@@ -2,9 +2,9 @@
 
 | 항목 | 값 |
 |---|---|
-| 소스 저장소 | https://github.com/cbi-bioinfo/all-in-one-platform.git (브랜치 `mtdnn`) — **push 대기** |
-| 제출 태그 | `mtdnn-v1.0.0` — **재지정 대기** |
-| **제출 시점 커밋 해시** | (push 후 기록) |
+| 소스 저장소 | https://github.com/cbi-bioinfo/all-in-one-platform.git (브랜치 `mtdnn`) |
+| 제출 태그 | `mtdnn-v1.0.0` |
+| **제출 시점 커밋 해시** | 태그 `mtdnn-v1.0.0`이 가리키는 커밋 (`git rev-parse mtdnn-v1.0.0^{commit}`) |
 | 컨테이너 이미지 | `cbibioinfolab/toxicity-prediction:mtdnn-1.0.0` |
 | 이미지 ID (로컬 빌드) | (빌드 후 기록 — `docs/selftest_report.md` 1절) |
 | **레지스트리 digest** | (push 후 기록) |
@@ -14,8 +14,9 @@
 | 가중치 체크섬 | `models/SHA256SUMS` |
 | 자체 시험 | `docs/selftest_report.md` |
 
-이 파일은 제출 커밋 이후에 갱신한다(커밋 해시와 digest를 기록하기 위함). 이미지
-내용은 제출 커밋의 `src/`, `models/`, `tool.yaml`, `README.md`, `LICENSE`,
+커밋 해시는 이 파일에 직접 적지 않고 태그로 가리킨다(해시를 적으면 커밋이 하나
+더 생겨 태그와 브랜치 끝이 어긋나기 때문). 레지스트리 digest는 이미지 push 후
+기록한다. 이미지 내용은 제출 커밋의 `src/`, `models/`, `tool.yaml`, `README.md`, `LICENSE`,
 `NOTICE`, `requirements.lock`, `Dockerfile`로부터 빌드된다.
 
 이전 기록: `pzkeung/bio-synergy-platform:mtdnn-1.0.0`

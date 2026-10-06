@@ -5,14 +5,14 @@
 | 항목 | 값 |
 |---|---|
 | 이미지 | `cbibioinfolab/toxicity-prediction:mtdnn-1.0.0` |
-| 이미지 ID | `sha256:16a334b22babdefd93f649806fc79e9f01ee0620d9471a12be4cf9847a75be88` |
+| 이미지 ID | `sha256:7d0ce779100f85ceed27e490a11b86fcb9a812727dd1b7e3a7597ac3c5b5696a` |
 | 실행 장치 | GPU |
 | 네트워크 | `--network none` (모든 사례) |
-| 실행 시각 | 2026-10-06T12:48:14+09:00 |
+| 실행 시각 | 2026-10-06T13:23:15+09:00 |
 | 시험 도구 | `tests/run_tests.py` |
 | 허용 오차 | 확률값 절대오차 1e-06 이내, 문자열·판정값(라벨·상태·코드·메시지·경고·HTTP 상태·종료 코드)은 완전 일치 |
 
-**결과: 18/18 일치**
+**결과: 20/20 일치**
 
 ## 2. 골든 데이터셋 시험 결과 (`/tests/golden/`)
 
@@ -24,7 +24,7 @@
 | E2 | 오류 | 전하 표기가 빠진 4급 암모늄염 raw SMILES — 원자가 오류 행만 E-INPUT-002, 나머지 계속 | exit 0, 1 ok / 1 error, E-INPUT-002, warn W-ENC-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 1 error, E-INPUT-002, warn W-ENC-001,W-STD-001,W-STD-002 | 0.0e+00 (631개) | 일치 |
 | N1 | 정상 | 단일 화합물 (captan, trainset 홀드아웃 test 분자) | exit 0, 1 ok / 0 error | exit 0, 1 ok / 0 error | 0.0e+00 (631개) | 일치 |
 | N2 | 정상 | 10건 일괄 예측 (CSV) | exit 0, 10 ok / 0 error | exit 0, 10 ok / 0 error | 0.0e+00 (6310개) | 일치 |
-| N3 | 정상 | 나트륨 염·이온화 raw SMILES (.smi 입력) — 학습과 동일하게 그대로 예측, 경고 표시 | exit 0, 1 ok / 0 error, warn W-ENC-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 0 error, warn W-ENC-001,W-STD-001,W-STD-002 | 0.0e+00 (631개) | 일치 |
+| N3 | 정상 | 나트륨 염·이온화 raw SMILES (.txt 입력) — 학습과 동일하게 그대로 예측, 경고 표시 | exit 0, 1 ok / 0 error, warn W-ENC-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 0 error, warn W-ENC-001,W-STD-001,W-STD-002 | 0.0e+00 (631개) | 일치 |
 
 ## 3. 보조 시험 결과 (`/tests/cases/`)
 
@@ -33,6 +33,8 @@
 | S1 | 오류 | 요청당 최대 건수 초과 101건 (serve) | HTTP 413, E-INPUT-003 | HTTP 413, E-INPUT-003 | — | 일치 |
 | S10 | 오류 | T2 작업 — smiles 열이 없는 CSV 제출, 작업 상태 failed + E-INPUT-005 | HTTP 202, job failed, E-INPUT-005 | HTTP 202, job failed, E-INPUT-005 | — | 일치 |
 | S11 | 오류 | 존재하지 않는 job_id 상태 조회 — 404 E-JOB-001 | HTTP 404, E-JOB-001 | HTTP 404, E-JOB-001 | — | 일치 |
+| S12 | 정상 | GET /healthz — 프로세스 생존 확인 (serve) | HTTP 200 | HTTP 200 | — | 일치 |
+| S13 | 정상 | GET /schema — 입력 형식, 결과 열, 631개 태스크 목록(출력 순서), 오류·경고 코드 (serve) | HTTP 200 | HTTP 200 | — | 일치 |
 | S2 | 오류 | 빈 요청 목록 (serve) | HTTP 422, E-INPUT-006 | HTTP 422, E-INPUT-006 | — | 일치 |
 | S3 | 오류 | smiles 컬럼이 없는 CSV (batch) | exit 2, E-INPUT-005 | exit 2, E-INPUT-005 | — | 일치 |
 | S4 | 오류 | 지원하지 않는 입력 형식 .xlsx (batch) | exit 2, E-INPUT-004 | exit 2, E-INPUT-004 | — | 일치 |

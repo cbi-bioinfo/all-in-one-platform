@@ -103,5 +103,5 @@ docker compose --profile serve up -d mtdnn-serve     # HTTP 작업 API (사용�
 
 ```bash
 docker run --rm --network none cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 version
-python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:mtdnn-1.0.0   # 18건 전부 PASS
+python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:mtdnn-1.0.0   # 20건 전부 PASS
 ```
