@@ -43,18 +43,7 @@ docker buildx build --platform linux/amd64 \
 * 잠금 파일 재생성(의존성 변경 시에만):
   `pip-compile --generate-hashes --allow-unsafe --strip-extras -o requirements.lock requirements.in`
 
-## 3. 레지스트리 등록
-
-```bash
-docker login     # cbibioinfolab 조직에 push 권한이 있는 계정
-docker push cbibioinfolab/toxicity-prediction:mtdnn-1.0.0
-docker inspect --format '{{index .RepoDigests 0}}' cbibioinfolab/toxicity-prediction:mtdnn-1.0.0
-```
-
-푸시 후 digest를 `docs/release_info.md`와 `tool.yaml`의 `image.digest`에 기록한다.
-태그는 `<모델>-<버전>` 하나만 쓰고 `latest`나 별칭 태그는 쓰지 않는다.
-
-## 4. 오프라인 설치
+## 3. 오프라인 설치
 
 ```bash
 # 인터넷 PC
@@ -71,7 +60,7 @@ docker image inspect --format '{{.Id}}' cbibioinfolab/toxicity-prediction:mtdnn-
 GPU 사용 시 호스트에 NVIDIA 드라이버(515 이상)와 NVIDIA Container Toolkit이
 설치되어 있어야 한다. CUDA 11.7 런타임은 이미지에 포함되어 있다.
 
-## 5. 실행
+## 4. 실행
 
 ```bash
 mkdir -p input output && chmod 777 output
@@ -88,7 +77,7 @@ INPUT_FILE=molecules.csv docker compose run --rm mtdnn-batch
 docker compose --profile serve up -d mtdnn-serve     # HTTP 작업 API (사용법: user_manual 4절)
 ```
 
-## 6. 보안·네트워크
+## 5. 보안·네트워크
 
 * 컨테이너는 비루트 사용자로 실행되며 실행 중 외부로 접속하지 않는다.
   batch 모드는 `--network none`(매니페스트 `network_mode: none`)으로 네트워크
@@ -99,7 +88,7 @@ docker compose --profile serve up -d mtdnn-serve     # HTTP 작업 API (사용�
 * 런타임에 `PIP_NO_INDEX=1`로 패키지 내려받기를 막아 둔다.
 * 시작 시 가중치 SHA-256을 검증하고, 다르면 `E-MODEL-002`로 종료한다.
 
-## 7. 설치 확인
+## 6. 설치 확인
 
 ```bash
 docker run --rm --network none cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 version
