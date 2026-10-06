@@ -12,7 +12,7 @@
 | 플랫폼 | linux/amd64 |
 | 베이스 이미지 | `nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04@sha256:85fb7ac694079fff1061a0140fd5b5a641997880e12112d92589c3bbb1e8b7ca` |
 | 가중치 | `models/sslgcn_pretrained.pt` (SHA-256 `c8cdf79e0f39a408f82893d6016c5e41ca1645f4775ddd1b468fb3d7958eeae7`) — 태스크 모델 601개 묶음 |
-| 자체 시험 | 21/21 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
+| 자체 시험 | 22/22 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
 
 이 파일과 `tool.yaml`의 `image.digest`는 제출 커밋 이후에 갱신했다(이미지 push로
 digest가 정해진 뒤 기록하기 위함). 태그 `ssl-gcn-v1.0.0`은 이미지를 빌드한 제출

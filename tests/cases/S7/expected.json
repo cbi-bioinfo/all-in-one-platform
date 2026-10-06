@@ -7,7 +7,7 @@
   "results": [
     {
       "index": 0,
-      "id": "trainset_001999_raw",
+      "id": "testset_001999_raw",
       "input_smiles": "O=C(NCc1cccnc1)Nc1ccc(N(=O)=O)cc1",
       "canonical_smiles": "O=C(NCc1cccnc1)Nc1ccc([N+](=O)[O-])cc1",
       "status": "ok",
@@ -2424,7 +2424,7 @@
     },
     {
       "index": 1,
-      "id": "trainset_001999",
+      "id": "testset_001999",
       "input_smiles": "O=C(NCc1cccnc1)Nc1ccc([N+](=O)[O-])cc1",
       "canonical_smiles": "O=C(NCc1cccnc1)Nc1ccc([N+](=O)[O-])cc1",
       "status": "ok",
