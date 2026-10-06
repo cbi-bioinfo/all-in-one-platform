@@ -1,3 +1,3 @@
 smiles,id
-COc1cccc([C@H](O)C2CCN(CCc3ccc(F)cc3)CC2)c1OC,trainset_000735
-COc1cccc(C(O)C2CCN(CCc3ccc(F)cc3)CC2)c1OC,trainset_000735_nostereo
+COc1cccc([C@H](O)C2CCN(CCc3ccc(F)cc3)CC2)c1OC,testset_000735
+COc1cccc(C(O)C2CCN(CCc3ccc(F)cc3)CC2)c1OC,testset_000735_nostereo

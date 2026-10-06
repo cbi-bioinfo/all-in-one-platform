@@ -46,19 +46,7 @@ pip-compile --generate-hashes --allow-unsafe --strip-extras \
   -c constraints.txt -o requirements.lock requirements.in
 ```
 
-## 3. 레지스트리 등록
-
-```bash
-docker login -u pzkeung
-docker push pzkeung/bio-synergy-platform:chemprop-1.0.0
-docker push pzkeung/bio-synergy-platform:chemprop
-docker buildx imagetools inspect pzkeung/bio-synergy-platform:chemprop-1.0.0   # digest 확인
-```
-
-push 후 digest를 `docs/release_info.md`와 `tool.yaml`의 `image.digest`에 기록한다. `latest`
-태그는 쓰지 않는다.
-
-## 4. 오프라인 설치
+## 3. 오프라인 설치
 
 ```bash
 # 인터넷 PC
@@ -76,7 +64,7 @@ GPU를 쓰려면 호스트에 NVIDIA 드라이버(525 이상, CUDA 12 호환)와
 있어야 한다. CUDA 런타임은 이미지에 들어 있다. 이 모델은 CPU에서도 GPU와 비슷한 속도로
 동작하므로(506분자 실측 GPU 약 249 / CPU 약 237 분자/초) GPU 없는 서버에도 배포할 수 있다.
 
-## 5. 실행
+## 4. 실행
 
 ```bash
 mkdir -p input output && chmod 777 output
@@ -93,7 +81,7 @@ INPUT_FILE=molecules.csv docker compose run --rm chemprop-batch
 docker compose --profile serve up -d chemprop-serve     # 선택: HTTP API
 ```
 
-## 6. 보안·네트워크
+## 5. 보안·네트워크
 
 * 비루트 사용자로 실행되며 실행 중 외부로 접속하지 않는다. batch 모드는 `--network none`
   (매니페스트 `network_mode: none`)으로 네트워크 인터페이스를 없앤다. 자체 시험은 모두
@@ -104,7 +92,7 @@ docker compose --profile serve up -d chemprop-serve     # 선택: HTTP API
 * 시작할 때 `models/SHA256SUMS`의 체크포인트·설정 파일을 검증하고, 다르면 `E-MODEL-002`로
   종료한다.
 
-## 7. 설치 확인
+## 6. 설치 확인
 
 ```bash
 docker run --rm --network none pzkeung/bio-synergy-platform:chemprop-1.0.0 version
