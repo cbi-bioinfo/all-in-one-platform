@@ -58,18 +58,7 @@ pip-compile --generate-hashes --allow-unsafe --strip-extras \
   -c constraints.txt -o requirements.lock requirements.in
 ```
 
-## 3. 레지스트리 등록
-
-```bash
-docker login     # cbibioinfolab 조직에 push 권한이 있는 계정
-docker push cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0
-docker buildx imagetools inspect cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0   # digest 확인
-```
-
-push 후 digest를 `docs/release_info.md`와 `tool.yaml`의 `image.digest`에 기록한다.
-태그는 `<모델>-<버전>` 하나만 쓰고 `latest`나 별칭 태그는 쓰지 않는다.
-
-## 4. 오프라인 설치
+## 3. 오프라인 설치
 
 ```bash
 # 인터넷 PC
@@ -87,7 +76,7 @@ GPU를 쓰려면 호스트에 NVIDIA 드라이버(CUDA 11.8 지원, 520 이상)�
 Toolkit이 있어야 한다. CUDA 런타임과 cuDNN은 이미지에 들어 있다. GPU가 없으면 CPU로
 동작하지만 약 70배 느리다(0.6–0.7 분자/초).
 
-## 5. 실행
+## 4. 실행
 
 ```bash
 mkdir -p input output && chmod 777 output
@@ -104,7 +93,7 @@ INPUT_FILE=molecules.csv docker compose run --rm sslgcn-batch
 docker compose --profile serve up -d sslgcn-serve     # HTTP 작업 API (사용법: user_manual 5절)
 ```
 
-## 6. 보안·네트워크
+## 5. 보안·네트워크
 
 * 비루트 사용자로 실행되며 실행 중 외부로 접속하지 않는다. batch 모드는
   `--network none`(매니페스트 `network_mode: none`)으로 네트워크 인터페이스를 없앤다.
@@ -115,7 +104,7 @@ docker compose --profile serve up -d sslgcn-serve     # HTTP 작업 API (사용�
 * 시작할 때 가중치 파일의 SHA-256을 `models/SHA256SUMS`와 비교하고, 다르면
   `E-MODEL-002`로 종료한다.
 
-## 7. 설치 확인
+## 6. 설치 확인
 
 ```bash
 docker run --rm --network none cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0 version
