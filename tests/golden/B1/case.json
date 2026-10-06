@@ -1,7 +1,7 @@
 {
   "id": "B1",
   "category": "boundary",
-  "title": "요청당 최대 건수 100건 (serve)",
+  "title": "경계 대표 분자 10건 (serve, 원 100건 사례에서 추출) — 짧은(6·9자)·긴(196·235자) SMILES, 금속 착물 페로센·니켈로센(다중 조각·전하·결합 없는 금속 이온, W-STD-001·002, W-FEAT-002), 전하 분자 2건(W-STD-002), '/'·'@' 입체 표기",
   "mode": "serve",
   "request": "request.json",
   "expect": {

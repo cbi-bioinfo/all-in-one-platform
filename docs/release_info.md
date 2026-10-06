@@ -12,7 +12,7 @@
 | 플랫폼 | linux/amd64 |
 | 베이스 이미지 | `nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04@sha256:85fb7ac694079fff1061a0140fd5b5a641997880e12112d92589c3bbb1e8b7ca` |
 | 가중치 | `models/fpgnn_pretrained.pt` SHA-256 `5cb842f64c5885ecaa04e03b6657a9b8efac77c78bce387ff130226ee1022d3a` (이전 파일명 `fpgnn_trainset_seed0.pt`, 내용 동일) |
-| 자체 시험 | 23/23 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
+| 자체 시험 | 24/24 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
 
 이 파일과 `tool.yaml`의 `image.digest`는 제출 커밋 이후에 갱신했다(이미지 push로
 digest가 정해진 뒤 기록하기 위함). 태그 `fp-gnn-v1.0.0`은 이미지를 빌드한 제출
