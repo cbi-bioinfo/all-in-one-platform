@@ -2,7 +2,7 @@
 schema_version: "1.0"
 
 # ── 기술 식별자 · 명칭 · 버전 ───────────────────────────────────────────────────
-id: bsp-tox-toxkggps
+id: tox-toxkggps
 name: ToxKG-GPS Toxicity Predictor
 version: 1.0.0
 description: >-

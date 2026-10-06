@@ -1,4 +1,4 @@
-# ToxKG-GPS Toxicity Predictor 1.0.0 (`bsp-tox-toxkggps`)
+# ToxKG-GPS Toxicity Predictor 1.0.0 (`tox-toxkggps`)
 
 Offline, inference-only container that predicts the probability of 631 toxicity
 endpoints (Tox21 12 · ClinTox 2 · ToxCast 617) for small molecules given as

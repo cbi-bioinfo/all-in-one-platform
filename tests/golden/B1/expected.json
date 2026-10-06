@@ -1,5 +1,5 @@
 {
-  "tool_id": "bsp-tox-toxkggps",
+  "tool_id": "tox-toxkggps",
   "version": "1.0.0",
   "n_items": 100,
   "n_ok": 100,

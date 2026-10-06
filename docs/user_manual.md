@@ -34,7 +34,7 @@ docker save pzkeung/bio-synergy-platform:toxkg-gps-1.0.0 | gzip > toxkg-gps-1.0.
 ```bash
 docker load < toxkg-gps-1.0.0.tar.gz
 docker run --rm --network none pzkeung/bio-synergy-platform:toxkg-gps-1.0.0 version
-# → bsp-tox-toxkggps 1.0.0
+# → tox-toxkggps 1.0.0
 ```
 
 ## 2. 배치 실행 (기본)
