@@ -60,18 +60,7 @@ pip-compile --generate-hashes --allow-unsafe --strip-extras \
   -c constraints.txt -o requirements.lock requirements.in
 ```
 
-## 3. 레지스트리 등록
-
-```bash
-docker login     # cbibioinfolab 조직에 push 권한이 있는 계정
-docker push cbibioinfolab/toxicity-prediction:fp-gnn-1.0.0
-docker buildx imagetools inspect cbibioinfolab/toxicity-prediction:fp-gnn-1.0.0   # digest 확인
-```
-
-push 후 digest를 `docs/release_info.md`와 `tool.yaml`의 `image.digest`에 기록한다.
-태그는 `<모델>-<버전>` 하나만 쓰고 `latest`나 별칭 태그는 쓰지 않는다.
-
-## 4. 오프라인 설치
+## 3. 오프라인 설치
 
 ```bash
 # 인터넷 PC
@@ -88,7 +77,7 @@ docker run --rm --network none cbibioinfolab/toxicity-prediction:fp-gnn-1.0.0 ve
 GPU를 쓰려면 NVIDIA 드라이버(CUDA 11.8 지원, 520 이상)와 NVIDIA Container Toolkit이 필요하다.
 GPU 없이도 동작한다. CPU 속도는 서버의 다른 작업 부하에 크게 좌우된다(실측 3–47 분자/초, GPU 52–61 분자/초).
 
-## 5. 실행
+## 4. 실행
 
 ```bash
 mkdir -p input output && chmod 777 output
@@ -105,7 +94,7 @@ INPUT_FILE=molecules.csv docker compose run --rm fpgnn-batch
 docker compose --profile serve up -d fpgnn-serve     # HTTP 작업 API (사용법: user_manual 5절)
 ```
 
-## 6. 보안·네트워크
+## 5. 보안·네트워크
 
 * 비루트 사용자로 실행되고 실행 중 외부로 접속하지 않는다. batch 모드는 `--network none`
   (매니페스트 `network_mode: none`)으로 네트워크 인터페이스를 없앤다. 자체 시험은 모두
@@ -117,7 +106,7 @@ docker compose --profile serve up -d fpgnn-serve     # HTTP 작업 API (사용�
   `SHA256SUMS`로 해시를 검증하며, 다르면 `E-MODEL-002`로 종료한다. `MODEL_DIR`을 바꿔 다른 체크포인트를
   쓸 때는 신뢰할 수 있는 파일만 사용한다.
 
-## 7. 설치 확인
+## 6. 설치 확인
 
 ```bash
 docker run --rm --network none cbibioinfolab/toxicity-prediction:fp-gnn-1.0.0 version
