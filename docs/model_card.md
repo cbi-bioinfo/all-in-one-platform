@@ -10,7 +10,7 @@
 | 구조 | **지문 가지**: MACCS 167 + ErG 441 + PubChem 881 → Linear 512 → ReLU → Linear 300. **그래프 가지**: 8개 주의 헤드(133→60, ELU) 연결(480) → 출력 주의층(480→300) → ELU → log-softmax → 원자 평균. 두 가지를 각각 Linear 300 + ReLU 후 연결(600) → Linear 300 → ReLU → Linear 631 → sigmoid. 파라미터 1,677,011개 |
 | 원 논문 | Cai H. et al., "FP-GNN: a versatile deep learning architecture for enhanced molecular property prediction", Briefings in Bioinformatics 23(6), bbac408 (2022), doi:10.1093/bib/bbac408 |
 | 구현 | 학습은 원 저장소(idrugLab/FP-GNN)의 코드를 플랫폼에서 포팅해 수행했다. 원 저장소에 라이선스가 없어 제출 패키지에는 그 코드를 넣지 않고, 추론 엔진을 새로 작성해 같은 계산을 재현했다(4.3절 검증). PubChem 지문만 PyBioMed(BSD-3-Clause) 원본을 그대로 포함한다 |
-| 가중치 | `models/fpgnn_trainset_seed0.pt` (6.7 MB) |
+| 가중치 | `models/fpgnn_pretrained.pt` (6.7 MB) |
 | 용도 | 연구용 독성 스크리닝 — 화합물 우선순위 선별 |
 | 비용도 | 규제 판단, 임상 의사결정, 실험 독성평가 대체 |
 

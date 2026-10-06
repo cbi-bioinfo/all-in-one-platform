@@ -1,0 +1,26 @@
+{
+  "state": "completed",
+  "input_format": "csv",
+  "output_format": "csv",
+  "n_total": 2,
+  "n_processed": 2,
+  "progress_percent": 100.0,
+  "chunks": 1,
+  "chunks_completed": 1,
+  "error": null,
+  "summary": {
+    "tool_id": "tox-fpgnn",
+    "version": "1.0.0",
+    "status": "completed",
+    "n_total": 2,
+    "n_ok": 1,
+    "n_error": 1,
+    "n_with_warnings": 1,
+    "chunks": 1,
+    "chunks_resumed": 0,
+    "seed": 42,
+    "standardize": false,
+    "model_sha256": "5cb842f64c5885ecaa04e03b6657a9b8efac77c78bce387ff130226ee1022d3a",
+    "n_tasks": 631
+  }
+}

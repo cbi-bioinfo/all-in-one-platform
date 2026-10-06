@@ -1,0 +1,16 @@
+{
+  "state": "failed",
+  "input_format": "csv",
+  "output_format": "csv",
+  "n_total": null,
+  "n_processed": 0,
+  "progress_percent": 0.0,
+  "chunks": null,
+  "chunks_completed": 0,
+  "error": {
+    "code": "E-INPUT-005",
+    "message": "CSV input has no 'smiles' column",
+    "detail": "columns found: ['structure', 'id']"
+  },
+  "summary": null
+}

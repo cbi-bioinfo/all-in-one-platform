@@ -1,6 +1,6 @@
 # 라이선스 확인서 — FP-GNN Toxicity Predictor 1.0.0
 
-확인일: 2026-10-06 · 대상: 저장소 브랜치 `fp-gnn`, 이미지 `pzkeung/bio-synergy-platform:fp-gnn-1.0.0`
+확인일: 2026-10-06 · 대상: 저장소 브랜치 `fp-gnn`, 이미지 `cbibioinfolab/toxicity-prediction:fp-gnn-1.0.0`
 
 ## 1. 요약
 

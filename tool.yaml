@@ -20,19 +20,29 @@ references:
 deployment:
   type_code: T2
   type_name: 배치 분석형
-  target: 대용량 입력 처리 및 장시간 수행 파이프라인
   execution: 작업 단위 가동 후 종료 (기본 명령 `batch`)
+  job_interface:            # serve 모드 HTTP API — api/openapi.yaml
+    submit: "POST /jobs — 입력 파일 본문(?input_format=csv|txt|sdf|mol) 또는 JSON SMILES 목록 → 202 + job_id"
+    status: "GET /jobs/{job_id} — state(queued/running/completed/failed), 진행률, 시작·종료 시각, 오류"
+    result: "GET /jobs/{job_id}/result — predictions.csv | predictions.json (완료 전 409)"
+  api_endpoints:            # serve 모드 전체 엔드포인트 — api/openapi.yaml
+    - "GET /healthz — 생존 확인 (모델 로딩 중에도 200)"
+    - "GET /readyz — 준비 확인 (모델 로드 완료 시 200, 로딩 중·실패 시 503)"
+    - "GET /info — 도구 id·버전·모델·설정"
+    - "GET /schema — 입력 형식, 결과 열, 태스크 목록, 오류·경고 코드"
+    - "POST /predict — 동기 예측 (1–MAX_REQUEST_ITEMS건)"
+    - "POST /jobs, GET /jobs/{job_id}, GET /jobs/{job_id}/result — 작업 제출·상태·결과"
   progress_log: "stderr에 청크마다 '[progress] 처리/전체 (%) chunk i/n elapsed eta rate' 한 줄 출력"
   checkpoint_restart: >-
     CHUNK_SIZE 단위로 처리 결과를 CHECKPOINT_DIR에 원자적으로 저장. 같은 명령을 다시
     실행하면(RESUME=1) 완료된 청크를 건너뛰고 이어서 처리. MAX_CHUNKS_PER_RUN으로
     작업을 나누어 실행 가능(중단 시 종료 코드 5, run_summary.json status=partial).
-  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 OUTPUT_DIR/run_summary.json에 기록"
+  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 run_summary.json(작업 API는 GET /jobs/{job_id})에 기록"
   expected_duration:
     model_load_sec: 1
-    gpu_throughput_mol_per_sec: 66        # GTX 1080 Ti, trainset 10,974 분자 실측 (예측 단계, 다른 작업과 GPU 공유)
-    cpu_throughput_mol_per_sec: 3.1       # 506 분자 실측
-    example: "10,974 분자 = 3분 3초 (GPU, 결과 파일 쓰기 포함) / 10,000 분자 ≈ 54분 (CPU)"
+    gpu_throughput_mol_per_sec: 61        # GTX 1080 Ti, trainset 10,974 분자 실측 (506 분자는 52–56)
+    cpu_throughput_mol_per_sec: 3.0       # 506 분자 실측 3.0–47 — 서버의 다른 작업 부하에 크게 좌우 (유휴 47, load avg ~60에서 3–5)
+    example: "10,974 분자 = 3분 2초 (GPU, 결과 파일 쓰기 포함) / 10,000 분자 ≈ 4분(유휴 서버)–55분(부하 큰 서버) (CPU)"
     note: "처리 시간의 약 절반은 CPU에서 계산하는 분자 지문(특히 PubChem SMARTS 881개)이다"
   exit_codes:
     0: 완료 (분자 단위 오류는 결과 파일의 status/error_code에 기록)
@@ -40,22 +50,19 @@ deployment:
     3: 모델 오류 (E-MODEL-*)
     4: 시스템·설정 오류 (E-SYS-*)
     5: MAX_CHUNKS_PER_RUN 도달로 일시 중단 — 같은 명령으로 재시작
-  optional_modes:
-    serve: "HTTP API (api/openapi.yaml, OpenAPI 3.0.3), 요청당 최대 MAX_REQUEST_ITEMS건, 인증 없음"
 
 # ── 컨테이너 · 소스 ───────────────────────────────────────────────────────────
 image:
-  repository: pzkeung/bio-synergy-platform
+  repository: cbibioinfolab/toxicity-prediction
   tag: fp-gnn-1.0.0
-  alias_tags: [fp-gnn]
-  digest: sha256:d5569f21c64badab478a60487671cb70765e82d240c871fd7a7122cf5b52720b  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
+  digest: null              # push 후 docs/release_info.md 에 기록 (이미지는 자신의 digest를 담을 수 없음)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
-  network: none           # no network access needed at run time
+  network: none
 source:
-  repository: https://github.com/pzkeung/DrugDevPlatform.git
-  branch: fp-gnn
-  tag: fp-gnn-v1.0.0      # commit hash — docs/release_info.md
+  repository: https://github.com/cbi-bioinfo/all-in-one-platform.git
+  branch: fp-gnn            # 모델별 브랜치. 가중치는 저장소에 넣지 않음 (models/SHA256SUMS)
+  tag: fp-gnn-v1.0.0         # 커밋 해시 — docs/release_info.md
 entrypoint: ["python", "-m", "fpgnn_tox"]
 default_command: ["batch"]
 
@@ -68,7 +75,6 @@ inputs:
     encoding: UTF-8
     formats:
       - {ext: .csv, content: "헤더 행 필수. 'smiles' 또는 'canonical_smiles' 열 필수(대소문자 무관). 'id'/'mol_id'/'name'/'compound_id' 열 선택"}
-      - {ext: .smi, content: "한 줄에 'SMILES [ID]'"}
       - {ext: .txt, content: "한 줄에 'SMILES [ID]'"}
       - {ext: .sdf, content: "다중 분자 SDF, 분자명(_Name)을 ID로 사용"}
       - {ext: .mol, content: "단일 분자 MOL"}
@@ -79,19 +85,20 @@ inputs:
     mode: serve
     type: array[string]
     required: true
-    description: "POST /predict 본문 'smiles' (1–100건)"
+    description: "POST /jobs JSON 본문 'smiles'(건수 제한 없음) 또는 POST /predict 'smiles'(1–MAX_REQUEST_ITEMS건)"
   - name: ids
     mode: serve
     type: array[string]
     required: false
+    description: "'smiles'와 같은 순서의 ID"
 
 # ── 파라미터 및 기본값 ────────────────────────────────────────────────────────
 parameters:
   - {name: OUTPUT_DIR,          type: path, default: /data/output,    description: 결과 저장 경로}
   - {name: OUTPUT_FORMAT,       type: enum, default: csv, values: [csv, json], description: 결과 파일 형식}
   - {name: MODEL_DIR,           type: path, default: /opt/app/models, description: "가중치 디렉터리 (SHA256SUMS 포함)"}
-  - {name: MODEL_PATH,          type: path, default: /opt/app/models/fpgnn_trainset_seed0.pt}
-  - {name: MODEL_CONFIG,        type: path, default: /opt/app/models/fpgnn_trainset_seed0_config.json}
+  - {name: MODEL_PATH,          type: path, default: /opt/app/models/fpgnn_pretrained.pt}
+  - {name: MODEL_CONFIG,        type: path, default: /opt/app/models/fpgnn_pretrained_config.json}
   - {name: CHECKPOINT_DIR,      type: path, default: "${OUTPUT_DIR}/.checkpoint"}
   - {name: RESUME,              type: bool, default: 1,    description: 체크포인트에서 재시작}
   - {name: CHUNK_SIZE,          type: int,  default: 1000, description: 체크포인트 단위(분자 수)}
@@ -100,7 +107,9 @@ parameters:
   - {name: SEED,                type: int,  default: 42}
   - {name: STANDARDIZE,         type: bool, default: 0,    description: "1이면 최대 유기 조각만 남기고 전하 중화 (학습 전처리와 달라 기본 끔)"}
   - {name: MAX_SMILES_LENGTH,   type: int,  default: 1000}
-  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: serve 모드 요청당 최대 분자 수}
+  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: "POST /predict 요청당 최대 분자 수"}
+  - {name: JOBS_DIR,            type: path, default: "${OUTPUT_DIR}/jobs", description: "작업 API 입력·결과·체크포인트 저장 경로"}
+  - {name: JOB_MAX_UPLOAD_MB,   type: int,  default: 1024, description: "POST /jobs 본문 최대 크기(MB)"}
   - {name: VERIFY_CHECKSUM,     type: bool, default: 1,    description: 시작 시 가중치·설정 SHA-256 검증}
   - {name: HOST,                type: str,  default: 0.0.0.0, description: serve 모드 바인딩 주소}
   - {name: PORT,                type: int,  default: 8000, description: serve 모드 포트}
@@ -122,7 +131,7 @@ outputs:
     - {name: warnings,         type: "string (';' 구분)", unit: null, values: [W-STD-001, W-STD-002, W-STD-003, W-FEAT-001, W-FEAT-002]}
     - {name: "<task>_prob",    type: float,   unit: "probability (0–1)", count: 631, description: "해당 태스크 양성(독성/활성) 확률, 소수점 8자리"}
     - {name: "<task>_label",   type: integer, unit: "binary (0/1)",      count: 631, description: "<task>_prob ≥ 0.5 이면 1"}
-  task_list: "models/fpgnn_trainset_seed0_config.json 의 tasks 또는 GET /info (Tox21 12 + ClinTox 2 + ToxCast 617)"
+  task_list: "GET /schema 또는 predictions.csv 헤더 (Tox21 12 + ClinTox 2 + ToxCast 617)"
 
 # ── 성능지표 및 측정 조건 ─────────────────────────────────────────────────────
 performance:
@@ -157,8 +166,8 @@ reproducibility:
 # ── 자원 요구량 ───────────────────────────────────────────────────────────────
 resources:
   cpu: {min_cores: 2, recommended_cores: 4}
-  memory: {min: 2GiB, recommended: 4GiB, measured_peak: 0.77GiB}
-  gpu: {count: 1, required: false, min_vram: 1GB, measured_peak_allocated: 64MiB, driver: "NVIDIA driver ≥ 520 + NVIDIA Container Toolkit (CUDA 11.8)"}
+  memory: {min: 2GiB, recommended: 4GiB, measured_peak: 0.80GiB}   # trainset 10,974 분자, docker stats
+  gpu: {count: 1, required: false, min_vram: 1GB, measured_peak_vram: 280MiB, driver: "NVIDIA driver ≥ 520 + NVIDIA Container Toolkit (CUDA 11.8)"}
   disk: {image: 8.7GB}
 
 # ── 적용 한계 및 주의사항 ─────────────────────────────────────────────────────
@@ -170,6 +179,6 @@ limitations:
   - "금속 착물은 배위결합(->)·단일결합 표기에 따라 예측이 크게 달라질 수 있다(시험 사례 S10, 최대 0.34)."
   - "RDKit 2026.3.6의 원자가 규칙을 따른다. [AlH3] 알루미늄 착물 등 일부 구조는 E-INPUT-002로 거부된다(시험 사례 S9)."
   - "trainset은 염·전하를 제거하지 않은 SMILES로 학습되었다. 기본 설정은 학습과 같으며 STANDARDIZE=1은 예측을 바꾼다(시험 사례 S6, 최대 0.28)."
-  - "CPU 실행은 GPU보다 약 20배 느리다(3.1 분자/초)."
+  - "CPU 실행 속도는 서버의 다른 작업 부하에 크게 좌우된다(실측 3–47 분자/초, GPU 52–61 분자/초)."
   - "적용영역(AD) 판정은 제공하지 않는다. 실험적 독성 평가를 대체하지 않는다. 연구용."
   - "인증·사용자 관리 기능이 없다. serve 모드는 신뢰된 내부망에서만 사용한다."

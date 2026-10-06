@@ -4,12 +4,13 @@
 
 | 이름 | 종류 | 경로 | 용량 | 출처 | 라이선스 |
 |---|---|---|--:|---|---|
-| 모델 설정·태스크 목록 | JSON | `models/fpgnn_trainset_seed0_config.json` | 17,413 B | 본 과제 학습 산출물 (631개 태스크 이름, 출력 순서) | 미기재 |
+| 모델 설정·태스크 목록 | JSON | `models/fpgnn_pretrained_config.json` | 17,413 B | 본 과제 학습 산출물 (631개 태스크 이름, 출력 순서) | 미기재 |
 | PubChem 지문 SMARTS 패턴 | Python 소스 내 사전(733개 패턴) + 계산 함수 | `src/pybiomed/PubChemFingerprints.py` | 53,803 B | PyBioMed (gadsbyfly/PyBioMed, 커밋 45440d8a), 원본 그대로 | BSD-3-Clause (`src/pybiomed/LICENSE.txt`) |
 | MACCS 키, ErG 지문 정의 | 라이브러리 코드 | RDKit 2026.3.6 (pip 패키지) | — | RDKit | BSD-3-Clause |
 
-체크포인트(`models/fpgnn_trainset_seed0.pt`)는 `models/README.md`에 정리했다. 추론에는 그 밖의
-데이터베이스, 사전 계산 값, 외부 서비스가 필요 없다. 분자 지문은 매 분자마다 컨테이너 안에서
+체크포인트(`models/fpgnn_pretrained.pt`, 6,738,926 B)는 용량 때문에 소스 저장소에 넣지 않고
+이미지에만 포함한다(구성과 빌드 시 배치 방법은 `docs/deployment.md` 1.1절, 체크섬은
+`models/SHA256SUMS`). 추론에는 그 밖의 데이터베이스, 사전 계산 값, 외부 서비스가 필요 없다. 분자 지문은 매 분자마다 컨테이너 안에서
 RDKit과 위 코드로 계산하며 네트워크를 쓰지 않는다.
 
 ## 2. 학습 데이터 (trainset) — 패키지에 포함하지 않음
