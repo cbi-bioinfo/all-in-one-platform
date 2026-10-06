@@ -1,0 +1,13 @@
+{
+  "id": "S13",
+  "category": "normal",
+  "title": "T2 작업 인터페이스 — POST /jobs 제출 → GET /jobs/{job_id} 상태 → GET /jobs/{job_id}/result 결과 (입력: 전하 표기 누락 4급 암모늄 raw + 정상 표기 2건, batch와 동일 결과)",
+  "mode": "job",
+  "input": "input.csv",
+  "content_type": "text/csv",
+  "expect": {
+    "http_status": 202,
+    "job": "expected_job.json",
+    "output": "expected.csv"
+  }
+}

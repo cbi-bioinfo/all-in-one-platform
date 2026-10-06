@@ -10,7 +10,7 @@
 | 구조 | 노드 사영 12→128, 간선 사영 6→128 → GPS 블록 3개 [GINEConv(2층 MLP) + 잔차 + LayerNorm → 분자별 다중 헤드 셀프 어텐션(4헤드, 패딩 마스크) + 잔차 → LayerNorm + FFN(128→256→128, GELU) + 잔차] → 평균 풀링 → LayerNorm + 선형 → 631 로짓, sigmoid. 파라미터 630,263개 |
 | 지식그래프 | **사용하지 않음.** ToxKG 저장소의 GPS 모델은 지식그래프(유전자·경로) 노드를 함께 쓰는 Tox21 전용 모델이었고, 플랫폼에서 분자 그래프만 쓰도록 다시 작성해 trainset 631 태스크에 학습했다 |
 | 구조 근거 | GPS: Rampášek et al., NeurIPS 2022 / GINE: Hu et al., ICLR 2020 / 출처 저장소: xiejunjie1010-sudo/Molecular-toxicity-prediction (ToxKG) |
-| 가중치 | `models/gps_trainset_seed0.pt` (2.5 MB) + `models/gps_trainset_seed0_config.json` |
+| 가중치 | `models/toxkggps_pretrained.pt` (2.5 MB) + `models/toxkggps_pretrained_config.json` |
 | 용도 | 연구용 독성 스크리닝 — 화합물 우선순위 선별 |
 | 비용도 | 규제 판단, 임상 의사결정, 실험 독성평가 대체 |
 

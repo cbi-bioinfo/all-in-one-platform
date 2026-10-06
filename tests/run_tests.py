@@ -5,7 +5,7 @@ Runs every case under tests/golden/ (required N/B/E cases) and tests/cases/
 (supplementary) against a built image, with networking disabled
 (`--network none`). Needs only Docker and Python 3.8+ standard library.
 
-  python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:toxkg-gps-1.0.0
+  python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:toxkg-gps-1.0.0
   python3 tests/run_tests.py --image ... --cpu            # no GPU on this host
   python3 tests/run_tests.py --image ... --only N1 E1     # subset
   python3 tests/run_tests.py --image ... --bless          # (re)write expected files
@@ -31,7 +31,9 @@ from pathlib import Path
 ABS_TOL = 1e-6
 HERE = Path(__file__).resolve().parent
 SERVE_PORT = 8000
-VOLATILE_KEYS = {"started_at", "finished_at", "elapsed_sec", "throughput_mol_per_sec", "output"}
+VOLATILE_KEYS = {"started_at", "finished_at", "elapsed_sec", "throughput_mol_per_sec", "output",
+                 "job_id", "submitted_at"}
+JOB_TIMEOUT_SEC = 600
 
 
 def sh(cmd, **kw):
@@ -115,21 +117,23 @@ class Server:
         if p.returncode != 0:
             raise RuntimeError(p.stderr)
         for _ in range(180):
-            r = self.request("GET", "/health")
+            r = self.request("GET", "/readyz")
             if r and r.get("status") == 200:
                 return
             time.sleep(2)
         self.stop()
         raise RuntimeError("server did not become healthy")
 
-    def request(self, method: str, path: str, body_file: str | None = None) -> dict | None:
+    def request(self, method: str, path: str, body_file: str | None = None,
+                content_type: str = "application/json", raw: bool = False) -> dict | None:
         data_line = f"data=open({body_file!r},'rb').read()\n" if body_file else "data=None\n"
+        body_expr = "b.decode()" if raw else "json.loads(b)"
         code = "import json,sys,urllib.request,urllib.error\n" + data_line + (
             f"req=urllib.request.Request('http://127.0.0.1:{SERVE_PORT}{path}',data=data,method={method!r},"
-            "headers={'Content-Type':'application/json'})\n"
+            f"headers={{'Content-Type':{content_type!r}}})\n"
             "try:\n r=urllib.request.urlopen(req,timeout=600); s,b=r.status,r.read()\n"
             "except urllib.error.HTTPError as e: s,b=e.code,e.read()\n"
-            "print(json.dumps({'status':s,'body':json.loads(b)}))\n"
+            f"print(json.dumps({{'status':s,'body':{body_expr}}}))\n"
         )
         p = sh(["docker", "exec", self.name, "python", "-c", code])
         return json.loads(p.stdout) if p.returncode == 0 and p.stdout.strip() else None
@@ -140,10 +144,38 @@ class Server:
 
 def run_serve(case_dir: Path, case: dict, server: Server, case_root: Path) -> dict:
     rel = case_dir.relative_to(case_root)
-    r = server.request("POST", "/predict", f"/tests/{rel}/{case['request']}")
+    body = f"/tests/{rel}/{case['request']}" if "request" in case else None
+    r = server.request(case.get("method", "POST"), case.get("path", "/predict"), body)
     if r is None:
         return {"http_status": None, "body": None}
     return {"http_status": r["status"], "body": r["body"]}
+
+
+def run_job(case_dir: Path, case: dict, server: Server, case_root: Path) -> dict:
+    """T2 job API: POST /jobs -> poll GET /jobs/{id} -> GET /jobs/{id}/result."""
+    rel = case_dir.relative_to(case_root)
+    fmt = Path(case["input"]).suffix.lstrip(".")
+    r = server.request("POST", f"/jobs?input_format={fmt}&output_format=csv", f"/tests/{rel}/{case['input']}",
+                       content_type=case.get("content_type", "application/octet-stream"))
+    if r is None:
+        return {"http_status": None}
+    actual = {"http_status": r["status"]}
+    if r["status"] != 202:
+        actual["body"] = r["body"]
+        return actual
+    job_id = r["body"]["job_id"]
+    deadline = time.time() + JOB_TIMEOUT_SEC
+    status = r["body"]
+    while status["state"] in ("queued", "running") and time.time() < deadline:
+        time.sleep(1)
+        status = server.request("GET", f"/jobs/{job_id}")["body"]
+    summary = status.get("summary") or {}
+    actual["job"] = {**{k: v for k, v in status.items() if k not in VOLATILE_KEYS | {"summary"}},
+                     "summary": {k: v for k, v in summary.items() if k not in VOLATILE_KEYS | {"device"}} or None}
+    if status["state"] == "completed":
+        res = server.request("GET", f"/jobs/{job_id}/result", raw=True)
+        actual["output"] = list(csv.DictReader(res["body"].splitlines()))
+    return actual
 
 
 # ── expectations ──────────────────────────────────────────────────────────────
@@ -158,7 +190,7 @@ def check(case_dir: Path, case: dict, actual: dict, bless: bool) -> tuple[list[s
         if not found:
             diffs.append(f"log does not contain {s!r}")
     for key, loader in (("output", read_csv), ("body", lambda p: json.loads(p.read_text())),
-                        ("summary", lambda p: json.loads(p.read_text()))):
+                        ("summary", lambda p: json.loads(p.read_text())), ("job", lambda p: json.loads(p.read_text()))):
         if key not in exp:
             continue
         path = case_dir / exp[key]
@@ -182,10 +214,20 @@ def check(case_dir: Path, case: dict, actual: dict, bless: bool) -> tuple[list[s
 
 
 def summarize_actual(case: dict, actual: dict) -> str:
+    if "job" in actual:
+        job, rows = actual["job"], actual.get("output") or []
+        parts = [f"HTTP {actual['http_status']}, job {job['state']}"]
+        if rows:
+            parts.append(f"{sum(r['status'] == 'ok' for r in rows)} ok / {sum(r['status'] == 'error' for r in rows)} error")
+        if job.get("error"):
+            parts.append(job["error"]["code"])
+        return ", ".join(parts)
     if "http_status" in actual:
         b = actual.get("body") or {}
         if "error" in b:
             return f"HTTP {actual['http_status']}, {b['error']['code']}"
+        if "n_ok" not in b:
+            return f"HTTP {actual['http_status']}"
         return f"HTTP {actual['http_status']}, {b.get('n_ok')} ok / {b.get('n_error')} error"
     rows = actual.get("output") or []
     codes = sorted({r["error_code"] for r in rows if r.get("error_code")})
@@ -225,7 +267,7 @@ def main():
     image_id = sh(["docker", "image", "inspect", "--format", "{{.Id}}", args.image]).stdout.strip()
 
     server = None
-    if any(c["mode"] == "serve" for _, _, c in cases):
+    if any(c["mode"] in ("serve", "job") for _, _, c in cases):
         print("starting serve-mode container ...", flush=True)
         server = Server(args, HERE)
     results = []
@@ -233,7 +275,12 @@ def main():
         with tempfile.TemporaryDirectory(dir=run_dir) as tmp:
             for suite, d, c in cases:
                 t0 = time.time()
-                actual = run_serve(d, c, server, HERE) if c["mode"] == "serve" else run_batch(d, c, args, Path(tmp))
+                if c["mode"] == "serve":
+                    actual = run_serve(d, c, server, HERE)
+                elif c["mode"] == "job":
+                    actual = run_job(d, c, server, HERE)
+                else:
+                    actual = run_batch(d, c, args, Path(tmp))
                 diffs, stats = check(d, c, actual, args.bless)
                 ok = not diffs
                 results.append({

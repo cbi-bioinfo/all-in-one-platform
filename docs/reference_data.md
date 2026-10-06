@@ -4,9 +4,10 @@
 
 | 이름 | 종류 | 경로 | 용량 | 출처 | 라이선스 |
 |---|---|---|--:|---|---|
-| 모델 구조 설정·태스크 목록 | JSON | `models/gps_trainset_seed0_config.json` | 17,250 B | 본 과제 학습 산출물 (구조 값과 631개 태스크 출력 순서) | 미기재 |
+| 모델 구조 설정·태스크 목록 | JSON | `models/toxkggps_pretrained_config.json` | 17,250 B | 본 과제 학습 산출물 (구조 값과 631개 태스크 출력 순서) | 미기재 |
 
-모델 가중치(`models/gps_trainset_seed0.pt`)는 `models/README.md`에 정리했다. 원자·결합
+모델 가중치(`models/toxkggps_pretrained.pt`, 2,540,928 B)는 소스 저장소에 넣지 않고 이미지에만 포함한다
+(구성과 빌드 시 배치 방법은 `docs/deployment.md` 1.1절, 체크섬은 `models/SHA256SUMS`). 원자·결합
 특징은 RDKit 원자·결합 속성에서 바로 계산하므로 별도 사전·어휘·사전 계산 값이 없다.
 
 **지식그래프 데이터는 쓰지 않는다.** 원 플랫폼의 `models/tox_pred/toxkg/data/KG/`

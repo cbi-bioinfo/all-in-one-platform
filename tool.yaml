@@ -20,41 +20,48 @@ references:
 deployment:
   type_code: T2
   type_name: 배치 분석형
-  target: 대용량 입력 처리 및 장시간 수행 파이프라인
   execution: 작업 단위 가동 후 종료 (기본 명령 `batch`)
+  job_interface:            # serve 모드 HTTP API — api/openapi.yaml
+    submit: "POST /jobs — 입력 파일 본문(?input_format=csv|txt|sdf|mol) 또는 JSON SMILES 목록 → 202 + job_id"
+    status: "GET /jobs/{job_id} — state(queued/running/completed/failed), 진행률, 시작·종료 시각, 오류"
+    result: "GET /jobs/{job_id}/result — predictions.csv | predictions.json (완료 전 409)"
+  api_endpoints:            # serve 모드 전체 엔드포인트 — api/openapi.yaml
+    - "GET /healthz — 생존 확인 (모델 로딩 중에도 200)"
+    - "GET /readyz — 준비 확인 (모델 로드 완료 시 200, 로딩 중·실패 시 503)"
+    - "GET /info — 도구 id·버전·모델·설정"
+    - "GET /schema — 입력 형식, 결과 열, 태스크 목록, 오류·경고 코드"
+    - "POST /predict — 동기 예측 (1–MAX_REQUEST_ITEMS건)"
+    - "POST /jobs, GET /jobs/{job_id}, GET /jobs/{job_id}/result — 작업 제출·상태·결과"
   progress_log: "stderr에 청크마다 '[progress] 처리/전체 (%) chunk i/n elapsed eta rate' 한 줄 출력"
   checkpoint_restart: >-
     CHUNK_SIZE 단위로 처리 결과를 CHECKPOINT_DIR에 원자적으로 저장. 같은 명령을 다시
     실행하면(RESUME=1) 완료된 청크를 건너뛰고 이어서 처리. MAX_CHUNKS_PER_RUN으로
     작업을 나누어 실행 가능(중단 시 종료 코드 5, run_summary.json status=partial).
-  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 OUTPUT_DIR/run_summary.json에 기록"
+  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 run_summary.json(작업 API는 GET /jobs/{job_id})에 기록"
   expected_duration:
-    model_load_sec: 2
-    gpu_throughput_mol_per_sec: 366       # RTX 2080 Ti, trainset 10,974 분자 실측 (예측 단계)
-    cpu_throughput_mol_per_sec: 79        # 506 분자 실측
-    example: "10,974 분자 = 47초 (GPU, 결과 파일 쓰기 포함) / 10,000 분자 ≈ 2분 (CPU)"
+    model_load_sec: 5                     # 체크섬 검증 포함, 실측 1–6초
+    gpu_throughput_mol_per_sec: 350       # RTX 2080 Ti, trainset 10,974 분자 실측 (예측 단계, 진행률 로그 rate; 결과 파일 쓰기 포함 전체 기준 234)
+    cpu_throughput_mol_per_sec: 61        # 506 분자 실측 61–79 (서버 부하에 따라 다름)
+    example: "10,974 분자 = 52초 (GPU, 모델 로드·결과 파일 쓰기 포함) / 10,000 분자 ≈ 2–3분 (CPU)"
   exit_codes:
     0: 완료 (분자 단위 오류는 결과 파일의 status/error_code에 기록)
     2: 입력 오류 (E-INPUT-*)
     3: 모델 오류 (E-MODEL-*)
     4: 시스템·설정 오류 (E-SYS-*)
     5: MAX_CHUNKS_PER_RUN 도달로 일시 중단 — 같은 명령으로 재시작
-  optional_modes:
-    serve: "HTTP API (api/openapi.yaml, OpenAPI 3.0.3), 요청당 최대 MAX_REQUEST_ITEMS건, 인증 없음"
 
 # ── 컨테이너 · 소스 ───────────────────────────────────────────────────────────
 image:
-  repository: pzkeung/bio-synergy-platform
+  repository: cbibioinfolab/toxicity-prediction
   tag: toxkg-gps-1.0.0
-  alias_tags: [toxkg-gps]
-  digest: sha256:910c4b58ee1202469bb91f8a8fafbc0a18ada19786f4824888a2820de562cbfc  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
+  digest: null              # push 후 docs/release_info.md 에 기록 (이미지는 자신의 digest를 담을 수 없음)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
-  network: none           # no network access needed at run time
+  network: none
 source:
-  repository: https://github.com/pzkeung/DrugDevPlatform.git
-  branch: toxkg-gps
-  tag: toxkg-gps-v1.0.0   # commit hash — docs/release_info.md
+  repository: https://github.com/cbi-bioinfo/all-in-one-platform.git
+  branch: toxkg-gps         # 모델별 브랜치. 가중치는 저장소에 넣지 않음 (models/SHA256SUMS)
+  tag: toxkg-gps-v1.0.0      # 커밋 해시 — docs/release_info.md
 entrypoint: ["python", "-m", "toxkggps_tox"]
 default_command: ["batch"]
 
@@ -67,7 +74,6 @@ inputs:
     encoding: UTF-8
     formats:
       - {ext: .csv, content: "헤더 행 필수. 'smiles' 또는 'canonical_smiles' 열 필수(대소문자 무관). 'id'/'mol_id'/'name'/'compound_id' 열 선택"}
-      - {ext: .smi, content: "한 줄에 'SMILES [ID]'"}
       - {ext: .txt, content: "한 줄에 'SMILES [ID]'"}
       - {ext: .sdf, content: "다중 분자 SDF, 분자명(_Name)을 ID로 사용"}
       - {ext: .mol, content: "단일 분자 MOL"}
@@ -78,19 +84,20 @@ inputs:
     mode: serve
     type: array[string]
     required: true
-    description: "POST /predict 본문 'smiles' (1–100건)"
+    description: "POST /jobs JSON 본문 'smiles'(건수 제한 없음) 또는 POST /predict 'smiles'(1–MAX_REQUEST_ITEMS건)"
   - name: ids
     mode: serve
     type: array[string]
     required: false
+    description: "'smiles'와 같은 순서의 ID"
 
 # ── 파라미터 및 기본값 ────────────────────────────────────────────────────────
 parameters:
   - {name: OUTPUT_DIR,          type: path, default: /data/output,    description: 결과 저장 경로}
   - {name: OUTPUT_FORMAT,       type: enum, default: csv, values: [csv, json], description: 결과 파일 형식}
   - {name: MODEL_DIR,           type: path, default: /opt/app/models, description: "가중치 디렉터리 (SHA256SUMS 포함)"}
-  - {name: MODEL_PATH,          type: path, default: /opt/app/models/gps_trainset_seed0.pt}
-  - {name: MODEL_CONFIG,        type: path, default: /opt/app/models/gps_trainset_seed0_config.json}
+  - {name: MODEL_PATH,          type: path, default: /opt/app/models/toxkggps_pretrained.pt}
+  - {name: MODEL_CONFIG,        type: path, default: /opt/app/models/toxkggps_pretrained_config.json}
   - {name: CHECKPOINT_DIR,      type: path, default: "${OUTPUT_DIR}/.checkpoint"}
   - {name: RESUME,              type: bool, default: 1,    description: 체크포인트에서 재시작}
   - {name: CHUNK_SIZE,          type: int,  default: 1000, description: 체크포인트 단위(분자 수)}
@@ -99,7 +106,9 @@ parameters:
   - {name: SEED,                type: int,  default: 42}
   - {name: STANDARDIZE,         type: bool, default: 0,    description: "1이면 최대 유기 조각만 남기고 전하 중화 (학습 전처리와 달라 기본 끔)"}
   - {name: MAX_SMILES_LENGTH,   type: int,  default: 1000}
-  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: serve 모드 요청당 최대 분자 수}
+  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: "POST /predict 요청당 최대 분자 수"}
+  - {name: JOBS_DIR,            type: path, default: "${OUTPUT_DIR}/jobs", description: "작업 API 입력·결과·체크포인트 저장 경로"}
+  - {name: JOB_MAX_UPLOAD_MB,   type: int,  default: 1024, description: "POST /jobs 본문 최대 크기(MB)"}
   - {name: VERIFY_CHECKSUM,     type: bool, default: 1,    description: 시작 시 가중치 SHA-256 검증}
   - {name: HOST,                type: str,  default: 0.0.0.0, description: serve 모드 바인딩 주소}
   - {name: PORT,                type: int,  default: 8000, description: serve 모드 포트}
@@ -121,7 +130,7 @@ outputs:
     - {name: warnings,         type: "string (';' 구분)", unit: null, values: [W-STD-001, W-STD-002, W-STD-003, W-FEAT-001]}
     - {name: "<task>_prob",    type: float,   unit: "probability (0–1)", count: 631, description: "해당 태스크 양성(독성/활성) 확률, 소수점 8자리"}
     - {name: "<task>_label",   type: integer, unit: "binary (0/1)",      count: 631, description: "<task>_prob ≥ 0.5 이면 1"}
-  task_list: "models/gps_trainset_seed0_config.json 의 tasks 또는 GET /info (Tox21 12 + ClinTox 2 + ToxCast 617)"
+  task_list: "GET /schema, models/toxkggps_pretrained_config.json 의 tasks 또는 predictions.csv 헤더 (Tox21 12 + ClinTox 2 + ToxCast 617)"
 
 # ── 성능지표 및 측정 조건 ─────────────────────────────────────────────────────
 performance:
@@ -156,7 +165,7 @@ reproducibility:
 # ── 자원 요구량 ───────────────────────────────────────────────────────────────
 resources:
   cpu: {min_cores: 2, recommended_cores: 4}
-  memory: {min: 2GiB, recommended: 4GiB, measured_peak: 0.95GiB}
+  memory: {min: 2GiB, recommended: 4GiB, measured_peak: 0.88GiB}   # trainset 10,974 분자, docker stats
   gpu: {count: 1, required: false, min_vram: 2GB, measured_peak_vram: 1.7GB, driver: "NVIDIA driver ≥ 520 + NVIDIA Container Toolkit (CUDA 11.8)"}
   disk: {image: 8.9GB}
 

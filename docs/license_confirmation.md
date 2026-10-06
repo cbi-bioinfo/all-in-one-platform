@@ -1,6 +1,6 @@
 # 라이선스 확인서 — ToxKG-GPS Toxicity Predictor 1.0.0
 
-확인일: 2026-10-06 · 대상: 저장소 브랜치 `toxkg-gps`, 이미지 `pzkeung/bio-synergy-platform:toxkg-gps-1.0.0`
+확인일: 2026-10-06 · 대상: 저장소 브랜치 `toxkg-gps`, 이미지 `cbibioinfolab/toxicity-prediction:toxkg-gps-1.0.0`
 
 ## 1. 요약
 
@@ -21,7 +21,7 @@
 | 구성요소 | 경로 | 출처 | 라이선스 | 비고 |
 |---|---|---|---|---|
 | 추론 패키지 | `src/toxkggps_tox/` | 본 과제 작성 | 미기재 | 모델 클래스는 플랫폼 학습 스크립트(`train_gps_bench.py`, 본 과제 작성)와 같은 정의 |
-| 모델 가중치·설정 | `models/gps_trainset_seed0.pt`, `_config.json` | 본 과제 학습 산출물 (trainset holdout seed 0) | 미기재 | |
+| 모델 가중치·설정 | `models/toxkggps_pretrained.pt`, `_config.json` | 본 과제 학습 산출물 (trainset holdout seed 0) | 미기재 | |
 | 원 저장소 | — | https://github.com/xiejunjie1010-sudo/Molecular-toxicity-prediction (2025-09-05 커밋 `6b2ae23`) | **라이선스 파일 없음** | 지식그래프 기반 GPS 모델(`GPS/train/train_gps_gine_cv.py`)을 공개. 본 패키지는 이 저장소의 코드·가중치·데이터를 포함하지 않는다. 플랫폼은 그 모델 구성(GINEConv + 다중 헤드 어텐션 블록)을 참고해 분자 그래프 전용 모델을 새로 작성했다 |
 
 라이선스 표기가 없는 저장소는 저작권법상 기본적으로 모든 권리가 저작자에게 있으므로
