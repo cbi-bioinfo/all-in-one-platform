@@ -1,0 +1,3 @@
+smiles,id
+O=C(Cn1ccnc1N(=O)=O)NCc1ccccc1,trainset_001794_raw
+O=C(Cn1ccnc1[N+](=O)[O-])NCc1ccccc1,trainset_001794

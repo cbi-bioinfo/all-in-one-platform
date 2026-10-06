@@ -1,0 +1,54 @@
+# GROVER Toxicity Predictor 1.0.0 (`bsp-tox-grover`)
+
+Offline, inference-only container that predicts the probability of 631 toxicity
+endpoints (Tox21 12 · ClinTox 2 · ToxCast 617) for small molecules given as
+SMILES/SDF/MOL. The model is the self-supervised GROVER-base graph transformer
+(Rong et al., NeurIPS 2020) fine-tuned on the merged *trainset*.
+
+* Deployment type **T2 (batch)**: runs one job and exits, with progress logs,
+  checkpoint/restart and run-time reporting. An optional HTTP mode is included.
+* Runs with **no network** (`--network none`), as a **non-root** user, on
+  **linux/amd64**, GPU (CUDA 11.8) or CPU. No login or user management.
+* **Batch-independent predictions**: upstream GROVER's output for a molecule
+  depends on which molecules share its batch; this package fixes the padding
+  per molecule so results do not (see `docs/model_card.md`).
+
+```bash
+docker run --rm --gpus all --network none \
+  -v "$PWD/input:/data/input:ro" -v "$PWD/output:/data/output" \
+  -e INPUT_PATH=/data/input/molecules.csv \
+  pzkeung/bio-synergy-platform:grover-1.0.0
+# -> output/predictions.csv, output/run_summary.json
+```
+
+## Repository layout
+
+| Path | Content |
+|---|---|
+| `tool.yaml` | Tool metadata: id/version, inputs, parameters, outputs, performance, seed/tolerance, T2 type, resources, limitations |
+| `Dockerfile`, `requirements.in`, `constraints.txt`, `requirements.lock` | Reproducible image build (pinned base digest and apt versions; hash-locked dependencies matching the training image) |
+| `docker-compose.yml` | Deployment manifest (batch job with `network_mode: none`; optional `serve` profile) |
+| `src/grover_tox/` | Inference package (`python -m grover_tox batch|serve|openapi|version`) |
+| `src/grover/` | Vendored GROVER code (tencent-ailab/grover, MIT; local patches listed in `docs/license_confirmation.md`) |
+| `api/openapi.yaml` | HTTP API specification (OpenAPI 3.0.3) for `serve` mode |
+| `models/` | Fine-tuned checkpoint (`.pt`, not in git) + config + `SHA256SUMS` + `README.md` |
+| `tests/golden/` | Golden set N1–N3, B1–B2, E1–E2 (input/expected file pairs) |
+| `tests/cases/` | Supplementary cases S1–S13 |
+| `tests/run_tests.py`, `tests/make_report.py` | Self-test runner and report generator (Python stdlib + Docker) |
+| `docs/` | user manual, model card, self-test report, reference data, license confirmation, deployment, release info |
+
+## Key numbers
+
+| | |
+|---|---|
+| Training data (*trainset*) | Tox21 + ClinTox + ToxCast merged, 10,974 molecules, 631 tasks |
+| Model | holdout split seed 2 (best validation AUROC of 5 seeds; also best on test) |
+| Test performance (seed 2 test, 1,104 molecules) | macro AUROC 0.641 · F1 0.099 · sensitivity 0.101 · specificity 0.912 |
+| 5-seed test AUROC | 0.585 ± 0.036 |
+| Reproducibility | seed 42, float64, deterministic, batch-independent; tolerance 1e-6 (measured difference 0) |
+| Throughput | ~35 molecules/s on RTX 2080 Ti, 1.7/s on CPU; model load ~7 s |
+
+## License
+
+MIT — the upstream GROVER license (`LICENSE`, Copyright (c) 2021 Tencent AI Lab,
+including its chemprop notice). Third-party components: `docs/license_confirmation.md`.

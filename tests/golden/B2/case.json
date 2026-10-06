@@ -1,0 +1,12 @@
+{
+  "id": "B2",
+  "category": "boundary",
+  "title": "입체 표기 [C@@H] / 반대 입체 [C@H] / 입체 제거 — GROVER는 키랄 태그를 특징으로 써 세 예측이 모두 다름",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

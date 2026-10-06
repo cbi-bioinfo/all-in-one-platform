@@ -1,0 +1,178 @@
+# Analysis-tool metadata — GROVER Toxicity Predictor
+schema_version: "1.0"
+
+# ── 기술 식별자 · 명칭 · 버전 ───────────────────────────────────────────────────
+id: bsp-tox-grover
+name: GROVER Toxicity Predictor
+version: 1.0.0
+description: >-
+  SMILES 입력 화합물에 대해 631개 독성 태스크(Tox21 12, ClinTox 2, ToxCast 617)의
+  양성 확률을 예측한다. 자기지도 사전학습된 GROVER-base 그래프 트랜스포머(dualtrans
+  백본, 은닉 800)를 trainset으로 미세조정한 다중작업 모델이며, 원자 관점·결합 관점
+  두 출력 헤드의 sigmoid 평균을 확률로 낸다. 추론 전용, 오프라인 실행.
+category: toxicity-prediction
+references:
+  - "GROVER: Rong Y. et al., Self-Supervised Graph Transformer on Large-Scale Molecular Data, NeurIPS 2020 (arXiv:2007.02835)"
+  - "Code: https://github.com/tencent-ailab/grover (MIT) — vendored in src/grover/"
+
+# ── 탑재 유형 ─────────────────────────────────────────────────────────────────
+deployment:
+  type_code: T2
+  type_name: 배치 분석형
+  target: 대용량 입력 처리 및 장시간 수행 파이프라인
+  execution: 작업 단위 가동 후 종료 (기본 명령 `batch`)
+  progress_log: "stderr에 청크마다 '[progress] 처리/전체 (%) chunk i/n elapsed eta rate' 한 줄 출력"
+  checkpoint_restart: >-
+    CHUNK_SIZE 단위로 처리 결과를 CHECKPOINT_DIR에 원자적으로 저장. 같은 명령을 다시
+    실행하면(RESUME=1) 완료된 청크를 건너뛰고 이어서 처리. MAX_CHUNKS_PER_RUN으로
+    작업을 나누어 실행 가능(중단 시 종료 코드 5, run_summary.json status=partial).
+  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 OUTPUT_DIR/run_summary.json에 기록"
+  expected_duration:
+    model_load_sec: 7                     # 체크섬 검증 포함, GPU
+    gpu_throughput_mol_per_sec: 35        # RTX 2080 Ti, trainset 10,974 분자 실측 (float64)
+    cpu_throughput_mol_per_sec: 1.7       # 1,104 분자 실측
+    example: "10,974 분자 = 5분 34초 (GPU) / 1,104 분자 = 10분 49초 (CPU)"
+  exit_codes:
+    0: 완료 (분자 단위 오류는 결과 파일의 status/error_code에 기록)
+    2: 입력 오류 (E-INPUT-*)
+    3: 모델 오류 (E-MODEL-*)
+    4: 시스템·설정 오류 (E-SYS-*)
+    5: MAX_CHUNKS_PER_RUN 도달로 일시 중단 — 같은 명령으로 재시작
+  optional_modes:
+    serve: "HTTP API (api/openapi.yaml, OpenAPI 3.0.3), 요청당 최대 MAX_REQUEST_ITEMS건, 인증 없음"
+
+# ── 컨테이너 · 소스 ───────────────────────────────────────────────────────────
+image:
+  repository: pzkeung/bio-synergy-platform
+  tag: grover-1.0.0
+  alias_tags: [grover]
+  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  platform: linux/amd64
+  user: "10001:10001 (non-root)"
+  network: none           # no network access needed at run time
+source:
+  repository: https://github.com/pzkeung/DrugDevPlatform.git
+  branch: grover
+  tag: grover-v1.0.0      # commit hash — docs/release_info.md
+entrypoint: ["python", "-m", "grover_tox"]
+default_command: ["batch"]
+
+# ── 입력 항목 ─────────────────────────────────────────────────────────────────
+inputs:
+  - name: input_file
+    env: INPUT_PATH
+    type: file
+    required: true
+    encoding: UTF-8
+    formats:
+      - {ext: .csv, content: "헤더 행 필수. 'smiles' 또는 'canonical_smiles' 열 필수(대소문자 무관). 'id'/'mol_id'/'name'/'compound_id' 열 선택"}
+      - {ext: .smi, content: "한 줄에 'SMILES [ID]'"}
+      - {ext: .txt, content: "한 줄에 'SMILES [ID]'"}
+      - {ext: .sdf, content: "다중 분자 SDF, 분자명(_Name)을 ID로 사용"}
+      - {ext: .mol, content: "단일 분자 MOL"}
+    constraints:
+      max_smiles_length: 1000    # MAX_SMILES_LENGTH
+      max_molecules: null        # batch 모드는 제한 없음
+  - name: smiles
+    mode: serve
+    type: array[string]
+    required: true
+    description: "POST /predict 본문 'smiles' (1–100건)"
+  - name: ids
+    mode: serve
+    type: array[string]
+    required: false
+
+# ── 파라미터 및 기본값 ────────────────────────────────────────────────────────
+parameters:
+  - {name: OUTPUT_DIR,          type: path, default: /data/output,    description: 결과 저장 경로}
+  - {name: OUTPUT_FORMAT,       type: enum, default: csv, values: [csv, json], description: 결과 파일 형식}
+  - {name: MODEL_DIR,           type: path, default: /opt/app/models, description: "가중치 디렉터리 (SHA256SUMS 포함)"}
+  - {name: MODEL_PATH,          type: path, default: /opt/app/models/grover_trainset_seed2.pt}
+  - {name: MODEL_CONFIG,        type: path, default: /opt/app/models/grover_trainset_seed2_config.json}
+  - {name: CHECKPOINT_DIR,      type: path, default: "${OUTPUT_DIR}/.checkpoint"}
+  - {name: RESUME,              type: bool, default: 1,    description: 체크포인트에서 재시작}
+  - {name: CHUNK_SIZE,          type: int,  default: 1000, description: 체크포인트 단위(분자 수)}
+  - {name: MAX_CHUNKS_PER_RUN,  type: int,  default: 0,    description: "1회 실행당 최대 청크 수 (0=제한 없음)"}
+  - {name: DEVICE,              type: enum, default: auto, values: [auto, cuda, cpu]}
+  - {name: SEED,                type: int,  default: 42}
+  - {name: STANDARDIZE,         type: bool, default: 0,    description: "1이면 최대 유기 조각만 남기고 전하 중화 (학습 전처리와 달라 기본 끔)"}
+  - {name: MAX_SMILES_LENGTH,   type: int,  default: 1000}
+  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: serve 모드 요청당 최대 분자 수}
+  - {name: VERIFY_CHECKSUM,     type: bool, default: 1,    description: 시작 시 가중치 SHA-256 검증}
+  - {name: HOST,                type: str,  default: 0.0.0.0, description: serve 모드 바인딩 주소}
+  - {name: PORT,                type: int,  default: 8000, description: serve 모드 포트}
+  - {name: LOG_LEVEL,           type: enum, default: INFO, values: [DEBUG, INFO, WARNING, ERROR]}
+
+# ── 출력 항목 · 자료형 · 단위 ─────────────────────────────────────────────────
+outputs:
+  files:
+    - {name: "predictions.csv | predictions.json", description: 분자별 예측 결과}
+    - {name: run_summary.json, description: "상태(completed/partial), 건수, 시작/종료 시각, 소요 시간, 처리량, 장치, 모델 SHA-256"}
+  fields:
+    - {name: index,            type: integer, unit: null, description: "입력 순서 (0부터)"}
+    - {name: id,               type: string,  unit: null, description: "입력 ID, 없으면 mol_<index>"}
+    - {name: input_smiles,     type: string,  unit: null}
+    - {name: canonical_smiles, type: string,  unit: null, description: "RDKit canonical SMILES (표시용; 모델은 입력 SMILES 문자열을 그대로 특징화)"}
+    - {name: status,           type: enum,    unit: null, values: [ok, error]}
+    - {name: error_code,       type: string,  unit: null, description: "오류 코드 (docs/user_manual.md)"}
+    - {name: error_message,    type: string,  unit: null, description: "오류 설명 + RDKit 원문 메시지"}
+    - {name: warnings,         type: "string (';' 구분)", unit: null, values: [W-STD-001, W-STD-002, W-STD-003, W-FEAT-001, W-FEAT-002]}
+    - {name: "<task>_prob",    type: float,   unit: "probability (0–1)", count: 631, description: "원자·결합 두 헤드 sigmoid 출력의 평균, 소수점 8자리"}
+    - {name: "<task>_label",   type: integer, unit: "binary (0/1)",      count: 631, description: "<task>_prob ≥ 0.5 이면 1"}
+  task_list: "models/grover_trainset_seed2_config.json 의 tasks 또는 GET /info"
+
+# ── 성능지표 및 측정 조건 ─────────────────────────────────────────────────────
+performance:
+  submitted_model: "trainset 홀드아웃 seed2 모델 (5개 seed 중 val macro AUROC 최고; test 기준으로도 최고)"
+  metrics:
+    - {name: macro AUROC,       value: 0.6411, five_seed_mean: 0.5846, five_seed_sd: 0.0364}
+    - {name: macro F1,          value: 0.0992, five_seed_mean: 0.0845, five_seed_sd: 0.0139}
+    - {name: macro sensitivity, value: 0.1013, five_seed_mean: 0.1016, five_seed_sd: 0.0206}
+    - {name: macro specificity, value: 0.9119, five_seed_mean: 0.9020, five_seed_sd: 0.0221}
+  conditions:
+    dataset: "trainset — Tox21 + ClinTox + ToxCast 병합·중복 제거 (10,974 분자, 631 태스크)"
+    split: "Murcko scaffold holdout, seed 2 (train 8,776 / val 1,094 / test 1,104)"
+    evaluation_set: "seed2 test — 학습, 체크포인트 선택, 모델 선정 어디에도 사용하지 않음"
+    threshold: 0.5
+    averaging: "test에 양성·음성이 모두 있는 620개 태스크의 지표 단순 평균 (결측 라벨 제외)"
+    value_source: >-
+      value = 본 컨테이너 출력(배치 독립 고정 패딩, float64)으로 계산. 학습 환경 방식(크기 32 배치,
+      파일 순서, float32)으로 재채점하면 AUROC 0.6360 / F1 0.0980 / 민감도 0.0999 / 특이도 0.9124
+    five_seed: "seed 0–4 모델을 각자의 test로 평가(학습 환경 방식 재채점)한 값의 평균 ± 표준편차"
+    hardware: "NVIDIA GeForce RTX 2080 Ti, float64 추론"
+
+# ── 난수 시드 및 허용 오차 ────────────────────────────────────────────────────
+reproducibility:
+  seed: 42
+  seeded: [python random, numpy, torch, torch.cuda]
+  deterministic: >-
+    cudnn.deterministic=True, torch.use_deterministic_algorithms(True), float64 추론,
+    분자별 고정 패딩 폭(배치 구성과 무관한 결과)
+  tolerance:
+    probability_abs: 1.0e-6
+    strings_and_labels: exact
+  measured:
+    gpu_repeat_max_abs_diff: 0.0    # seed2 test 1,104 분자 × 631, RTX 2080 Ti와 GTX 1080 Ti 각 1회
+    gpu_vs_cpu_max_abs_diff: 0.0    # 같은 입력, DEVICE=cpu (모든 열 일치)
+    batch_composition_max_abs_diff: 4.4e-16   # 한 번에 vs 한 분자씩, 순서 섞기
+
+# ── 자원 요구량 ───────────────────────────────────────────────────────────────
+resources:
+  cpu: {min_cores: 2, recommended_cores: 4}
+  memory: {min: 2GiB, recommended: 4GiB, measured_peak: 0.94GiB}
+  gpu: {count: 1, required: false, min_vram: 6GB, measured_peak_vram: 4.0GB, driver: "NVIDIA driver ≥ 520 + NVIDIA Container Toolkit (CUDA 11.8)"}
+  disk: {image: 9.9GB}
+
+# ── 적용 한계 및 주의사항 ─────────────────────────────────────────────────────
+limitations:
+  - "scaffold holdout 기준 macro AUROC 약 0.64(5-seed 0.58 ± 0.04)로 성능이 제한적이고 seed 간 편차가 크다. 확률은 순위화 용도로 쓴다."
+  - "0.5 임계값에서 거의 양성을 판정하지 않는다(민감도 0.10, Tox21 0.004). ClinTox 두 태스크의 AUROC는 0.47–0.56으로 무작위 수준이다."
+  - "원본 GROVER는 배치 안 다른 분자에 따라 예측이 달라진다(최대 0.34). 이 패키지는 분자마다 패딩 폭을 고정해 배치 구성과 무관하게 만들었다. 학습 환경 방식 출력과는 대부분 6e-7 이내로 같지만, 학습 환경에서 원자 차수 5 이상 분자와 같은 배치에 들었던 분자는 최대 0.31 차이가 난다."
+  - "키랄 태그와 결합 입체가 특징에 포함되어 입체 표기에 따라 예측이 달라진다(시험 사례 B2)."
+  - "형식 전하 +6 이상·−7 이하는 인코딩할 수 없어 E-INPUT-013, −2..+2 밖의 전하와 원자번호 100 초과 원소는 다른 값과 같은 칸에 인코딩되어 W-FEAT-002. 배위결합 등 비표준 결합은 W-FEAT-001."
+  - "RDKit 2026.3.6의 원자가 규칙을 따른다. [AlH3] 알루미늄 착물 등은 E-INPUT-002로 거부된다(시험 사례 S9)."
+  - "trainset은 염·전하를 제거하지 않은 SMILES로 학습되었다. 기본 설정은 학습과 같으며 STANDARDIZE=1은 예측을 바꾼다(시험 사례 S6)."
+  - "CPU 실행은 GPU보다 약 20배 느리다(1.7 분자/초)."
+  - "적용영역(AD) 판정은 제공하지 않는다. 실험적 독성 평가를 대체하지 않는다. 연구용."
+  - "인증·사용자 관리 기능이 없다. serve 모드는 신뢰된 내부망에서만 사용한다."

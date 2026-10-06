@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "E-INPUT-002",
+    "message": "SMILES could not be parsed by RDKit",
+    "detail": "SMILES Parse Error: unclosed ring for input: 'CCNc1nc(Cl)nc(NC(C)C)n'"
+  }
+}

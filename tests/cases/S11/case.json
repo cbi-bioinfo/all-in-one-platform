@@ -1,0 +1,12 @@
+{
+  "id": "S11",
+  "category": "boundary",
+  "title": "결합이 없는 무기염 KI (trainset 분자) — 간선 없는 그래프도 예측",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

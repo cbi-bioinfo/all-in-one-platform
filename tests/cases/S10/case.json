@@ -1,0 +1,12 @@
+{
+  "id": "S10",
+  "category": "boundary",
+  "title": "배위결합(->) 표기 — 단일·이중·삼중·방향족 밖 결합은 결합 유형 특징이 0이 되어 W-FEAT-001",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

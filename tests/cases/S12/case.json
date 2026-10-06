@@ -1,0 +1,12 @@
+{
+  "id": "S12",
+  "category": "error",
+  "title": "GROVER 특징 범위 — 형식 전하 +6은 E-INPUT-013, +5·원자번호>100은 W-FEAT-002, 수소뿐인 분자는 E-INPUT-012",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

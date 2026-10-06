@@ -1,0 +1,23 @@
+{
+  "id": "S5",
+  "category": "boundary",
+  "title": "체크포인트 재시작 — CHUNK_SIZE=3, MAX_CHUNKS_PER_RUN=2로 중단 후 재실행 (N2와 동일 결과)",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {
+    "CHUNK_SIZE": "3",
+    "MAX_CHUNKS_PER_RUN": "2"
+  },
+  "runs": 2,
+  "expect": {
+    "exit_code": [
+      5,
+      0
+    ],
+    "log_contains": [
+      "Stopped after MAX_CHUNKS_PER_RUN=2",
+      "Resuming: 2/4 chunk(s) already finished"
+    ],
+    "output": "../../golden/N2/expected.csv"
+  }
+}

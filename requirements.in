@@ -1,0 +1,14 @@
+# Direct runtime dependencies (inference only). Lock: requirements.lock
+# Versions match the training image (constraints.txt = its `pip freeze`).
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.2.1+cu118
+rdkit==2026.3.6
+numpy==1.26.4
+# imported by the vendored grover package (scipy.stats in layers.py,
+# sklearn.metrics in util/metrics.py, tqdm in util/utils.py)
+scipy==1.15.3
+scikit-learn==1.7.2
+tqdm==4.70.0
+fastapi==0.104.1
+pydantic==2.5.0
+uvicorn==0.24.0

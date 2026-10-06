@@ -1,0 +1,11 @@
+smiles,id
+C=CCC1=C(C)C(OC(=O)C2C(C=C(C)C)C2(C)C)CC1=O,trainset_007713
+CC1(C)C(C=C(Cl)Cl)C1C(=O)OC(C#N)c1cccc(Oc2ccccc2)c1,trainset_007125
+CCCCC(C#N)(Cn1cncn1)c1ccc(Cl)cc1,trainset_000651
+CCNc1nc(N)nc(Cl)n1,trainset_002699
+FC(F)C(F)(F)OCC(Cn1cncn1)c1ccc(Cl)cc1Cl,trainset_000641
+CCNc1nc(Cl)nc(NCC)n1,trainset_002647
+CC1(C)C(C=C(Cl)Cl)C1C(=O)OCc1cccc(Oc2ccccc2)c1,trainset_006726
+CCOP(=S)(OCC)Oc1ccc2c(C)c(Cl)c(=O)oc2c1,trainset_000872
+CCCCC(O)(Cn1cncn1)c1ccc(Cl)cc1Cl,trainset_002971
+C=CCc1cc(S(=O)(=O)c2ccc(O)c(CC=C)c2)ccc1O,trainset_002930

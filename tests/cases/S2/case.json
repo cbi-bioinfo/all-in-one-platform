@@ -1,0 +1,11 @@
+{
+  "id": "S2",
+  "category": "error",
+  "title": "빈 요청 목록 (serve)",
+  "mode": "serve",
+  "request": "request.json",
+  "expect": {
+    "http_status": 422,
+    "body": "expected.json"
+  }
+}

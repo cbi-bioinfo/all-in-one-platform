@@ -1,0 +1,2575 @@
+{
+  "tool_id": "bsp-tox-grover",
+  "version": "1.0.0",
+  "n_items": 3,
+  "n_ok": 1,
+  "n_error": 2,
+  "results": [
+    {
+      "index": 0,
+      "id": "trainset_010475_raw",
+      "input_smiles": "CC(C)N(C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.Br",
+      "canonical_smiles": null,
+      "status": "error",
+      "error": {
+        "code": "E-INPUT-002",
+        "message": "SMILES could not be parsed by RDKit",
+        "detail": "Explicit valence for atom # 3 N, 4, is greater than permitted"
+      },
+      "warnings": [],
+      "predictions": null
+    },
+    {
+      "index": 1,
+      "id": "trainset_010475",
+      "input_smiles": "CC(C)[N+](C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.[Br-]",
+      "canonical_smiles": "CC(C)[N+](C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.[Br-]",
+      "status": "ok",
+      "error": null,
+      "warnings": [
+        "W-STD-001",
+        "W-STD-002"
+      ],
+      "predictions": {
+        "NR-AR": {
+          "probability": 0.03493423,
+          "label": 0
+        },
+        "NR-AR-LBD": {
+          "probability": 0.02795956,
+          "label": 0
+        },
+        "NR-AhR": {
+          "probability": 0.11787134,
+          "label": 0
+        },
+        "NR-Aromatase": {
+          "probability": 0.04279335,
+          "label": 0
+        },
+        "NR-ER": {
+          "probability": 0.12508914,
+          "label": 0
+        },
+        "NR-ER-LBD": {
+          "probability": 0.04278418,
+          "label": 0
+        },
+        "NR-PPAR-gamma": {
+          "probability": 0.02548266,
+          "label": 0
+        },
+        "SR-ARE": {
+          "probability": 0.17189317,
+          "label": 0
+        },
+        "SR-ATAD5": {
+          "probability": 0.03429892,
+          "label": 0
+        },
+        "SR-HSE": {
+          "probability": 0.06132944,
+          "label": 0
+        },
+        "SR-MMP": {
+          "probability": 0.15895306,
+          "label": 0
+        },
+        "SR-p53": {
+          "probability": 0.0530547,
+          "label": 0
+        },
+        "FDA_APPROVED": {
+          "probability": 0.94695182,
+          "label": 1
+        },
+        "CT_TOX": {
+          "probability": 0.06665028,
+          "label": 0
+        },
+        "ACEA_T47D_80hr_Negative": {
+          "probability": 0.20599533,
+          "label": 0
+        },
+        "ACEA_T47D_80hr_Positive": {
+          "probability": 0.16362334,
+          "label": 0
+        },
+        "APR_HepG2_CellCycleArrest_24h_dn": {
+          "probability": 0.13346989,
+          "label": 0
+        },
+        "APR_HepG2_CellCycleArrest_24h_up": {
+          "probability": 0.0360186,
+          "label": 0
+        },
+        "APR_HepG2_CellCycleArrest_72h_dn": {
+          "probability": 0.19460177,
+          "label": 0
+        },
+        "APR_HepG2_CellLoss_24h_dn": {
+          "probability": 0.22254224,
+          "label": 0
+        },
+        "APR_HepG2_CellLoss_72h_dn": {
+          "probability": 0.43238467,
+          "label": 0
+        },
+        "APR_HepG2_MicrotubuleCSK_24h_dn": {
+          "probability": 0.04552003,
+          "label": 0
+        },
+        "APR_HepG2_MicrotubuleCSK_24h_up": {
+          "probability": 0.07562444,
+          "label": 0
+        },
+        "APR_HepG2_MicrotubuleCSK_72h_dn": {
+          "probability": 0.04132902,
+          "label": 0
+        },
+        "APR_HepG2_MicrotubuleCSK_72h_up": {
+          "probability": 0.10820143,
+          "label": 0
+        },
+        "APR_HepG2_MitoMass_24h_dn": {
+          "probability": 0.10147813,
+          "label": 0
+        },
+        "APR_HepG2_MitoMass_24h_up": {
+          "probability": 0.02476152,
+          "label": 0
+        },
+        "APR_HepG2_MitoMass_72h_dn": {
+          "probability": 0.08580166,
+          "label": 0
+        },
+        "APR_HepG2_MitoMass_72h_up": {
+          "probability": 0.0672956,
+          "label": 0
+        },
+        "APR_HepG2_MitoMembPot_1h_dn": {
+          "probability": 0.06627803,
+          "label": 0
+        },
+        "APR_HepG2_MitoMembPot_24h_dn": {
+          "probability": 0.14503882,
+          "label": 0
+        },
+        "APR_HepG2_MitoMembPot_72h_dn": {
+          "probability": 0.13805655,
+          "label": 0
+        },
+        "APR_HepG2_MitoticArrest_24h_up": {
+          "probability": 0.17213243,
+          "label": 0
+        },
+        "APR_HepG2_MitoticArrest_72h_up": {
+          "probability": 0.26521806,
+          "label": 0
+        },
+        "APR_HepG2_NuclearSize_24h_dn": {
+          "probability": 0.05073806,
+          "label": 0
+        },
+        "APR_HepG2_NuclearSize_72h_dn": {
+          "probability": 0.04139849,
+          "label": 0
+        },
+        "APR_HepG2_NuclearSize_72h_up": {
+          "probability": 0.0163431,
+          "label": 0
+        },
+        "APR_HepG2_OxidativeStress_24h_up": {
+          "probability": 0.18435838,
+          "label": 0
+        },
+        "APR_HepG2_OxidativeStress_72h_up": {
+          "probability": 0.19268907,
+          "label": 0
+        },
+        "APR_HepG2_StressKinase_1h_up": {
+          "probability": 0.05267295,
+          "label": 0
+        },
+        "APR_HepG2_StressKinase_24h_up": {
+          "probability": 0.05090642,
+          "label": 0
+        },
+        "APR_HepG2_StressKinase_72h_up": {
+          "probability": 0.0734118,
+          "label": 0
+        },
+        "APR_HepG2_p53Act_24h_up": {
+          "probability": 0.15987418,
+          "label": 0
+        },
+        "APR_HepG2_p53Act_72h_up": {
+          "probability": 0.17262471,
+          "label": 0
+        },
+        "APR_Hepat_Apoptosis_24hr_up": {
+          "probability": 0.11045301,
+          "label": 0
+        },
+        "APR_Hepat_Apoptosis_48hr_up": {
+          "probability": 0.10867137,
+          "label": 0
+        },
+        "APR_Hepat_CellLoss_24hr_dn": {
+          "probability": 0.15120901,
+          "label": 0
+        },
+        "APR_Hepat_CellLoss_48hr_dn": {
+          "probability": 0.09039615,
+          "label": 0
+        },
+        "APR_Hepat_DNADamage_24hr_up": {
+          "probability": 0.14261946,
+          "label": 0
+        },
+        "APR_Hepat_DNADamage_48hr_up": {
+          "probability": 0.13172441,
+          "label": 0
+        },
+        "APR_Hepat_DNATexture_24hr_up": {
+          "probability": 0.15776619,
+          "label": 0
+        },
+        "APR_Hepat_DNATexture_48hr_up": {
+          "probability": 0.14498195,
+          "label": 0
+        },
+        "APR_Hepat_MitoFxnI_1hr_dn": {
+          "probability": 0.12932529,
+          "label": 0
+        },
+        "APR_Hepat_MitoFxnI_24hr_dn": {
+          "probability": 0.13569496,
+          "label": 0
+        },
+        "APR_Hepat_MitoFxnI_48hr_dn": {
+          "probability": 0.13309796,
+          "label": 0
+        },
+        "APR_Hepat_NuclearSize_24hr_dn": {
+          "probability": 0.06423263,
+          "label": 0
+        },
+        "APR_Hepat_NuclearSize_48hr_dn": {
+          "probability": 0.08628768,
+          "label": 0
+        },
+        "APR_Hepat_Steatosis_24hr_up": {
+          "probability": 0.07002785,
+          "label": 0
+        },
+        "APR_Hepat_Steatosis_48hr_up": {
+          "probability": 0.063415,
+          "label": 0
+        },
+        "ATG_AP_1_CIS_dn": {
+          "probability": 0.0327207,
+          "label": 0
+        },
+        "ATG_AP_1_CIS_up": {
+          "probability": 0.1873305,
+          "label": 0
+        },
+        "ATG_AP_2_CIS_dn": {
+          "probability": 0.06575355,
+          "label": 0
+        },
+        "ATG_AP_2_CIS_up": {
+          "probability": 0.01227999,
+          "label": 0
+        },
+        "ATG_AR_TRANS_dn": {
+          "probability": 0.00729062,
+          "label": 0
+        },
+        "ATG_AR_TRANS_up": {
+          "probability": 0.0101683,
+          "label": 0
+        },
+        "ATG_Ahr_CIS_dn": {
+          "probability": 0.05763704,
+          "label": 0
+        },
+        "ATG_Ahr_CIS_up": {
+          "probability": 0.11687333,
+          "label": 0
+        },
+        "ATG_BRE_CIS_dn": {
+          "probability": 0.0309094,
+          "label": 0
+        },
+        "ATG_BRE_CIS_up": {
+          "probability": 0.10014478,
+          "label": 0
+        },
+        "ATG_CAR_TRANS_dn": {
+          "probability": 0.02088567,
+          "label": 0
+        },
+        "ATG_CAR_TRANS_up": {
+          "probability": 0.01207567,
+          "label": 0
+        },
+        "ATG_CMV_CIS_dn": {
+          "probability": 0.04126424,
+          "label": 0
+        },
+        "ATG_CMV_CIS_up": {
+          "probability": 0.16880477,
+          "label": 0
+        },
+        "ATG_CRE_CIS_dn": {
+          "probability": 0.01841697,
+          "label": 0
+        },
+        "ATG_CRE_CIS_up": {
+          "probability": 0.1079475,
+          "label": 0
+        },
+        "ATG_C_EBP_CIS_dn": {
+          "probability": 0.0188249,
+          "label": 0
+        },
+        "ATG_C_EBP_CIS_up": {
+          "probability": 0.07017928,
+          "label": 0
+        },
+        "ATG_DR4_LXR_CIS_dn": {
+          "probability": 0.19909897,
+          "label": 0
+        },
+        "ATG_DR4_LXR_CIS_up": {
+          "probability": 0.02036461,
+          "label": 0
+        },
+        "ATG_DR5_CIS_dn": {
+          "probability": 0.03758681,
+          "label": 0
+        },
+        "ATG_DR5_CIS_up": {
+          "probability": 0.09280835,
+          "label": 0
+        },
+        "ATG_E2F_CIS_dn": {
+          "probability": 0.04244486,
+          "label": 0
+        },
+        "ATG_E2F_CIS_up": {
+          "probability": 0.00964717,
+          "label": 0
+        },
+        "ATG_EGR_CIS_up": {
+          "probability": 0.14764171,
+          "label": 0
+        },
+        "ATG_ERE_CIS_dn": {
+          "probability": 0.05853524,
+          "label": 0
+        },
+        "ATG_ERE_CIS_up": {
+          "probability": 0.25479952,
+          "label": 0
+        },
+        "ATG_ERRa_TRANS_dn": {
+          "probability": 0.01137089,
+          "label": 0
+        },
+        "ATG_ERRg_TRANS_dn": {
+          "probability": 0.01105925,
+          "label": 0
+        },
+        "ATG_ERRg_TRANS_up": {
+          "probability": 0.00867711,
+          "label": 0
+        },
+        "ATG_ERa_TRANS_up": {
+          "probability": 0.23349158,
+          "label": 0
+        },
+        "ATG_E_Box_CIS_dn": {
+          "probability": 0.08655636,
+          "label": 0
+        },
+        "ATG_E_Box_CIS_up": {
+          "probability": 0.02406368,
+          "label": 0
+        },
+        "ATG_Ets_CIS_dn": {
+          "probability": 0.06883428,
+          "label": 0
+        },
+        "ATG_Ets_CIS_up": {
+          "probability": 0.00606975,
+          "label": 0
+        },
+        "ATG_FXR_TRANS_up": {
+          "probability": 0.0256102,
+          "label": 0
+        },
+        "ATG_FoxA2_CIS_dn": {
+          "probability": 0.01851209,
+          "label": 0
+        },
+        "ATG_FoxA2_CIS_up": {
+          "probability": 0.02049637,
+          "label": 0
+        },
+        "ATG_FoxO_CIS_dn": {
+          "probability": 0.04363006,
+          "label": 0
+        },
+        "ATG_FoxO_CIS_up": {
+          "probability": 0.01618711,
+          "label": 0
+        },
+        "ATG_GAL4_TRANS_dn": {
+          "probability": 0.02936715,
+          "label": 0
+        },
+        "ATG_GATA_CIS_dn": {
+          "probability": 0.02884918,
+          "label": 0
+        },
+        "ATG_GATA_CIS_up": {
+          "probability": 0.01461172,
+          "label": 0
+        },
+        "ATG_GLI_CIS_dn": {
+          "probability": 0.01316893,
+          "label": 0
+        },
+        "ATG_GLI_CIS_up": {
+          "probability": 0.04757782,
+          "label": 0
+        },
+        "ATG_GRE_CIS_dn": {
+          "probability": 0.04118859,
+          "label": 0
+        },
+        "ATG_GRE_CIS_up": {
+          "probability": 0.01655742,
+          "label": 0
+        },
+        "ATG_GR_TRANS_dn": {
+          "probability": 0.00913771,
+          "label": 0
+        },
+        "ATG_GR_TRANS_up": {
+          "probability": 0.0165561,
+          "label": 0
+        },
+        "ATG_HIF1a_CIS_dn": {
+          "probability": 0.08069049,
+          "label": 0
+        },
+        "ATG_HIF1a_CIS_up": {
+          "probability": 0.09707596,
+          "label": 0
+        },
+        "ATG_HNF4a_TRANS_dn": {
+          "probability": 0.01119959,
+          "label": 0
+        },
+        "ATG_HNF4a_TRANS_up": {
+          "probability": 0.01338424,
+          "label": 0
+        },
+        "ATG_HNF6_CIS_dn": {
+          "probability": 0.03784185,
+          "label": 0
+        },
+        "ATG_HNF6_CIS_up": {
+          "probability": 0.01933161,
+          "label": 0
+        },
+        "ATG_HSE_CIS_dn": {
+          "probability": 0.01729172,
+          "label": 0
+        },
+        "ATG_HSE_CIS_up": {
+          "probability": 0.11026614,
+          "label": 0
+        },
+        "ATG_IR1_CIS_dn": {
+          "probability": 0.09513749,
+          "label": 0
+        },
+        "ATG_IR1_CIS_up": {
+          "probability": 0.02663705,
+          "label": 0
+        },
+        "ATG_ISRE_CIS_dn": {
+          "probability": 0.13774242,
+          "label": 0
+        },
+        "ATG_ISRE_CIS_up": {
+          "probability": 0.00902561,
+          "label": 0
+        },
+        "ATG_LXRa_TRANS_dn": {
+          "probability": 0.01550883,
+          "label": 0
+        },
+        "ATG_LXRa_TRANS_up": {
+          "probability": 0.02834191,
+          "label": 0
+        },
+        "ATG_LXRb_TRANS_dn": {
+          "probability": 0.00726642,
+          "label": 0
+        },
+        "ATG_LXRb_TRANS_up": {
+          "probability": 0.01827534,
+          "label": 0
+        },
+        "ATG_MRE_CIS_up": {
+          "probability": 0.19014901,
+          "label": 0
+        },
+        "ATG_M_06_TRANS_up": {
+          "probability": 0.00540287,
+          "label": 0
+        },
+        "ATG_M_19_CIS_dn": {
+          "probability": 0.02146189,
+          "label": 0
+        },
+        "ATG_M_19_TRANS_dn": {
+          "probability": 0.01792829,
+          "label": 0
+        },
+        "ATG_M_19_TRANS_up": {
+          "probability": 0.01076969,
+          "label": 0
+        },
+        "ATG_M_32_CIS_dn": {
+          "probability": 0.01375314,
+          "label": 0
+        },
+        "ATG_M_32_CIS_up": {
+          "probability": 0.01552317,
+          "label": 0
+        },
+        "ATG_M_32_TRANS_dn": {
+          "probability": 0.02130444,
+          "label": 0
+        },
+        "ATG_M_32_TRANS_up": {
+          "probability": 0.00690606,
+          "label": 0
+        },
+        "ATG_M_61_TRANS_up": {
+          "probability": 0.00463883,
+          "label": 0
+        },
+        "ATG_Myb_CIS_dn": {
+          "probability": 0.04013358,
+          "label": 0
+        },
+        "ATG_Myb_CIS_up": {
+          "probability": 0.01809508,
+          "label": 0
+        },
+        "ATG_Myc_CIS_dn": {
+          "probability": 0.01229766,
+          "label": 0
+        },
+        "ATG_Myc_CIS_up": {
+          "probability": 0.04828858,
+          "label": 0
+        },
+        "ATG_NFI_CIS_dn": {
+          "probability": 0.01417179,
+          "label": 0
+        },
+        "ATG_NFI_CIS_up": {
+          "probability": 0.08334419,
+          "label": 0
+        },
+        "ATG_NF_kB_CIS_dn": {
+          "probability": 0.08167064,
+          "label": 0
+        },
+        "ATG_NF_kB_CIS_up": {
+          "probability": 0.04153805,
+          "label": 0
+        },
+        "ATG_NRF1_CIS_dn": {
+          "probability": 0.03695538,
+          "label": 0
+        },
+        "ATG_NRF1_CIS_up": {
+          "probability": 0.03295026,
+          "label": 0
+        },
+        "ATG_NRF2_ARE_CIS_dn": {
+          "probability": 0.01870515,
+          "label": 0
+        },
+        "ATG_NRF2_ARE_CIS_up": {
+          "probability": 0.43617808,
+          "label": 0
+        },
+        "ATG_NURR1_TRANS_dn": {
+          "probability": 0.00860946,
+          "label": 0
+        },
+        "ATG_NURR1_TRANS_up": {
+          "probability": 0.0601456,
+          "label": 0
+        },
+        "ATG_Oct_MLP_CIS_dn": {
+          "probability": 0.01203016,
+          "label": 0
+        },
+        "ATG_Oct_MLP_CIS_up": {
+          "probability": 0.16945833,
+          "label": 0
+        },
+        "ATG_PBREM_CIS_dn": {
+          "probability": 0.00914298,
+          "label": 0
+        },
+        "ATG_PBREM_CIS_up": {
+          "probability": 0.12262726,
+          "label": 0
+        },
+        "ATG_PPARa_TRANS_dn": {
+          "probability": 0.01031788,
+          "label": 0
+        },
+        "ATG_PPARa_TRANS_up": {
+          "probability": 0.09683345,
+          "label": 0
+        },
+        "ATG_PPARd_TRANS_up": {
+          "probability": 0.01860054,
+          "label": 0
+        },
+        "ATG_PPARg_TRANS_up": {
+          "probability": 0.28878677,
+          "label": 0
+        },
+        "ATG_PPRE_CIS_dn": {
+          "probability": 0.02933628,
+          "label": 0
+        },
+        "ATG_PPRE_CIS_up": {
+          "probability": 0.14872945,
+          "label": 0
+        },
+        "ATG_PXRE_CIS_dn": {
+          "probability": 0.0843466,
+          "label": 0
+        },
+        "ATG_PXRE_CIS_up": {
+          "probability": 0.55993931,
+          "label": 1
+        },
+        "ATG_PXR_TRANS_dn": {
+          "probability": 0.00664829,
+          "label": 0
+        },
+        "ATG_PXR_TRANS_up": {
+          "probability": 0.29253915,
+          "label": 0
+        },
+        "ATG_Pax6_CIS_up": {
+          "probability": 0.12412135,
+          "label": 0
+        },
+        "ATG_RARa_TRANS_dn": {
+          "probability": 0.0724789,
+          "label": 0
+        },
+        "ATG_RARa_TRANS_up": {
+          "probability": 0.02032612,
+          "label": 0
+        },
+        "ATG_RARb_TRANS_dn": {
+          "probability": 0.03954954,
+          "label": 0
+        },
+        "ATG_RARb_TRANS_up": {
+          "probability": 0.00835182,
+          "label": 0
+        },
+        "ATG_RARg_TRANS_dn": {
+          "probability": 0.01485177,
+          "label": 0
+        },
+        "ATG_RARg_TRANS_up": {
+          "probability": 0.01735446,
+          "label": 0
+        },
+        "ATG_RORE_CIS_dn": {
+          "probability": 0.00818683,
+          "label": 0
+        },
+        "ATG_RORE_CIS_up": {
+          "probability": 0.10706466,
+          "label": 0
+        },
+        "ATG_RORb_TRANS_dn": {
+          "probability": 0.01558493,
+          "label": 0
+        },
+        "ATG_RORg_TRANS_dn": {
+          "probability": 0.00811663,
+          "label": 0
+        },
+        "ATG_RORg_TRANS_up": {
+          "probability": 0.01420596,
+          "label": 0
+        },
+        "ATG_RXRa_TRANS_dn": {
+          "probability": 0.00796611,
+          "label": 0
+        },
+        "ATG_RXRa_TRANS_up": {
+          "probability": 0.04209115,
+          "label": 0
+        },
+        "ATG_RXRb_TRANS_dn": {
+          "probability": 0.02883031,
+          "label": 0
+        },
+        "ATG_RXRb_TRANS_up": {
+          "probability": 0.18206389,
+          "label": 0
+        },
+        "ATG_SREBP_CIS_dn": {
+          "probability": 0.01172964,
+          "label": 0
+        },
+        "ATG_SREBP_CIS_up": {
+          "probability": 0.12748529,
+          "label": 0
+        },
+        "ATG_STAT3_CIS_dn": {
+          "probability": 0.03352318,
+          "label": 0
+        },
+        "ATG_STAT3_CIS_up": {
+          "probability": 0.01122043,
+          "label": 0
+        },
+        "ATG_Sox_CIS_dn": {
+          "probability": 0.01017945,
+          "label": 0
+        },
+        "ATG_Sox_CIS_up": {
+          "probability": 0.05762712,
+          "label": 0
+        },
+        "ATG_Sp1_CIS_dn": {
+          "probability": 0.01051142,
+          "label": 0
+        },
+        "ATG_Sp1_CIS_up": {
+          "probability": 0.09416684,
+          "label": 0
+        },
+        "ATG_TAL_CIS_dn": {
+          "probability": 0.02333805,
+          "label": 0
+        },
+        "ATG_TAL_CIS_up": {
+          "probability": 0.03318741,
+          "label": 0
+        },
+        "ATG_TA_CIS_dn": {
+          "probability": 0.0108219,
+          "label": 0
+        },
+        "ATG_TA_CIS_up": {
+          "probability": 0.05735963,
+          "label": 0
+        },
+        "ATG_TCF_b_cat_CIS_dn": {
+          "probability": 0.1565441,
+          "label": 0
+        },
+        "ATG_TCF_b_cat_CIS_up": {
+          "probability": 0.012705,
+          "label": 0
+        },
+        "ATG_TGFb_CIS_dn": {
+          "probability": 0.03409962,
+          "label": 0
+        },
+        "ATG_TGFb_CIS_up": {
+          "probability": 0.04532739,
+          "label": 0
+        },
+        "ATG_THRa1_TRANS_dn": {
+          "probability": 0.01253884,
+          "label": 0
+        },
+        "ATG_THRa1_TRANS_up": {
+          "probability": 0.0321035,
+          "label": 0
+        },
+        "ATG_VDRE_CIS_dn": {
+          "probability": 0.00602166,
+          "label": 0
+        },
+        "ATG_VDRE_CIS_up": {
+          "probability": 0.29827524,
+          "label": 0
+        },
+        "ATG_VDR_TRANS_dn": {
+          "probability": 0.0067658,
+          "label": 0
+        },
+        "ATG_VDR_TRANS_up": {
+          "probability": 0.01501621,
+          "label": 0
+        },
+        "ATG_XTT_Cytotoxicity_up": {
+          "probability": 0.09007326,
+          "label": 0
+        },
+        "ATG_Xbp1_CIS_dn": {
+          "probability": 0.00710631,
+          "label": 0
+        },
+        "ATG_Xbp1_CIS_up": {
+          "probability": 0.11980564,
+          "label": 0
+        },
+        "ATG_p53_CIS_dn": {
+          "probability": 0.08243451,
+          "label": 0
+        },
+        "ATG_p53_CIS_up": {
+          "probability": 0.0290117,
+          "label": 0
+        },
+        "BSK_3C_Eselectin_down": {
+          "probability": 0.23887742,
+          "label": 0
+        },
+        "BSK_3C_HLADR_down": {
+          "probability": 0.32378638,
+          "label": 0
+        },
+        "BSK_3C_ICAM1_down": {
+          "probability": 0.10453818,
+          "label": 0
+        },
+        "BSK_3C_IL8_down": {
+          "probability": 0.13247732,
+          "label": 0
+        },
+        "BSK_3C_MCP1_down": {
+          "probability": 0.17728356,
+          "label": 0
+        },
+        "BSK_3C_MIG_down": {
+          "probability": 0.09444474,
+          "label": 0
+        },
+        "BSK_3C_Proliferation_down": {
+          "probability": 0.38159923,
+          "label": 0
+        },
+        "BSK_3C_SRB_down": {
+          "probability": 0.23769536,
+          "label": 0
+        },
+        "BSK_3C_Thrombomodulin_down": {
+          "probability": 0.04117581,
+          "label": 0
+        },
+        "BSK_3C_Thrombomodulin_up": {
+          "probability": 0.08307569,
+          "label": 0
+        },
+        "BSK_3C_TissueFactor_down": {
+          "probability": 0.17351102,
+          "label": 0
+        },
+        "BSK_3C_TissueFactor_up": {
+          "probability": 0.04077452,
+          "label": 0
+        },
+        "BSK_3C_VCAM1_down": {
+          "probability": 0.19551391,
+          "label": 0
+        },
+        "BSK_3C_Vis_down": {
+          "probability": 0.25867079,
+          "label": 0
+        },
+        "BSK_3C_uPAR_down": {
+          "probability": 0.21941288,
+          "label": 0
+        },
+        "BSK_4H_Eotaxin3_down": {
+          "probability": 0.24891663,
+          "label": 0
+        },
+        "BSK_4H_MCP1_down": {
+          "probability": 0.21135964,
+          "label": 0
+        },
+        "BSK_4H_Pselectin_down": {
+          "probability": 0.20195867,
+          "label": 0
+        },
+        "BSK_4H_Pselectin_up": {
+          "probability": 0.01198346,
+          "label": 0
+        },
+        "BSK_4H_SRB_down": {
+          "probability": 0.22497716,
+          "label": 0
+        },
+        "BSK_4H_VCAM1_down": {
+          "probability": 0.21897999,
+          "label": 0
+        },
+        "BSK_4H_VEGFRII_down": {
+          "probability": 0.10315207,
+          "label": 0
+        },
+        "BSK_4H_uPAR_down": {
+          "probability": 0.1731877,
+          "label": 0
+        },
+        "BSK_4H_uPAR_up": {
+          "probability": 0.01258302,
+          "label": 0
+        },
+        "BSK_BE3C_HLADR_down": {
+          "probability": 0.20876439,
+          "label": 0
+        },
+        "BSK_BE3C_IL1a_down": {
+          "probability": 0.14237157,
+          "label": 0
+        },
+        "BSK_BE3C_IP10_down": {
+          "probability": 0.22963764,
+          "label": 0
+        },
+        "BSK_BE3C_MIG_down": {
+          "probability": 0.09192506,
+          "label": 0
+        },
+        "BSK_BE3C_MMP1_down": {
+          "probability": 0.09357555,
+          "label": 0
+        },
+        "BSK_BE3C_MMP1_up": {
+          "probability": 0.07934621,
+          "label": 0
+        },
+        "BSK_BE3C_PAI1_down": {
+          "probability": 0.12774947,
+          "label": 0
+        },
+        "BSK_BE3C_SRB_down": {
+          "probability": 0.1022133,
+          "label": 0
+        },
+        "BSK_BE3C_TGFb1_down": {
+          "probability": 0.11574181,
+          "label": 0
+        },
+        "BSK_BE3C_tPA_down": {
+          "probability": 0.12725483,
+          "label": 0
+        },
+        "BSK_BE3C_uPAR_down": {
+          "probability": 0.10295571,
+          "label": 0
+        },
+        "BSK_BE3C_uPAR_up": {
+          "probability": 0.0334891,
+          "label": 0
+        },
+        "BSK_BE3C_uPA_down": {
+          "probability": 0.1272478,
+          "label": 0
+        },
+        "BSK_CASM3C_HLADR_down": {
+          "probability": 0.16957617,
+          "label": 0
+        },
+        "BSK_CASM3C_IL6_down": {
+          "probability": 0.09350665,
+          "label": 0
+        },
+        "BSK_CASM3C_IL6_up": {
+          "probability": 0.03191065,
+          "label": 0
+        },
+        "BSK_CASM3C_IL8_down": {
+          "probability": 0.08058513,
+          "label": 0
+        },
+        "BSK_CASM3C_LDLR_down": {
+          "probability": 0.09963799,
+          "label": 0
+        },
+        "BSK_CASM3C_LDLR_up": {
+          "probability": 0.04149202,
+          "label": 0
+        },
+        "BSK_CASM3C_MCP1_down": {
+          "probability": 0.11249041,
+          "label": 0
+        },
+        "BSK_CASM3C_MCP1_up": {
+          "probability": 0.0214911,
+          "label": 0
+        },
+        "BSK_CASM3C_MCSF_down": {
+          "probability": 0.14973043,
+          "label": 0
+        },
+        "BSK_CASM3C_MCSF_up": {
+          "probability": 0.01489409,
+          "label": 0
+        },
+        "BSK_CASM3C_MIG_down": {
+          "probability": 0.08796322,
+          "label": 0
+        },
+        "BSK_CASM3C_Proliferation_down": {
+          "probability": 0.2546796,
+          "label": 0
+        },
+        "BSK_CASM3C_Proliferation_up": {
+          "probability": 0.02283423,
+          "label": 0
+        },
+        "BSK_CASM3C_SAA_down": {
+          "probability": 0.10679143,
+          "label": 0
+        },
+        "BSK_CASM3C_SAA_up": {
+          "probability": 0.01774599,
+          "label": 0
+        },
+        "BSK_CASM3C_SRB_down": {
+          "probability": 0.1335042,
+          "label": 0
+        },
+        "BSK_CASM3C_Thrombomodulin_down": {
+          "probability": 0.04758693,
+          "label": 0
+        },
+        "BSK_CASM3C_Thrombomodulin_up": {
+          "probability": 0.16151438,
+          "label": 0
+        },
+        "BSK_CASM3C_TissueFactor_down": {
+          "probability": 0.12846286,
+          "label": 0
+        },
+        "BSK_CASM3C_VCAM1_down": {
+          "probability": 0.16848768,
+          "label": 0
+        },
+        "BSK_CASM3C_VCAM1_up": {
+          "probability": 0.01679984,
+          "label": 0
+        },
+        "BSK_CASM3C_uPAR_down": {
+          "probability": 0.12636523,
+          "label": 0
+        },
+        "BSK_CASM3C_uPAR_up": {
+          "probability": 0.01506245,
+          "label": 0
+        },
+        "BSK_KF3CT_ICAM1_down": {
+          "probability": 0.13751484,
+          "label": 0
+        },
+        "BSK_KF3CT_IL1a_down": {
+          "probability": 0.16069553,
+          "label": 0
+        },
+        "BSK_KF3CT_IP10_down": {
+          "probability": 0.18074363,
+          "label": 0
+        },
+        "BSK_KF3CT_IP10_up": {
+          "probability": 0.0191167,
+          "label": 0
+        },
+        "BSK_KF3CT_MCP1_down": {
+          "probability": 0.15178865,
+          "label": 0
+        },
+        "BSK_KF3CT_MCP1_up": {
+          "probability": 0.02122456,
+          "label": 0
+        },
+        "BSK_KF3CT_MMP9_down": {
+          "probability": 0.23049998,
+          "label": 0
+        },
+        "BSK_KF3CT_SRB_down": {
+          "probability": 0.11150541,
+          "label": 0
+        },
+        "BSK_KF3CT_TGFb1_down": {
+          "probability": 0.16783826,
+          "label": 0
+        },
+        "BSK_KF3CT_TIMP2_down": {
+          "probability": 0.19027401,
+          "label": 0
+        },
+        "BSK_KF3CT_uPA_down": {
+          "probability": 0.14649507,
+          "label": 0
+        },
+        "BSK_LPS_CD40_down": {
+          "probability": 0.21922133,
+          "label": 0
+        },
+        "BSK_LPS_Eselectin_down": {
+          "probability": 0.14446744,
+          "label": 0
+        },
+        "BSK_LPS_Eselectin_up": {
+          "probability": 0.01360888,
+          "label": 0
+        },
+        "BSK_LPS_IL1a_down": {
+          "probability": 0.14920807,
+          "label": 0
+        },
+        "BSK_LPS_IL1a_up": {
+          "probability": 0.01482567,
+          "label": 0
+        },
+        "BSK_LPS_IL8_down": {
+          "probability": 0.15429875,
+          "label": 0
+        },
+        "BSK_LPS_IL8_up": {
+          "probability": 0.02592716,
+          "label": 0
+        },
+        "BSK_LPS_MCP1_down": {
+          "probability": 0.14436689,
+          "label": 0
+        },
+        "BSK_LPS_MCSF_down": {
+          "probability": 0.19893161,
+          "label": 0
+        },
+        "BSK_LPS_PGE2_down": {
+          "probability": 0.17861911,
+          "label": 0
+        },
+        "BSK_LPS_PGE2_up": {
+          "probability": 0.05124115,
+          "label": 0
+        },
+        "BSK_LPS_SRB_down": {
+          "probability": 0.18251516,
+          "label": 0
+        },
+        "BSK_LPS_TNFa_down": {
+          "probability": 0.15881868,
+          "label": 0
+        },
+        "BSK_LPS_TNFa_up": {
+          "probability": 0.04520242,
+          "label": 0
+        },
+        "BSK_LPS_TissueFactor_down": {
+          "probability": 0.10153563,
+          "label": 0
+        },
+        "BSK_LPS_TissueFactor_up": {
+          "probability": 0.0360641,
+          "label": 0
+        },
+        "BSK_LPS_VCAM1_down": {
+          "probability": 0.26623575,
+          "label": 0
+        },
+        "BSK_SAg_CD38_down": {
+          "probability": 0.22213195,
+          "label": 0
+        },
+        "BSK_SAg_CD40_down": {
+          "probability": 0.21290529,
+          "label": 0
+        },
+        "BSK_SAg_CD69_down": {
+          "probability": 0.20226195,
+          "label": 0
+        },
+        "BSK_SAg_Eselectin_down": {
+          "probability": 0.20182671,
+          "label": 0
+        },
+        "BSK_SAg_Eselectin_up": {
+          "probability": 0.03135118,
+          "label": 0
+        },
+        "BSK_SAg_IL8_down": {
+          "probability": 0.16795741,
+          "label": 0
+        },
+        "BSK_SAg_IL8_up": {
+          "probability": 0.02038854,
+          "label": 0
+        },
+        "BSK_SAg_MCP1_down": {
+          "probability": 0.16532003,
+          "label": 0
+        },
+        "BSK_SAg_MIG_down": {
+          "probability": 0.10619028,
+          "label": 0
+        },
+        "BSK_SAg_PBMCCytotoxicity_down": {
+          "probability": 0.17761285,
+          "label": 0
+        },
+        "BSK_SAg_PBMCCytotoxicity_up": {
+          "probability": 0.04531809,
+          "label": 0
+        },
+        "BSK_SAg_Proliferation_down": {
+          "probability": 0.36299898,
+          "label": 0
+        },
+        "BSK_SAg_SRB_down": {
+          "probability": 0.17423217,
+          "label": 0
+        },
+        "BSK_hDFCGF_CollagenIII_down": {
+          "probability": 0.25644384,
+          "label": 0
+        },
+        "BSK_hDFCGF_EGFR_down": {
+          "probability": 0.04527615,
+          "label": 0
+        },
+        "BSK_hDFCGF_EGFR_up": {
+          "probability": 0.03763136,
+          "label": 0
+        },
+        "BSK_hDFCGF_IL8_down": {
+          "probability": 0.09727039,
+          "label": 0
+        },
+        "BSK_hDFCGF_IP10_down": {
+          "probability": 0.26193959,
+          "label": 0
+        },
+        "BSK_hDFCGF_MCSF_down": {
+          "probability": 0.24236743,
+          "label": 0
+        },
+        "BSK_hDFCGF_MIG_down": {
+          "probability": 0.17097411,
+          "label": 0
+        },
+        "BSK_hDFCGF_MMP1_down": {
+          "probability": 0.12438711,
+          "label": 0
+        },
+        "BSK_hDFCGF_MMP1_up": {
+          "probability": 0.04508138,
+          "label": 0
+        },
+        "BSK_hDFCGF_PAI1_down": {
+          "probability": 0.20555215,
+          "label": 0
+        },
+        "BSK_hDFCGF_Proliferation_down": {
+          "probability": 0.402953,
+          "label": 0
+        },
+        "BSK_hDFCGF_SRB_down": {
+          "probability": 0.16813255,
+          "label": 0
+        },
+        "BSK_hDFCGF_TIMP1_down": {
+          "probability": 0.13630326,
+          "label": 0
+        },
+        "BSK_hDFCGF_VCAM1_down": {
+          "probability": 0.24916813,
+          "label": 0
+        },
+        "CEETOX_H295R_11DCORT_dn": {
+          "probability": 0.26233541,
+          "label": 0
+        },
+        "CEETOX_H295R_ANDR_dn": {
+          "probability": 0.30550334,
+          "label": 0
+        },
+        "CEETOX_H295R_CORTISOL_dn": {
+          "probability": 0.15505995,
+          "label": 0
+        },
+        "CEETOX_H295R_DOC_dn": {
+          "probability": 0.18944789,
+          "label": 0
+        },
+        "CEETOX_H295R_DOC_up": {
+          "probability": 0.18961477,
+          "label": 0
+        },
+        "CEETOX_H295R_ESTRADIOL_dn": {
+          "probability": 0.05545255,
+          "label": 0
+        },
+        "CEETOX_H295R_ESTRADIOL_up": {
+          "probability": 0.13383102,
+          "label": 0
+        },
+        "CEETOX_H295R_ESTRONE_dn": {
+          "probability": 0.07022642,
+          "label": 0
+        },
+        "CEETOX_H295R_ESTRONE_up": {
+          "probability": 0.1067607,
+          "label": 0
+        },
+        "CEETOX_H295R_OHPREG_up": {
+          "probability": 0.06604556,
+          "label": 0
+        },
+        "CEETOX_H295R_OHPROG_dn": {
+          "probability": 0.18562309,
+          "label": 0
+        },
+        "CEETOX_H295R_OHPROG_up": {
+          "probability": 0.2619268,
+          "label": 0
+        },
+        "CEETOX_H295R_PROG_up": {
+          "probability": 0.28074887,
+          "label": 0
+        },
+        "CEETOX_H295R_TESTO_dn": {
+          "probability": 0.22497674,
+          "label": 0
+        },
+        "CLD_ABCB1_48hr": {
+          "probability": 0.0460325,
+          "label": 0
+        },
+        "CLD_ABCG2_48hr": {
+          "probability": 0.0560023,
+          "label": 0
+        },
+        "CLD_CYP1A1_24hr": {
+          "probability": 0.43107237,
+          "label": 0
+        },
+        "CLD_CYP1A1_48hr": {
+          "probability": 0.37871783,
+          "label": 0
+        },
+        "CLD_CYP1A1_6hr": {
+          "probability": 0.3764826,
+          "label": 0
+        },
+        "CLD_CYP1A2_24hr": {
+          "probability": 0.42657763,
+          "label": 0
+        },
+        "CLD_CYP1A2_48hr": {
+          "probability": 0.51072624,
+          "label": 1
+        },
+        "CLD_CYP1A2_6hr": {
+          "probability": 0.31264953,
+          "label": 0
+        },
+        "CLD_CYP2B6_24hr": {
+          "probability": 0.59451815,
+          "label": 1
+        },
+        "CLD_CYP2B6_48hr": {
+          "probability": 0.53577213,
+          "label": 1
+        },
+        "CLD_CYP2B6_6hr": {
+          "probability": 0.61383579,
+          "label": 1
+        },
+        "CLD_CYP3A4_24hr": {
+          "probability": 0.35019551,
+          "label": 0
+        },
+        "CLD_CYP3A4_48hr": {
+          "probability": 0.33603633,
+          "label": 0
+        },
+        "CLD_CYP3A4_6hr": {
+          "probability": 0.17225273,
+          "label": 0
+        },
+        "CLD_GSTA2_48hr": {
+          "probability": 0.06825836,
+          "label": 0
+        },
+        "CLD_SULT2A_24hr": {
+          "probability": 0.04150196,
+          "label": 0
+        },
+        "CLD_SULT2A_48hr": {
+          "probability": 0.13683779,
+          "label": 0
+        },
+        "CLD_UGT1A1_24hr": {
+          "probability": 0.16388189,
+          "label": 0
+        },
+        "CLD_UGT1A1_48hr": {
+          "probability": 0.23371025,
+          "label": 0
+        },
+        "NCCT_HEK293T_CellTiterGLO": {
+          "probability": 0.41261651,
+          "label": 0
+        },
+        "NCCT_QuantiLum_inhib_2_dn": {
+          "probability": 0.19843864,
+          "label": 0
+        },
+        "NCCT_QuantiLum_inhib_dn": {
+          "probability": 0.51893158,
+          "label": 1
+        },
+        "NCCT_TPO_AUR_dn": {
+          "probability": 0.85835463,
+          "label": 1
+        },
+        "NCCT_TPO_GUA_dn": {
+          "probability": 0.6178995,
+          "label": 1
+        },
+        "NHEERL_ZF_144hpf_TERATOSCORE_up": {
+          "probability": 0.69695363,
+          "label": 1
+        },
+        "NVS_ADME_hCYP19A1": {
+          "probability": 0.26665924,
+          "label": 0
+        },
+        "NVS_ADME_hCYP1A1": {
+          "probability": 0.33207403,
+          "label": 0
+        },
+        "NVS_ADME_hCYP1A2": {
+          "probability": 0.7470232,
+          "label": 1
+        },
+        "NVS_ADME_hCYP2A6": {
+          "probability": 0.26381336,
+          "label": 0
+        },
+        "NVS_ADME_hCYP2B6": {
+          "probability": 0.75063979,
+          "label": 1
+        },
+        "NVS_ADME_hCYP2C19": {
+          "probability": 0.7293664,
+          "label": 1
+        },
+        "NVS_ADME_hCYP2C9": {
+          "probability": 0.79549614,
+          "label": 1
+        },
+        "NVS_ADME_hCYP2D6": {
+          "probability": 0.63089666,
+          "label": 1
+        },
+        "NVS_ADME_hCYP3A4": {
+          "probability": 0.48305445,
+          "label": 0
+        },
+        "NVS_ADME_hCYP4F12": {
+          "probability": 0.36646498,
+          "label": 0
+        },
+        "NVS_ADME_rCYP2C12": {
+          "probability": 0.53868476,
+          "label": 1
+        },
+        "NVS_ENZ_hAChE": {
+          "probability": 0.36256513,
+          "label": 0
+        },
+        "NVS_ENZ_hAMPKa1": {
+          "probability": 0.18390463,
+          "label": 0
+        },
+        "NVS_ENZ_hAurA": {
+          "probability": 0.21163989,
+          "label": 0
+        },
+        "NVS_ENZ_hBACE": {
+          "probability": 0.50712424,
+          "label": 1
+        },
+        "NVS_ENZ_hCASP5": {
+          "probability": 0.54783874,
+          "label": 1
+        },
+        "NVS_ENZ_hCK1D": {
+          "probability": 0.16299352,
+          "label": 0
+        },
+        "NVS_ENZ_hDUSP3": {
+          "probability": 0.63669706,
+          "label": 1
+        },
+        "NVS_ENZ_hES": {
+          "probability": 0.47181195,
+          "label": 0
+        },
+        "NVS_ENZ_hElastase": {
+          "probability": 0.42569309,
+          "label": 0
+        },
+        "NVS_ENZ_hFGFR1": {
+          "probability": 0.12700996,
+          "label": 0
+        },
+        "NVS_ENZ_hGSK3b": {
+          "probability": 0.09146154,
+          "label": 0
+        },
+        "NVS_ENZ_hMMP1": {
+          "probability": 0.46596165,
+          "label": 0
+        },
+        "NVS_ENZ_hMMP13": {
+          "probability": 0.52704592,
+          "label": 1
+        },
+        "NVS_ENZ_hMMP2": {
+          "probability": 0.35531462,
+          "label": 0
+        },
+        "NVS_ENZ_hMMP3": {
+          "probability": 0.34535391,
+          "label": 0
+        },
+        "NVS_ENZ_hMMP7": {
+          "probability": 0.2845084,
+          "label": 0
+        },
+        "NVS_ENZ_hMMP9": {
+          "probability": 0.31548256,
+          "label": 0
+        },
+        "NVS_ENZ_hPDE10": {
+          "probability": 0.24377269,
+          "label": 0
+        },
+        "NVS_ENZ_hPDE4A1": {
+          "probability": 0.33272249,
+          "label": 0
+        },
+        "NVS_ENZ_hPDE5": {
+          "probability": 0.35163094,
+          "label": 0
+        },
+        "NVS_ENZ_hPI3Ka": {
+          "probability": 0.12038906,
+          "label": 0
+        },
+        "NVS_ENZ_hPTEN": {
+          "probability": 0.38699258,
+          "label": 0
+        },
+        "NVS_ENZ_hPTPN11": {
+          "probability": 0.27370403,
+          "label": 0
+        },
+        "NVS_ENZ_hPTPN12": {
+          "probability": 0.39624238,
+          "label": 0
+        },
+        "NVS_ENZ_hPTPN13": {
+          "probability": 0.36535605,
+          "label": 0
+        },
+        "NVS_ENZ_hPTPN9": {
+          "probability": 0.3248223,
+          "label": 0
+        },
+        "NVS_ENZ_hPTPRC": {
+          "probability": 0.47317,
+          "label": 0
+        },
+        "NVS_ENZ_hSIRT1": {
+          "probability": 0.25627414,
+          "label": 0
+        },
+        "NVS_ENZ_hSIRT2": {
+          "probability": 0.31042357,
+          "label": 0
+        },
+        "NVS_ENZ_hTrkA": {
+          "probability": 0.24706311,
+          "label": 0
+        },
+        "NVS_ENZ_hVEGFR2": {
+          "probability": 0.15809874,
+          "label": 0
+        },
+        "NVS_ENZ_oCOX1": {
+          "probability": 0.54949724,
+          "label": 1
+        },
+        "NVS_ENZ_oCOX2": {
+          "probability": 0.52730984,
+          "label": 1
+        },
+        "NVS_ENZ_rAChE": {
+          "probability": 0.41300741,
+          "label": 0
+        },
+        "NVS_ENZ_rCNOS": {
+          "probability": 0.45046263,
+          "label": 0
+        },
+        "NVS_ENZ_rMAOAC": {
+          "probability": 0.62284741,
+          "label": 1
+        },
+        "NVS_ENZ_rMAOAP": {
+          "probability": 0.62917774,
+          "label": 1
+        },
+        "NVS_ENZ_rMAOBC": {
+          "probability": 0.45147448,
+          "label": 0
+        },
+        "NVS_ENZ_rMAOBP": {
+          "probability": 0.40303643,
+          "label": 0
+        },
+        "NVS_ENZ_rabI2C": {
+          "probability": 0.35716806,
+          "label": 0
+        },
+        "NVS_GPCR_bAdoR_NonSelective": {
+          "probability": 0.30378312,
+          "label": 0
+        },
+        "NVS_GPCR_bDR_NonSelective": {
+          "probability": 0.48218781,
+          "label": 0
+        },
+        "NVS_GPCR_g5HT4": {
+          "probability": 0.51007673,
+          "label": 1
+        },
+        "NVS_GPCR_gH2": {
+          "probability": 0.4943829,
+          "label": 0
+        },
+        "NVS_GPCR_gLTB4": {
+          "probability": 0.60001331,
+          "label": 1
+        },
+        "NVS_GPCR_gLTD4": {
+          "probability": 0.42165112,
+          "label": 0
+        },
+        "NVS_GPCR_gMPeripheral_NonSelective": {
+          "probability": 0.45167686,
+          "label": 0
+        },
+        "NVS_GPCR_gOpiateK": {
+          "probability": 0.5606907,
+          "label": 1
+        },
+        "NVS_GPCR_h5HT2A": {
+          "probability": 0.32382214,
+          "label": 0
+        },
+        "NVS_GPCR_h5HT5A": {
+          "probability": 0.52938804,
+          "label": 1
+        },
+        "NVS_GPCR_h5HT6": {
+          "probability": 0.59411574,
+          "label": 1
+        },
+        "NVS_GPCR_h5HT7": {
+          "probability": 0.6820313,
+          "label": 1
+        },
+        "NVS_GPCR_hAT1": {
+          "probability": 0.32437239,
+          "label": 0
+        },
+        "NVS_GPCR_hAdoRA1": {
+          "probability": 0.66692763,
+          "label": 1
+        },
+        "NVS_GPCR_hAdoRA2a": {
+          "probability": 0.69297002,
+          "label": 1
+        },
+        "NVS_GPCR_hAdra2A": {
+          "probability": 0.56828052,
+          "label": 1
+        },
+        "NVS_GPCR_hAdra2C": {
+          "probability": 0.64551234,
+          "label": 1
+        },
+        "NVS_GPCR_hAdrb1": {
+          "probability": 0.5747439,
+          "label": 1
+        },
+        "NVS_GPCR_hAdrb2": {
+          "probability": 0.49856794,
+          "label": 0
+        },
+        "NVS_GPCR_hAdrb3": {
+          "probability": 0.25773633,
+          "label": 0
+        },
+        "NVS_GPCR_hDRD1": {
+          "probability": 0.71672513,
+          "label": 1
+        },
+        "NVS_GPCR_hDRD2s": {
+          "probability": 0.5028005,
+          "label": 1
+        },
+        "NVS_GPCR_hDRD4.4": {
+          "probability": 0.79012045,
+          "label": 1
+        },
+        "NVS_GPCR_hH1": {
+          "probability": 0.64119823,
+          "label": 1
+        },
+        "NVS_GPCR_hLTB4_BLT1": {
+          "probability": 0.28566392,
+          "label": 0
+        },
+        "NVS_GPCR_hM1": {
+          "probability": 0.63427016,
+          "label": 1
+        },
+        "NVS_GPCR_hM2": {
+          "probability": 0.49077978,
+          "label": 0
+        },
+        "NVS_GPCR_hM3": {
+          "probability": 0.67440775,
+          "label": 1
+        },
+        "NVS_GPCR_hM4": {
+          "probability": 0.52392882,
+          "label": 1
+        },
+        "NVS_GPCR_hNK2": {
+          "probability": 0.515059,
+          "label": 1
+        },
+        "NVS_GPCR_hOpiate_D1": {
+          "probability": 0.5005288,
+          "label": 1
+        },
+        "NVS_GPCR_hOpiate_mu": {
+          "probability": 0.49685642,
+          "label": 0
+        },
+        "NVS_GPCR_hTXA2": {
+          "probability": 0.60986149,
+          "label": 1
+        },
+        "NVS_GPCR_p5HT2C": {
+          "probability": 0.51039396,
+          "label": 1
+        },
+        "NVS_GPCR_r5HT1_NonSelective": {
+          "probability": 0.31830877,
+          "label": 0
+        },
+        "NVS_GPCR_r5HT_NonSelective": {
+          "probability": 0.47845735,
+          "label": 0
+        },
+        "NVS_GPCR_rAdra1B": {
+          "probability": 0.41443577,
+          "label": 0
+        },
+        "NVS_GPCR_rAdra1_NonSelective": {
+          "probability": 0.51686397,
+          "label": 1
+        },
+        "NVS_GPCR_rAdra2_NonSelective": {
+          "probability": 0.50041098,
+          "label": 1
+        },
+        "NVS_GPCR_rAdrb_NonSelective": {
+          "probability": 0.30835526,
+          "label": 0
+        },
+        "NVS_GPCR_rNK1": {
+          "probability": 0.32323272,
+          "label": 0
+        },
+        "NVS_GPCR_rNK3": {
+          "probability": 0.3029424,
+          "label": 0
+        },
+        "NVS_GPCR_rOpiate_NonSelective": {
+          "probability": 0.43444445,
+          "label": 0
+        },
+        "NVS_GPCR_rOpiate_NonSelectiveNa": {
+          "probability": 0.51485934,
+          "label": 1
+        },
+        "NVS_GPCR_rSST": {
+          "probability": 0.40123738,
+          "label": 0
+        },
+        "NVS_GPCR_rTRH": {
+          "probability": 0.03743129,
+          "label": 0
+        },
+        "NVS_GPCR_rV1": {
+          "probability": 0.57142067,
+          "label": 1
+        },
+        "NVS_GPCR_rabPAF": {
+          "probability": 0.47915901,
+          "label": 0
+        },
+        "NVS_GPCR_rmAdra2B": {
+          "probability": 0.73309259,
+          "label": 1
+        },
+        "NVS_IC_hKhERGCh": {
+          "probability": 0.30789328,
+          "label": 0
+        },
+        "NVS_IC_rCaBTZCHL": {
+          "probability": 0.52430397,
+          "label": 1
+        },
+        "NVS_IC_rCaDHPRCh_L": {
+          "probability": 0.51435413,
+          "label": 1
+        },
+        "NVS_IC_rNaCh_site2": {
+          "probability": 0.57342468,
+          "label": 1
+        },
+        "NVS_LGIC_bGABARa1": {
+          "probability": 0.40233449,
+          "label": 0
+        },
+        "NVS_LGIC_h5HT3": {
+          "probability": 0.38898953,
+          "label": 0
+        },
+        "NVS_LGIC_hNNR_NBungSens": {
+          "probability": 0.36713366,
+          "label": 0
+        },
+        "NVS_LGIC_rGABAR_NonSelective": {
+          "probability": 0.48179587,
+          "label": 0
+        },
+        "NVS_LGIC_rNNR_BungSens": {
+          "probability": 0.15289105,
+          "label": 0
+        },
+        "NVS_MP_hPBR": {
+          "probability": 0.6166746,
+          "label": 1
+        },
+        "NVS_MP_rPBR": {
+          "probability": 0.71404449,
+          "label": 1
+        },
+        "NVS_NR_bER": {
+          "probability": 0.10465877,
+          "label": 0
+        },
+        "NVS_NR_bPR": {
+          "probability": 0.30606377,
+          "label": 0
+        },
+        "NVS_NR_cAR": {
+          "probability": 0.60299792,
+          "label": 1
+        },
+        "NVS_NR_hAR": {
+          "probability": 0.4540672,
+          "label": 0
+        },
+        "NVS_NR_hCAR_Antagonist": {
+          "probability": 0.32774753,
+          "label": 0
+        },
+        "NVS_NR_hER": {
+          "probability": 0.13395519,
+          "label": 0
+        },
+        "NVS_NR_hFXR_Agonist": {
+          "probability": 0.16941176,
+          "label": 0
+        },
+        "NVS_NR_hFXR_Antagonist": {
+          "probability": 0.22979263,
+          "label": 0
+        },
+        "NVS_NR_hGR": {
+          "probability": 0.54785561,
+          "label": 1
+        },
+        "NVS_NR_hPPARa": {
+          "probability": 0.1575024,
+          "label": 0
+        },
+        "NVS_NR_hPPARg": {
+          "probability": 0.2445002,
+          "label": 0
+        },
+        "NVS_NR_hPR": {
+          "probability": 0.22242866,
+          "label": 0
+        },
+        "NVS_NR_hPXR": {
+          "probability": 0.23355653,
+          "label": 0
+        },
+        "NVS_NR_hRAR_Antagonist": {
+          "probability": 0.0893016,
+          "label": 0
+        },
+        "NVS_NR_hRARa_Agonist": {
+          "probability": 0.06913662,
+          "label": 0
+        },
+        "NVS_NR_hTRa_Antagonist": {
+          "probability": 0.24073105,
+          "label": 0
+        },
+        "NVS_NR_mERa": {
+          "probability": 0.16203112,
+          "label": 0
+        },
+        "NVS_NR_rAR": {
+          "probability": 0.43027811,
+          "label": 0
+        },
+        "NVS_NR_rMR": {
+          "probability": 0.13907827,
+          "label": 0
+        },
+        "NVS_OR_gSIGMA_NonSelective": {
+          "probability": 0.66277871,
+          "label": 1
+        },
+        "NVS_TR_gDAT": {
+          "probability": 0.56773795,
+          "label": 1
+        },
+        "NVS_TR_hAdoT": {
+          "probability": 0.58302467,
+          "label": 1
+        },
+        "NVS_TR_hDAT": {
+          "probability": 0.73021597,
+          "label": 1
+        },
+        "NVS_TR_hNET": {
+          "probability": 0.55957964,
+          "label": 1
+        },
+        "NVS_TR_hSERT": {
+          "probability": 0.31787449,
+          "label": 0
+        },
+        "NVS_TR_rNET": {
+          "probability": 0.45664703,
+          "label": 0
+        },
+        "NVS_TR_rSERT": {
+          "probability": 0.38451936,
+          "label": 0
+        },
+        "NVS_TR_rVMAT2": {
+          "probability": 0.3493131,
+          "label": 0
+        },
+        "OT_AR_ARELUC_AG_1440": {
+          "probability": 0.06472433,
+          "label": 0
+        },
+        "OT_AR_ARSRC1_0480": {
+          "probability": 0.04170541,
+          "label": 0
+        },
+        "OT_AR_ARSRC1_0960": {
+          "probability": 0.09628929,
+          "label": 0
+        },
+        "OT_ER_ERaERa_0480": {
+          "probability": 0.06497427,
+          "label": 0
+        },
+        "OT_ER_ERaERa_1440": {
+          "probability": 0.04689064,
+          "label": 0
+        },
+        "OT_ER_ERaERb_0480": {
+          "probability": 0.09738811,
+          "label": 0
+        },
+        "OT_ER_ERaERb_1440": {
+          "probability": 0.09571798,
+          "label": 0
+        },
+        "OT_ER_ERbERb_0480": {
+          "probability": 0.09434374,
+          "label": 0
+        },
+        "OT_ER_ERbERb_1440": {
+          "probability": 0.09332696,
+          "label": 0
+        },
+        "OT_ERa_EREGFP_0120": {
+          "probability": 0.08273115,
+          "label": 0
+        },
+        "OT_ERa_EREGFP_0480": {
+          "probability": 0.06873361,
+          "label": 0
+        },
+        "OT_FXR_FXRSRC1_0480": {
+          "probability": 0.15354956,
+          "label": 0
+        },
+        "OT_FXR_FXRSRC1_1440": {
+          "probability": 0.08470259,
+          "label": 0
+        },
+        "OT_NURR1_NURR1RXRa_0480": {
+          "probability": 0.10325005,
+          "label": 0
+        },
+        "OT_NURR1_NURR1RXRa_1440": {
+          "probability": 0.0528335,
+          "label": 0
+        },
+        "TOX21_ARE_BLA_Agonist_ch1": {
+          "probability": 0.03723603,
+          "label": 0
+        },
+        "TOX21_ARE_BLA_Agonist_ch2": {
+          "probability": 0.10333134,
+          "label": 0
+        },
+        "TOX21_ARE_BLA_agonist_ratio": {
+          "probability": 0.24248713,
+          "label": 0
+        },
+        "TOX21_ARE_BLA_agonist_viability": {
+          "probability": 0.01484726,
+          "label": 0
+        },
+        "TOX21_AR_BLA_Agonist_ch1": {
+          "probability": 0.00337243,
+          "label": 0
+        },
+        "TOX21_AR_BLA_Agonist_ch2": {
+          "probability": 0.040191,
+          "label": 0
+        },
+        "TOX21_AR_BLA_Agonist_ratio": {
+          "probability": 0.04740204,
+          "label": 0
+        },
+        "TOX21_AR_BLA_Antagonist_ch1": {
+          "probability": 0.00426908,
+          "label": 0
+        },
+        "TOX21_AR_BLA_Antagonist_ch2": {
+          "probability": 0.02180837,
+          "label": 0
+        },
+        "TOX21_AR_BLA_Antagonist_ratio": {
+          "probability": 0.13211798,
+          "label": 0
+        },
+        "TOX21_AR_BLA_Antagonist_viability": {
+          "probability": 0.06021439,
+          "label": 0
+        },
+        "TOX21_AR_LUC_MDAKB2_Agonist": {
+          "probability": 0.04017216,
+          "label": 0
+        },
+        "TOX21_AR_LUC_MDAKB2_Antagonist": {
+          "probability": 0.07556352,
+          "label": 0
+        },
+        "TOX21_AR_LUC_MDAKB2_Antagonist2": {
+          "probability": 0.14935608,
+          "label": 0
+        },
+        "TOX21_AhR_LUC_Agonist": {
+          "probability": 0.1007408,
+          "label": 0
+        },
+        "TOX21_Aromatase_Inhibition": {
+          "probability": 0.1423946,
+          "label": 0
+        },
+        "TOX21_AutoFluor_HEK293_Cell_blue": {
+          "probability": 0.00270901,
+          "label": 0
+        },
+        "TOX21_AutoFluor_HEK293_Media_blue": {
+          "probability": 0.00308304,
+          "label": 0
+        },
+        "TOX21_AutoFluor_HEPG2_Cell_blue": {
+          "probability": 0.00269613,
+          "label": 0
+        },
+        "TOX21_AutoFluor_HEPG2_Cell_green": {
+          "probability": 0.00139,
+          "label": 0
+        },
+        "TOX21_AutoFluor_HEPG2_Media_blue": {
+          "probability": 0.00297471,
+          "label": 0
+        },
+        "TOX21_AutoFluor_HEPG2_Media_green": {
+          "probability": 0.00132031,
+          "label": 0
+        },
+        "TOX21_ELG1_LUC_Agonist": {
+          "probability": 0.02408278,
+          "label": 0
+        },
+        "TOX21_ERa_BLA_Agonist_ch1": {
+          "probability": 0.02989717,
+          "label": 0
+        },
+        "TOX21_ERa_BLA_Agonist_ch2": {
+          "probability": 0.04923083,
+          "label": 0
+        },
+        "TOX21_ERa_BLA_Agonist_ratio": {
+          "probability": 0.04572274,
+          "label": 0
+        },
+        "TOX21_ERa_BLA_Antagonist_ch1": {
+          "probability": 0.02618548,
+          "label": 0
+        },
+        "TOX21_ERa_BLA_Antagonist_ch2": {
+          "probability": 0.02626016,
+          "label": 0
+        },
+        "TOX21_ERa_BLA_Antagonist_ratio": {
+          "probability": 0.11218388,
+          "label": 0
+        },
+        "TOX21_ERa_BLA_Antagonist_viability": {
+          "probability": 0.02253198,
+          "label": 0
+        },
+        "TOX21_ERa_LUC_BG1_Agonist": {
+          "probability": 0.16139465,
+          "label": 0
+        },
+        "TOX21_ERa_LUC_BG1_Antagonist": {
+          "probability": 0.07635216,
+          "label": 0
+        },
+        "TOX21_ESRE_BLA_ch1": {
+          "probability": 0.01023874,
+          "label": 0
+        },
+        "TOX21_ESRE_BLA_ch2": {
+          "probability": 0.00931921,
+          "label": 0
+        },
+        "TOX21_ESRE_BLA_ratio": {
+          "probability": 0.03846191,
+          "label": 0
+        },
+        "TOX21_ESRE_BLA_viability": {
+          "probability": 0.02695719,
+          "label": 0
+        },
+        "TOX21_FXR_BLA_Antagonist_ch1": {
+          "probability": 0.04194132,
+          "label": 0
+        },
+        "TOX21_FXR_BLA_Antagonist_ch2": {
+          "probability": 0.03358835,
+          "label": 0
+        },
+        "TOX21_FXR_BLA_agonist_ch2": {
+          "probability": 0.02450012,
+          "label": 0
+        },
+        "TOX21_FXR_BLA_agonist_ratio": {
+          "probability": 0.01861505,
+          "label": 0
+        },
+        "TOX21_FXR_BLA_antagonist_ratio": {
+          "probability": 0.10256788,
+          "label": 0
+        },
+        "TOX21_FXR_BLA_antagonist_viability": {
+          "probability": 0.03562892,
+          "label": 0
+        },
+        "TOX21_GR_BLA_Agonist_ch1": {
+          "probability": 0.03000286,
+          "label": 0
+        },
+        "TOX21_GR_BLA_Agonist_ch2": {
+          "probability": 0.0233347,
+          "label": 0
+        },
+        "TOX21_GR_BLA_Agonist_ratio": {
+          "probability": 0.04681897,
+          "label": 0
+        },
+        "TOX21_GR_BLA_Antagonist_ch2": {
+          "probability": 0.04736803,
+          "label": 0
+        },
+        "TOX21_GR_BLA_Antagonist_ratio": {
+          "probability": 0.04515137,
+          "label": 0
+        },
+        "TOX21_GR_BLA_Antagonist_viability": {
+          "probability": 0.03515662,
+          "label": 0
+        },
+        "TOX21_HSE_BLA_agonist_ch1": {
+          "probability": 0.03304099,
+          "label": 0
+        },
+        "TOX21_HSE_BLA_agonist_ch2": {
+          "probability": 0.05342195,
+          "label": 0
+        },
+        "TOX21_HSE_BLA_agonist_ratio": {
+          "probability": 0.06955375,
+          "label": 0
+        },
+        "TOX21_HSE_BLA_agonist_viability": {
+          "probability": 0.02361749,
+          "label": 0
+        },
+        "TOX21_MMP_ratio_down": {
+          "probability": 0.1645533,
+          "label": 0
+        },
+        "TOX21_MMP_ratio_up": {
+          "probability": 0.01672408,
+          "label": 0
+        },
+        "TOX21_MMP_viability": {
+          "probability": 0.04576601,
+          "label": 0
+        },
+        "TOX21_NFkB_BLA_agonist_ch1": {
+          "probability": 0.03030663,
+          "label": 0
+        },
+        "TOX21_NFkB_BLA_agonist_ch2": {
+          "probability": 0.00829604,
+          "label": 0
+        },
+        "TOX21_NFkB_BLA_agonist_ratio": {
+          "probability": 0.02543399,
+          "label": 0
+        },
+        "TOX21_NFkB_BLA_agonist_viability": {
+          "probability": 0.05039831,
+          "label": 0
+        },
+        "TOX21_PPARd_BLA_Agonist_viability": {
+          "probability": 0.07652188,
+          "label": 0
+        },
+        "TOX21_PPARd_BLA_Antagonist_ch1": {
+          "probability": 0.01728243,
+          "label": 0
+        },
+        "TOX21_PPARd_BLA_agonist_ch1": {
+          "probability": 0.00374315,
+          "label": 0
+        },
+        "TOX21_PPARd_BLA_agonist_ch2": {
+          "probability": 0.02746153,
+          "label": 0
+        },
+        "TOX21_PPARd_BLA_agonist_ratio": {
+          "probability": 0.01765805,
+          "label": 0
+        },
+        "TOX21_PPARd_BLA_antagonist_ratio": {
+          "probability": 0.0540271,
+          "label": 0
+        },
+        "TOX21_PPARd_BLA_antagonist_viability": {
+          "probability": 0.00414324,
+          "label": 0
+        },
+        "TOX21_PPARg_BLA_Agonist_ch1": {
+          "probability": 0.0034893,
+          "label": 0
+        },
+        "TOX21_PPARg_BLA_Agonist_ch2": {
+          "probability": 0.02435803,
+          "label": 0
+        },
+        "TOX21_PPARg_BLA_Agonist_ratio": {
+          "probability": 0.0359483,
+          "label": 0
+        },
+        "TOX21_PPARg_BLA_Antagonist_ch1": {
+          "probability": 0.00379125,
+          "label": 0
+        },
+        "TOX21_PPARg_BLA_antagonist_ratio": {
+          "probability": 0.07836816,
+          "label": 0
+        },
+        "TOX21_PPARg_BLA_antagonist_viability": {
+          "probability": 0.0200737,
+          "label": 0
+        },
+        "TOX21_TR_LUC_GH3_Agonist": {
+          "probability": 0.00618625,
+          "label": 0
+        },
+        "TOX21_TR_LUC_GH3_Antagonist": {
+          "probability": 0.20397012,
+          "label": 0
+        },
+        "TOX21_VDR_BLA_Agonist_viability": {
+          "probability": 0.07750243,
+          "label": 0
+        },
+        "TOX21_VDR_BLA_Antagonist_ch1": {
+          "probability": 0.02179858,
+          "label": 0
+        },
+        "TOX21_VDR_BLA_agonist_ch2": {
+          "probability": 0.00453264,
+          "label": 0
+        },
+        "TOX21_VDR_BLA_agonist_ratio": {
+          "probability": 0.0069466,
+          "label": 0
+        },
+        "TOX21_VDR_BLA_antagonist_ratio": {
+          "probability": 0.03506593,
+          "label": 0
+        },
+        "TOX21_VDR_BLA_antagonist_viability": {
+          "probability": 0.02982939,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p1_ch1": {
+          "probability": 0.05440426,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p1_ch2": {
+          "probability": 0.05491918,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p1_ratio": {
+          "probability": 0.08562883,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p1_viability": {
+          "probability": 0.03881208,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p2_ch1": {
+          "probability": 0.06048691,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p2_ch2": {
+          "probability": 0.10357313,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p2_ratio": {
+          "probability": 0.12028329,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p2_viability": {
+          "probability": 0.09301642,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p3_ch1": {
+          "probability": 0.07236944,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p3_ch2": {
+          "probability": 0.0932924,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p3_ratio": {
+          "probability": 0.1174194,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p3_viability": {
+          "probability": 0.04122317,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p4_ch1": {
+          "probability": 0.07061739,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p4_ch2": {
+          "probability": 0.06411767,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p4_ratio": {
+          "probability": 0.1070808,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p4_viability": {
+          "probability": 0.07610639,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p5_ch1": {
+          "probability": 0.03645687,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p5_ch2": {
+          "probability": 0.08659008,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p5_ratio": {
+          "probability": 0.10389229,
+          "label": 0
+        },
+        "TOX21_p53_BLA_p5_viability": {
+          "probability": 0.03218611,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_AXIS_up": {
+          "probability": 0.12174048,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_ActivityScore": {
+          "probability": 0.18249877,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_BRAI_up": {
+          "probability": 0.06043653,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_CFIN_up": {
+          "probability": 0.05250995,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_CIRC_up": {
+          "probability": 0.01936573,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_EYE_up": {
+          "probability": 0.08583989,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_JAW_up": {
+          "probability": 0.11251143,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_MORT_up": {
+          "probability": 0.10954276,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_OTIC_up": {
+          "probability": 0.04493263,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_PE_up": {
+          "probability": 0.12600176,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_PFIN_up": {
+          "probability": 0.05878252,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_PIG_up": {
+          "probability": 0.04400984,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_SNOU_up": {
+          "probability": 0.11798803,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_SOMI_up": {
+          "probability": 0.04003388,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_SWIM_up": {
+          "probability": 0.04771297,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_TRUN_up": {
+          "probability": 0.0591247,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_TR_up": {
+          "probability": 0.08445727,
+          "label": 0
+        },
+        "Tanguay_ZF_120hpf_YSE_up": {
+          "probability": 0.1220852,
+          "label": 0
+        }
+      }
+    },
+    {
+      "index": 2,
+      "id": "empty",
+      "input_smiles": "",
+      "canonical_smiles": null,
+      "status": "error",
+      "error": {
+        "code": "E-INPUT-007",
+        "message": "Empty SMILES",
+        "detail": null
+      },
+      "warnings": [],
+      "predictions": null
+    }
+  ]
+}

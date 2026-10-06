@@ -1,0 +1,3 @@
+smiles,id
+N->[Pt](<-N)(Cl)Cl,cisplatin_dative
+N[Pt](N)(Cl)Cl,cisplatin_single

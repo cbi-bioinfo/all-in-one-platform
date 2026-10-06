@@ -1,0 +1,12 @@
+{
+  "smiles": [
+    "CC(C)N(C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.Br",
+    "CC(C)[N+](C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.[Br-]",
+    ""
+  ],
+  "ids": [
+    "trainset_010475_raw",
+    "trainset_010475",
+    "empty"
+  ]
+}

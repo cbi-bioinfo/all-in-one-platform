@@ -1,0 +1,12 @@
+{
+  "id": "S13",
+  "category": "boundary",
+  "title": "배치 독립성 — 원자 차수 6 분자(PF6 염)와 같은 파일로 예측해도 atrazine 확률은 N1과 동일",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

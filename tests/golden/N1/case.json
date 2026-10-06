@@ -1,0 +1,12 @@
+{
+  "id": "N1",
+  "category": "normal",
+  "title": "단일 화합물 (atrazine, trainset 홀드아웃 seed2 test 분자)",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

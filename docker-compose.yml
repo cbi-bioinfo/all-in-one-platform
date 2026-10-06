@@ -1,0 +1,63 @@
+# Deployment manifest — GROVER Toxicity Predictor 1.0.0
+#
+# Batch job (T2, default):
+#   INPUT_FILE=molecules.csv docker compose run --rm grover-batch
+# HTTP API (optional):
+#   docker compose --profile serve up -d grover-serve
+#
+# Host directories: ./input (read-only) and ./output (must be writable by
+# UID 10001, or set RUN_AS="$(id -u):$(id -g)").
+# Measured on 10,974 molecules (RTX 2080 Ti): peak RAM 0.94 GiB, peak GPU
+# memory 4.0 GB, model load ~7 s.
+
+x-common: &common
+  image: pzkeung/bio-synergy-platform:grover-1.0.0
+  platform: linux/amd64
+  user: "${RUN_AS:-10001:10001}"
+  deploy:
+    resources:
+      limits:
+        memory: 4g
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
+services:
+  grover-batch:
+    <<: *common
+    command: ["batch"]
+    network_mode: none            # no network access at run time
+    environment:
+      INPUT_PATH: /data/input/${INPUT_FILE:-molecules.csv}
+      OUTPUT_DIR: /data/output
+      OUTPUT_FORMAT: ${OUTPUT_FORMAT:-csv}
+      DEVICE: ${DEVICE:-auto}
+      CHUNK_SIZE: ${CHUNK_SIZE:-1000}
+      SEED: "42"
+    volumes:
+      - ./input:/data/input:ro
+      - ./output:/data/output
+
+  grover-serve:
+    <<: *common
+    profiles: ["serve"]
+    command: ["serve"]
+    environment:
+      DEVICE: ${DEVICE:-auto}
+      MAX_REQUEST_ITEMS: "100"
+    ports:
+      - "127.0.0.1:${PORT:-8000}:8000"   # loopback only — the API has no authentication
+    networks: [grover-internal]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+networks:
+  grover-internal:
+    driver: bridge
