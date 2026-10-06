@@ -44,19 +44,7 @@ pip-compile --generate-hashes --allow-unsafe --strip-extras \
   -c constraints.txt -o requirements.lock requirements.in
 ```
 
-## 3. 레지스트리 등록
-
-```bash
-docker login -u pzkeung
-docker push pzkeung/bio-synergy-platform:toxkg-gps-1.0.0
-docker push pzkeung/bio-synergy-platform:toxkg-gps
-docker buildx imagetools inspect pzkeung/bio-synergy-platform:toxkg-gps-1.0.0   # digest 확인
-```
-
-push 후 digest를 `docs/release_info.md`와 `tool.yaml`의 `image.digest`에 기록한다.
-`latest` 태그는 쓰지 않는다.
-
-## 4. 오프라인 설치
+## 3. 오프라인 설치
 
 ```bash
 # 인터넷 PC
@@ -75,7 +63,7 @@ Container Toolkit이 필요하다. GPU 없이도 약 79 분자/초로 처리한�
 GPU가 없는 호스트에서 매니페스트를 쓸 때는 `docker-compose.yml`의 GPU `reservations`
 블록을 지운다.
 
-## 5. 실행
+## 4. 실행
 
 ```bash
 mkdir -p input output && chmod 777 output
@@ -92,7 +80,7 @@ INPUT_FILE=molecules.csv docker compose run --rm toxkggps-batch
 docker compose --profile serve up -d toxkggps-serve     # 선택: HTTP API
 ```
 
-## 6. 보안·네트워크
+## 5. 보안·네트워크
 
 * 비루트 사용자로 실행되며 실행 중 외부로 접속하지 않는다. batch 모드는 `--network none`
   (매니페스트 `network_mode: none`)으로 네트워크 인터페이스를 없앤다. 자체 시험은 모두
@@ -103,7 +91,7 @@ docker compose --profile serve up -d toxkggps-serve     # 선택: HTTP API
 * 시작할 때 가중치와 설정 파일의 SHA-256을 `models/SHA256SUMS`와 비교하고, 다르면
   `E-MODEL-002`로 종료한다.
 
-## 7. 설치 확인
+## 6. 설치 확인
 
 ```bash
 docker run --rm --network none pzkeung/bio-synergy-platform:toxkg-gps-1.0.0 version

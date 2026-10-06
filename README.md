@@ -33,7 +33,7 @@ docker run --rm --gpus all --network none \
 | `api/openapi.yaml` | HTTP API specification (OpenAPI 3.0.3) for `serve` mode |
 | `models/` | `gps_trainset_seed0.pt` (not in git) + `_config.json` + `SHA256SUMS` + `README.md` |
 | `tests/golden/` | Golden set: N1–N3 normal, B1–B2 boundary, E1–E2 error (input/expected file pairs) |
-| `tests/cases/` | Supplementary cases S1–S11 (limits, format errors, checkpoint restart, standardization, RDKit-version boundary, dative bonds, bond-less salt) |
+| `tests/cases/` | Supplementary cases S1–S12 (limits incl. the 100-molecule serve request, format errors, checkpoint restart, standardization, RDKit-version boundary, dative bonds, bond-less salt) |
 | `tests/run_tests.py`, `tests/make_report.py` | Self-test runner and report generator (Python stdlib + Docker only) |
 | `docs/user_manual.md` | How to run, input formats, environment variables, output interpretation, error codes |
 | `docs/model_card.md` | Training data, procedure, performance, limitations |

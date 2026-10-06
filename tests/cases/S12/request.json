@@ -99,8 +99,7 @@
     "OC(CN1CCC(Cc2ccc(F)cc2)CC1)c1ccc(Cl)cc1",
     "CCOc1cc(CC(=O)N[C@@H](CC(C)C)c2ccccc2N2CCCCC2)ccc1C(=O)O",
     "CC(=O)C1CCOC1=O",
-    "CN(CCCN1c2ccccc2CCc2ccccc21)CC(=O)c1ccc(Cl)cc1",
-    "O=C1C2CC=CCC2C(=O)N1SC(Cl)(Cl)Cl"
+    "CN(CCCN1c2ccccc2CCc2ccccc21)CC(=O)c1ccc(Cl)cc1"
   ],
   "ids": [
     "testset_000012",
@@ -202,7 +201,6 @@
     "testset_002074",
     "testset_002091",
     "testset_002103",
-    "testset_002148",
-    "testset_001778"
+    "testset_002148"
   ]
 }
