@@ -1,0 +1,14 @@
+{
+  "id": "S3",
+  "category": "error",
+  "title": "smiles 컬럼이 없는 CSV (batch)",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 2,
+    "log_contains": [
+      "E-INPUT-005"
+    ]
+  }
+}

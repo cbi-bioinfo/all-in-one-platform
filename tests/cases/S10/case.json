@@ -1,0 +1,12 @@
+{
+  "id": "S10",
+  "category": "boundary",
+  "title": "백금 착물 배위결합(->) vs 단일결합 표기 — 둘 다 예측, Pt 혼성이 인코딩 범주 밖이라 W-FEAT-001",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

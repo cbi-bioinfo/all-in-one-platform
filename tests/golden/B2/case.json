@@ -1,0 +1,12 @@
+{
+  "id": "B2",
+  "category": "boundary",
+  "title": "입체 표기 [C@H] 포함 vs 제거 분자 — 키랄 태그가 원자 특징에 들어가 두 예측이 약간 다름",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

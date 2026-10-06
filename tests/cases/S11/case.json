@@ -1,0 +1,12 @@
+{
+  "id": "S11",
+  "category": "boundary",
+  "title": "결합이 없는 무기염 KI (trainset 분자) — 고립 이온은 그래프 주의가 전체 원자로 퍼짐, W-FEAT-002",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

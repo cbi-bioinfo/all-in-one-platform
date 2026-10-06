@@ -1,0 +1,175 @@
+# Analysis-tool metadata — FP-GNN Toxicity Predictor
+schema_version: "1.0"
+
+# ── 기술 식별자 · 명칭 · 버전 ───────────────────────────────────────────────────
+id: bsp-tox-fpgnn
+name: FP-GNN Toxicity Predictor
+version: 1.0.0
+description: >-
+  SMILES 입력 화합물에 대해 631개 독성 태스크(Tox21 12, ClinTox 2, ToxCast 617)의
+  양성 확률을 하나의 다중작업 FP-GNN으로 예측한다. 분자 지문 가지(MACCS 167 + ErG 441 +
+  PubChem 881 = 1,489비트 → MLP)와 그래프 주의망 가지(원자 133차원 특징, 8-헤드 GAT)를
+  합쳐 출력한다. 추론 전용, 오프라인 실행.
+category: toxicity-prediction
+references:
+  - "FP-GNN: Cai H. et al., Briefings in Bioinformatics 23(6), bbac408 (2022), doi:10.1093/bib/bbac408"
+  - "Model origin: https://github.com/idrugLab/FP-GNN (commit 00cbdf2; no license file — its code is not included)"
+  - "PubChem fingerprint: PyBioMed PubChemFingerprints.py (BSD-3-Clause), vendored unmodified in src/pybiomed/"
+
+# ── 탑재 유형 ─────────────────────────────────────────────────────────────────
+deployment:
+  type_code: T2
+  type_name: 배치 분석형
+  target: 대용량 입력 처리 및 장시간 수행 파이프라인
+  execution: 작업 단위 가동 후 종료 (기본 명령 `batch`)
+  progress_log: "stderr에 청크마다 '[progress] 처리/전체 (%) chunk i/n elapsed eta rate' 한 줄 출력"
+  checkpoint_restart: >-
+    CHUNK_SIZE 단위로 처리 결과를 CHECKPOINT_DIR에 원자적으로 저장. 같은 명령을 다시
+    실행하면(RESUME=1) 완료된 청크를 건너뛰고 이어서 처리. MAX_CHUNKS_PER_RUN으로
+    작업을 나누어 실행 가능(중단 시 종료 코드 5, run_summary.json status=partial).
+  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 OUTPUT_DIR/run_summary.json에 기록"
+  expected_duration:
+    model_load_sec: 1
+    gpu_throughput_mol_per_sec: 66        # GTX 1080 Ti, trainset 10,974 분자 실측 (예측 단계, 다른 작업과 GPU 공유)
+    cpu_throughput_mol_per_sec: 3.1       # 506 분자 실측
+    example: "10,974 분자 = 3분 3초 (GPU, 결과 파일 쓰기 포함) / 10,000 분자 ≈ 54분 (CPU)"
+    note: "처리 시간의 약 절반은 CPU에서 계산하는 분자 지문(특히 PubChem SMARTS 881개)이다"
+  exit_codes:
+    0: 완료 (분자 단위 오류는 결과 파일의 status/error_code에 기록)
+    2: 입력 오류 (E-INPUT-*)
+    3: 모델 오류 (E-MODEL-*)
+    4: 시스템·설정 오류 (E-SYS-*)
+    5: MAX_CHUNKS_PER_RUN 도달로 일시 중단 — 같은 명령으로 재시작
+  optional_modes:
+    serve: "HTTP API (api/openapi.yaml, OpenAPI 3.0.3), 요청당 최대 MAX_REQUEST_ITEMS건, 인증 없음"
+
+# ── 컨테이너 · 소스 ───────────────────────────────────────────────────────────
+image:
+  repository: pzkeung/bio-synergy-platform
+  tag: fp-gnn-1.0.0
+  alias_tags: [fp-gnn]
+  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  platform: linux/amd64
+  user: "10001:10001 (non-root)"
+  network: none           # no network access needed at run time
+source:
+  repository: https://github.com/pzkeung/DrugDevPlatform.git
+  branch: fp-gnn
+  tag: fp-gnn-v1.0.0      # commit hash — docs/release_info.md
+entrypoint: ["python", "-m", "fpgnn_tox"]
+default_command: ["batch"]
+
+# ── 입력 항목 ─────────────────────────────────────────────────────────────────
+inputs:
+  - name: input_file
+    env: INPUT_PATH
+    type: file
+    required: true
+    encoding: UTF-8
+    formats:
+      - {ext: .csv, content: "헤더 행 필수. 'smiles' 또는 'canonical_smiles' 열 필수(대소문자 무관). 'id'/'mol_id'/'name'/'compound_id' 열 선택"}
+      - {ext: .smi, content: "한 줄에 'SMILES [ID]'"}
+      - {ext: .txt, content: "한 줄에 'SMILES [ID]'"}
+      - {ext: .sdf, content: "다중 분자 SDF, 분자명(_Name)을 ID로 사용"}
+      - {ext: .mol, content: "단일 분자 MOL"}
+    constraints:
+      max_smiles_length: 1000    # MAX_SMILES_LENGTH
+      max_molecules: null        # batch 모드는 제한 없음
+  - name: smiles
+    mode: serve
+    type: array[string]
+    required: true
+    description: "POST /predict 본문 'smiles' (1–100건)"
+  - name: ids
+    mode: serve
+    type: array[string]
+    required: false
+
+# ── 파라미터 및 기본값 ────────────────────────────────────────────────────────
+parameters:
+  - {name: OUTPUT_DIR,          type: path, default: /data/output,    description: 결과 저장 경로}
+  - {name: OUTPUT_FORMAT,       type: enum, default: csv, values: [csv, json], description: 결과 파일 형식}
+  - {name: MODEL_DIR,           type: path, default: /opt/app/models, description: "가중치 디렉터리 (SHA256SUMS 포함)"}
+  - {name: MODEL_PATH,          type: path, default: /opt/app/models/fpgnn_trainset_seed0.pt}
+  - {name: MODEL_CONFIG,        type: path, default: /opt/app/models/fpgnn_trainset_seed0_config.json}
+  - {name: CHECKPOINT_DIR,      type: path, default: "${OUTPUT_DIR}/.checkpoint"}
+  - {name: RESUME,              type: bool, default: 1,    description: 체크포인트에서 재시작}
+  - {name: CHUNK_SIZE,          type: int,  default: 1000, description: 체크포인트 단위(분자 수)}
+  - {name: MAX_CHUNKS_PER_RUN,  type: int,  default: 0,    description: "1회 실행당 최대 청크 수 (0=제한 없음)"}
+  - {name: DEVICE,              type: enum, default: auto, values: [auto, cuda, cpu]}
+  - {name: SEED,                type: int,  default: 42}
+  - {name: STANDARDIZE,         type: bool, default: 0,    description: "1이면 최대 유기 조각만 남기고 전하 중화 (학습 전처리와 달라 기본 끔)"}
+  - {name: MAX_SMILES_LENGTH,   type: int,  default: 1000}
+  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: serve 모드 요청당 최대 분자 수}
+  - {name: VERIFY_CHECKSUM,     type: bool, default: 1,    description: 시작 시 가중치·설정 SHA-256 검증}
+  - {name: HOST,                type: str,  default: 0.0.0.0, description: serve 모드 바인딩 주소}
+  - {name: PORT,                type: int,  default: 8000, description: serve 모드 포트}
+  - {name: LOG_LEVEL,           type: enum, default: INFO, values: [DEBUG, INFO, WARNING, ERROR]}
+
+# ── 출력 항목 · 자료형 · 단위 ─────────────────────────────────────────────────
+outputs:
+  files:
+    - {name: "predictions.csv | predictions.json", description: 분자별 예측 결과}
+    - {name: run_summary.json, description: "상태(completed/partial), 건수, 시작/종료 시각, 소요 시간, 처리량, 장치, 모델 SHA-256"}
+  fields:
+    - {name: index,            type: integer, unit: null, description: "입력 순서 (0부터)"}
+    - {name: id,               type: string,  unit: null, description: "입력 ID, 없으면 mol_<index>"}
+    - {name: input_smiles,     type: string,  unit: null}
+    - {name: canonical_smiles, type: string,  unit: null, description: "RDKit canonical SMILES (표시용; 특징은 입력에서 파싱한 분자로 계산)"}
+    - {name: status,           type: enum,    unit: null, values: [ok, error]}
+    - {name: error_code,       type: string,  unit: null, description: "오류 코드 (docs/user_manual.md)"}
+    - {name: error_message,    type: string,  unit: null, description: "오류 설명 + RDKit 원문 메시지"}
+    - {name: warnings,         type: "string (';' 구분)", unit: null, values: [W-STD-001, W-STD-002, W-STD-003, W-FEAT-001, W-FEAT-002]}
+    - {name: "<task>_prob",    type: float,   unit: "probability (0–1)", count: 631, description: "해당 태스크 양성(독성/활성) 확률, 소수점 8자리"}
+    - {name: "<task>_label",   type: integer, unit: "binary (0/1)",      count: 631, description: "<task>_prob ≥ 0.5 이면 1"}
+  task_list: "models/fpgnn_trainset_seed0_config.json 의 tasks 또는 GET /info (Tox21 12 + ClinTox 2 + ToxCast 617)"
+
+# ── 성능지표 및 측정 조건 ─────────────────────────────────────────────────────
+performance:
+  submitted_model: "trainset 홀드아웃 seed0 모델 (5개 seed 중 val macro AUROC 최고 0.7483)"
+  metrics:
+    - {name: macro AUROC,       value: 0.7127, five_seed_mean: 0.7117, five_seed_sd: 0.0055}
+    - {name: macro F1,          value: 0.2722, five_seed_mean: 0.2742, five_seed_sd: 0.0193}
+    - {name: macro sensitivity, value: 0.2616, five_seed_mean: 0.2511, five_seed_sd: 0.0210}
+    - {name: macro specificity, value: 0.8746, five_seed_mean: 0.8820, five_seed_sd: 0.0077}
+  conditions:
+    dataset: "trainset — Tox21 + ClinTox + ToxCast 병합·중복 제거 (10,974 분자, 631 태스크)"
+    split: "Murcko scaffold holdout, seed 0 (train 9,978 / val 490 / test 506)"
+    evaluation_set: "seed0 test — 학습과 체크포인트 선택에 사용하지 않음"
+    threshold: 0.5
+    averaging: "test에 양성·음성이 모두 있는 551개 태스크의 지표 단순 평균 (결측 라벨 제외)"
+    value_source: "본 컨테이너 출력(float64)으로 다시 계산한 값과 학습 환경(float32) 재채점 값이 소수점 6자리까지 동일"
+    five_seed: "seed 0–4 모델을 각자의 test로 평가한 값의 평균 ± 표준편차"
+    hardware: "NVIDIA GeForce GTX 1080 Ti, float64 추론"
+
+# ── 난수 시드 및 허용 오차 ────────────────────────────────────────────────────
+reproducibility:
+  seed: 42
+  seeded: [python random, numpy, torch, torch.cuda]
+  deterministic: "cudnn.deterministic=True, torch.use_deterministic_algorithms(True), float64 추론, 분자별 독립 계산"
+  tolerance:
+    probability_abs: 1.0e-6
+    strings_and_labels: exact
+  measured:
+    gpu_repeat_max_abs_diff: 0.0    # 506 분자 × 631 태스크, GTX 1080 Ti에서 2회
+    gpu_vs_cpu_max_abs_diff: 0.0    # 같은 506 분자, DEVICE=cpu 실행과 비교 (모든 열 일치)
+
+# ── 자원 요구량 ───────────────────────────────────────────────────────────────
+resources:
+  cpu: {min_cores: 2, recommended_cores: 4}
+  memory: {min: 2GiB, recommended: 4GiB, measured_peak: 0.77GiB}
+  gpu: {count: 1, required: false, min_vram: 1GB, measured_peak_allocated: 64MiB, driver: "NVIDIA driver ≥ 520 + NVIDIA Container Toolkit (CUDA 11.8)"}
+  disk: {image: 8.7GB}
+
+# ── 적용 한계 및 주의사항 ─────────────────────────────────────────────────────
+limitations:
+  - "scaffold holdout 기준 macro AUROC 0.71(5-seed 0.712 ± 0.006). 0.5 임계값 민감도는 0.26으로 낮다. 확률은 순위화 용도로 쓴다."
+  - "원자 특징에 키랄 태그가 들어가 입체이성질체 표기에 따라 예측이 소폭 달라진다(시험 사례 B2, 최대 0.0025)."
+  - "그래프 주의는 결합이 있는 원자 사이에서만 계산되고 자기 자신을 포함하지 않는다. 결합이 없는 원자(염의 금속 이온 등)는 분자 전체 원자에 균등하게 주의가 퍼진다 — W-FEAT-002 (시험 사례 S11)."
+  - "혼성이 SP–SP3D2가 아닌 원자(Na⁺ 같은 단원자 이온, 명시적 수소 [2H], 일부 금속), 차수 > 5, 전하가 −2..+2 밖, 수소 수 > 4인 원자는 원-핫의 '기타' 칸으로 인코딩된다 — W-FEAT-001."
+  - "금속 착물은 배위결합(->)·단일결합 표기에 따라 예측이 크게 달라질 수 있다(시험 사례 S10, 최대 0.34)."
+  - "RDKit 2026.3.6의 원자가 규칙을 따른다. [AlH3] 알루미늄 착물 등 일부 구조는 E-INPUT-002로 거부된다(시험 사례 S9)."
+  - "trainset은 염·전하를 제거하지 않은 SMILES로 학습되었다. 기본 설정은 학습과 같으며 STANDARDIZE=1은 예측을 바꾼다(시험 사례 S6, 최대 0.28)."
+  - "CPU 실행은 GPU보다 약 20배 느리다(3.1 분자/초)."
+  - "적용영역(AD) 판정은 제공하지 않는다. 실험적 독성 평가를 대체하지 않는다. 연구용."
+  - "인증·사용자 관리 기능이 없다. serve 모드는 신뢰된 내부망에서만 사용한다."
