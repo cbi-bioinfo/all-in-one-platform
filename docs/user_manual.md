@@ -33,7 +33,7 @@ docker save pzkeung/bio-synergy-platform:ssl-gcn-1.0.0 | gzip > ssl-gcn-1.0.0.ta
 ```bash
 docker load < ssl-gcn-1.0.0.tar.gz
 docker run --rm --network none pzkeung/bio-synergy-platform:ssl-gcn-1.0.0 version
-# → bsp-tox-sslgcn 1.0.0
+# → tox-sslgcn 1.0.0
 ```
 
 ## 2. 배치 실행 (기본)
@@ -97,7 +97,7 @@ docker run --rm --gpus all --network none \
 로그는 표준 오류로 나온다. 형식 예(506분자, RTX 2080 Ti에서의 실측 속도 기준):
 
 ```
-INFO sslgcn_tox: bsp-tox-sslgcn 1.0.0 — batch run started at <시작 시각>
+INFO sslgcn_tox: tox-sslgcn 1.0.0 — batch run started at <시작 시각>
 INFO sslgcn_tox: Input: /data/input/test.csv — 506 molecules in 1 chunk(s) of 1000
 INFO sslgcn_tox: Verifying model checksums ...
 INFO sslgcn_tox: Model loaded: 601 task models, device=cuda

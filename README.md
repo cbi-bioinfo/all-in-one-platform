@@ -1,4 +1,4 @@
-# SSL-GCN Toxicity Predictor 1.0.0 (`bsp-tox-sslgcn`)
+# SSL-GCN Toxicity Predictor 1.0.0 (`tox-sslgcn`)
 
 Offline, inference-only container that predicts the probability of 601 toxicity
 endpoints (Tox21 12 · ClinTox 2 · ToxCast 587) for small molecules given as

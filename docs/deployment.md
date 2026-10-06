@@ -108,7 +108,7 @@ docker compose --profile serve up -d sslgcn-serve     # 선택: HTTP API
 
 ```bash
 docker run --rm --network none pzkeung/bio-synergy-platform:ssl-gcn-1.0.0 version
-# → bsp-tox-sslgcn 1.0.0
+# → tox-sslgcn 1.0.0
 python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:ssl-gcn-1.0.0
 # → 16/16 passed (골든 7건 + 보조 9건)
 ```

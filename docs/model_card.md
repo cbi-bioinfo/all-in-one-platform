@@ -4,7 +4,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| 기술 식별자 | `bsp-tox-sslgcn` 1.0.0 |
+| 기술 식별자 | `tox-sslgcn` 1.0.0 |
 | 과제 | 화합물 독성 이진 분류 — 태스크별 모델 601개, 각 태스크의 양성 확률 |
 | 입력 | SMILES → RDKit 분자 → DGL 그래프 (self-loop 포함, 노드 특징 74차원 `CanonicalAtomFeaturizer`, 결합 특징 없음) |
 | 구조 | 태스크마다 GCN 6층(은닉 64, 이웃 합산 GraphConv·정규화 없음, ReLU, BatchNorm, dropout 0.042) → 가중합+최대 readout(128) → MLP(512, ReLU, BatchNorm) → 1 출력, sigmoid (dgllife `GCNPredictor`). 모델 하나당 파라미터 94,018개 |
