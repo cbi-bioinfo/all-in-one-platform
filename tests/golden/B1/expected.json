@@ -1,5 +1,5 @@
 {
-  "tool_id": "bsp-tox-grover",
+  "tool_id": "tox-grover",
   "version": "1.0.0",
   "n_items": 100,
   "n_ok": 100,
