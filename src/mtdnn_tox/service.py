@@ -14,6 +14,11 @@ FORWARD_BATCH = 256
 def run_records(predictor, records: list[Record], cfg) -> list[dict]:
     """Prepare, encode and predict every record. A failing record gets
     status='error' and never stops the others."""
+    with predictor.lock:
+        return _run_records(predictor, records, cfg)
+
+
+def _run_records(predictor, records: list[Record], cfg) -> list[dict]:
     results, embeddings, slots = [], [], []
     for rec in records:
         res = {

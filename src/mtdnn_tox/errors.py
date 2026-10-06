@@ -14,6 +14,7 @@ ERRORS = {
     "E-INPUT-005": (422, 2, "CSV input has no 'smiles' column"),
     "E-INPUT-006": (422, 2, "Input contains no molecules"),
     "E-INPUT-011": (422, 2, "Request body does not match the API schema"),
+    "E-INPUT-012": (413, 2, "Uploaded job input is larger than JOB_MAX_UPLOAD_MB"),
     # record-level input errors
     "E-INPUT-002": (422, None, "SMILES could not be parsed by RDKit"),
     "E-INPUT-007": (422, None, "Empty SMILES"),
@@ -28,6 +29,9 @@ ERRORS = {
     "E-SYS-002": (500, 4, "DEVICE=cuda was requested but no GPU is visible"),
     "E-SYS-003": (500, 4, "Unexpected internal error"),
     "E-SYS-004": (400, 4, "Invalid configuration value"),
+    # job API (serve mode)
+    "E-JOB-001": (404, None, "Job not found"),
+    "E-JOB-002": (409, None, "Job result is not available (job not completed)"),
 }
 
 WARNINGS = {

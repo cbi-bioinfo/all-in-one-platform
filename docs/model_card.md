@@ -1,4 +1,4 @@
-# 모델 카드 — SE-MTDNN Toxicity Predictor 1.0.0
+# 모델 카드 — MTDNN Toxicity Predictor 1.0.0
 
 ## 1. 모델 개요
 
@@ -7,9 +7,9 @@
 | 기술 식별자 | `bsp-tox-mtdnn` 1.0.0 |
 | 과제 | 화합물 독성 다중작업 이진 분류 — 631개 태스크의 양성 확률 |
 | 입력 | SMILES (RDKit canonical) |
-| 구조 | ① SE 인코더: GRU 기반 VAE 번역 모델(Winter et al. 2019)의 인코더 평균 μ, 128차원 ② MTDNN: 공유층 128→2048→1024 (BatchNorm, LeakyReLU 0.05) + 태스크별 1024→512→256→1 (BatchNorm, LeakyReLU, sigmoid) × 631 |
-| 원 논문·코드 | SE-MTDNN, Sci. Rep. 2023 (doi:10.1038/s41598-023-31169-8), https://github.com/IBM/multitask-toxicity (Apache-2.0) |
-| 가중치 | `models/mtdnn_trainset_seed0.pt` (1.68 GB), `models/se_encoder/` (SE 인코더, 원 논문 공개 가중치 그대로 사용) |
+| 구조 | ① SE 인코더: 원 논문 저장소의 GRU 기반 VAE 번역 모델(무작위 SMILES → canonical SMILES; 구조는 Winter et al. 2019 CDDD를 따름)의 인코더 평균 μ, 128차원 ② MTDNN: 공유층 128→2048→1024 (BatchNorm, LeakyReLU 0.05) + 태스크별 1024→512→256→1 (BatchNorm, LeakyReLU, sigmoid) × 631 |
+| 원 논문·코드 | Sharma B. et al., "Accurate clinical toxicity prediction using multi-task deep neural nets and contrastive molecular explanations", Sci. Rep. 13, 4908 (2023), doi:10.1038/s41598-023-31169-8 — https://github.com/IBM/multitask-toxicity (Apache-2.0) |
+| 가중치 | `models/mtdnn_pretrained.pt` (1.68 GB, 본 과제 학습), `models/se_encoder/` (원 논문 저장소 `SE_featurization/models/` 공개 가중치 그대로 사용) |
 | 용도 | 연구용 독성 스크리닝 — 화합물 우선순위 선별, 위험 신호 탐색 |
 | 비용도 | 규제 판단, 임상 의사결정, 실험 독성평가 대체 |
 

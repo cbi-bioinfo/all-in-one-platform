@@ -25,6 +25,8 @@ class Config:
     standardize: bool
     max_smiles_length: int
     max_request_items: int
+    jobs_dir: Path
+    job_max_upload_mb: int
     verify_checksum: bool
     host: str
     port: int
@@ -40,7 +42,7 @@ class Config:
             output_dir=output_dir,
             output_format=os.getenv("OUTPUT_FORMAT", "csv").strip().lower(),
             model_dir=model_dir,
-            model_path=Path(os.getenv("MODEL_PATH", str(model_dir / "mtdnn_trainset_seed0.pt"))),
+            model_path=Path(os.getenv("MODEL_PATH", str(model_dir / "mtdnn_pretrained.pt"))),
             se_encoder_dir=Path(os.getenv("SE_ENCODER_DIR", str(model_dir / "se_encoder"))),
             checkpoint_dir=Path(os.getenv("CHECKPOINT_DIR", str(output_dir / ".checkpoint"))),
             resume=_bool("RESUME", "1"),
@@ -51,6 +53,8 @@ class Config:
             standardize=_bool("STANDARDIZE", "0"),
             max_smiles_length=int(os.getenv("MAX_SMILES_LENGTH", "1000")),
             max_request_items=int(os.getenv("MAX_REQUEST_ITEMS", "100")),
+            jobs_dir=Path(os.getenv("JOBS_DIR", str(output_dir / "jobs"))),
+            job_max_upload_mb=int(os.getenv("JOB_MAX_UPLOAD_MB", "1024")),
             verify_checksum=_bool("VERIFY_CHECKSUM", "1"),
             host=os.getenv("HOST", "0.0.0.0"),
             port=int(os.getenv("PORT", "8000")),

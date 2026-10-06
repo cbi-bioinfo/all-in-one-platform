@@ -4,13 +4,15 @@
 
 | 이름 | 종류 | 경로 | 용량 | 출처 | 라이선스 |
 |---|---|---|--:|---|---|
-| SE 인코더 가중치 | PyTorch state_dict | `models/se_encoder/model.pt` | 50,302,643 B | IBM/multitask-toxicity `SE_featurization/` (원 논문 공개본, 수정 없음) | Apache-2.0 |
+| MTDNN 가중치 | PyTorch 체크포인트 (dict: `state_dict`, `tasks`, `emb_dim`, `epoch`, `val_loss`, `run_id`) | `models/mtdnn_pretrained.pt` | 1,677,343,497 B | 본 과제 학습 산출물 (trainset 홀드아웃 seed 0, `docs/model_card.md`) | Apache-2.0 |
+| SE 인코더 가중치 | PyTorch state_dict | `models/se_encoder/model.pt` | 50,302,643 B | IBM/multitask-toxicity `SE_featurization/models/` (원 논문 공개본, 바이트 단위 동일) | Apache-2.0 |
 | SE 인코더 설정 | pickle (`argparse.Namespace`) | `models/se_encoder/config.nb` | 3,114 B | 위와 같음 | Apache-2.0 |
 | SE 토크나이저 어휘 | pickle (`CharVocab`, 39 토큰) | `models/se_encoder/vocab.nb` | 7,151 B | 위와 같음 | Apache-2.0 |
-| SE 인코더 코드 | Python 소스 | `src/moses/` | 약 100 KB | MOSES (molecularsets/moses), 원 논문 저장소를 거쳐 수정 없이 포함 | MIT |
+| SE 인코더 코드 | Python 소스 | `src/moses/` | 약 100 KB | IBM/multitask-toxicity `SE_featurization/moses/` (MOSES 유래 부분 포함), 수정 없이 포함 | Apache-2.0 / MIT (`NOTICE`) |
 
-체크섬은 `models/SHA256SUMS`에 있다. 추론에는 그 밖의 데이터베이스, 사전 계산
-임베딩, 외부 서비스가 필요 없다.
+가중치 파일은 용량 때문에 소스 저장소에 넣지 않고 이미지에만 포함한다(빌드 시
+배치 방법은 `docs/deployment.md` 1.1절). 체크섬은 `models/SHA256SUMS`에 있다.
+추론에는 그 밖의 데이터베이스, 사전 계산 임베딩, 외부 서비스가 필요 없다.
 
 ## 2. 학습 데이터 (trainset) — 패키지에 포함하지 않음
 

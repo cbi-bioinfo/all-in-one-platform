@@ -1,0 +1,12 @@
+{
+  "id": "S11",
+  "category": "error",
+  "title": "존재하지 않는 job_id 상태 조회 — 404 E-JOB-001",
+  "mode": "serve",
+  "method": "GET",
+  "path": "/jobs/00000000000000000000000000000000",
+  "expect": {
+    "http_status": 404,
+    "body": "expected.json"
+  }
+}

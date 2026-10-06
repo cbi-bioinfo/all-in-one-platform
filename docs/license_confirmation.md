@@ -1,15 +1,16 @@
-# 라이선스 확인서 — SE-MTDNN Toxicity Predictor 1.0.0
+# 라이선스 확인서 — MTDNN Toxicity Predictor 1.0.0
 
-확인일: 2026-10-06 · 대상: 저장소 브랜치 `mtdnn`, 이미지 `pzkeung/bio-synergy-platform:mtdnn-1.0.0`
+확인일: 2026-10-06 · 대상: 저장소 브랜치 `mtdnn`, 이미지 `cbibioinfolab/toxicity-prediction:mtdnn-1.0.0`
 
 ## 1. 요약
 
 | 구분 | 결론 |
 |---|---|
 | 본 저장소 코드 (`src/mtdnn_tox/`, `tests/`) | Apache-2.0 (`LICENSE`) |
-| 포함 제3자 코드 (`src/moses/`) | MIT — 고지문 포함, 수정 없음 |
-| 모델 가중치 — SE 인코더 | Apache-2.0 (원 논문 저장소) — 고지문 포함, 수정 없음 |
+| 포함 제3자 코드 (`src/moses/`) | IBM/multitask-toxicity 경유(Apache-2.0), MOSES 유래 부분은 MIT — `NOTICE`에 고지, 수정 없음 |
+| 모델 가중치 — SE 인코더 | Apache-2.0 (원 논문 저장소) — `NOTICE`에 고지, 수정 없음 |
 | 모델 가중치 — MTDNN | 본 과제에서 원 논문 코드(Apache-2.0)로 학습 → Apache-2.0으로 배포 |
+| 라이선스 파일 구성 | `LICENSE`(Apache-2.0 전문 1부, 원 논문 저장소 LICENSE와 동일 문서) + `NOTICE`(제3자 출처·MIT 전문). 둘 다 이미지 `/opt/app/`에 포함 |
 | Python 의존성 44종 | 허용형(BSD/MIT/Apache/PSF/MPL-2.0 이중) 및 NVIDIA CUDA 재배포 라이브러리 — 아래 3절 |
 | 학습 데이터 | 패키지에 미포함. Tox21·ToxCast 공공 데이터, ClinTox 명시적 라이선스 미확인 — 아래 4절 |
 | 카피레프트(GPL/AGPL) 구성요소 | 없음 |
@@ -19,9 +20,15 @@
 | 구성요소 | 경로 | 출처 | 라이선스 | 의무 이행 |
 |---|---|---|---|---|
 | 추론 패키지 | `src/mtdnn_tox/` | 본 과제 작성. `MTDNN` 클래스 구조는 원 논문 저장소 구조를 따름 | Apache-2.0 | `LICENSE` |
-| MOSES | `src/moses/` | https://github.com/molecularsets/moses (© 2018 Insilico Medicine) — IBM/multitask-toxicity `SE_featurization/moses/` 경유 | MIT | `src/moses/LICENSE` 고지문 유지, 수정 없음 |
-| SE 인코더 가중치 | `models/se_encoder/` | https://github.com/IBM/multitask-toxicity `SE_featurization/` | Apache-2.0 | `models/se_encoder/LICENSE` 사본 포함, 수정 없음 |
-| MTDNN 가중치 | `models/mtdnn_trainset_seed0.pt` | 본 과제 학습 산출물 | Apache-2.0 | — |
+| SE 인코더 코드 | `src/moses/` | https://github.com/IBM/multitask-toxicity `SE_featurization/moses/`. `__init__.py`·`interfaces.py`·`utils.py`는 MOSES(https://github.com/molecularsets/moses, © 2018 Insilico Medicine) 유래, `trans/`(번역 모델)는 원 논문 저자가 MOSES 구조로 작성(MOSES 원 저장소에는 없음) | Apache-2.0 / MIT | `NOTICE` 1·2항(MIT 전문 포함), 수정 없음 |
+| SE 인코더 가중치 | `models/se_encoder/` | https://github.com/IBM/multitask-toxicity `SE_featurization/models/` (바이트 단위 동일 확인) | Apache-2.0 | `LICENSE` + `NOTICE` 1항, 수정 없음 |
+| MTDNN 가중치 | `models/mtdnn_pretrained.pt` | 본 과제 학습 산출물 | Apache-2.0 | `LICENSE` |
+
+Apache-2.0은 카피레프트가 아니므로 SE 인코더가 Apache-2.0이라는 이유로 본 과제
+코드가 반드시 Apache-2.0이어야 하는 것은 아니다. 재배포 시 의무는 ① Apache-2.0
+전문 1부 동봉, ② 원 저작물의 저작권·출처 고지 유지, ③ 수정 시 변경 사실 표시이며
+(원 저장소에는 NOTICE 파일이 없음), MIT 부분은 저작권 표시와 허가 문구 동봉이다.
+본 과제 코드도 같은 Apache-2.0으로 배포해 라이선스 전문은 `LICENSE` 1부로 충분하다.
 
 ## 3. 컨테이너 포함 소프트웨어
 

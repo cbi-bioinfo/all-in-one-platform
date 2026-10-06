@@ -1,0 +1,44 @@
+MTDNN Toxicity Predictor
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes third-party components:
+
+1. SE (SMILES Embedding) encoder — models/se_encoder/ (model.pt, config.nb,
+   vocab.nb) and src/moses/trans/
+   Source: https://github.com/IBM/multitask-toxicity (SE_featurization/),
+   official code release of "Accurate clinical toxicity prediction using
+   multi-task deep neural nets and contrastive molecular explanations",
+   Sci. Rep. 13, 4908 (2023), doi:10.1038/s41598-023-31169-8.
+   License: Apache License, Version 2.0 — the same text as LICENSE.
+   Included unmodified.
+
+2. MOSES (Molecular Sets) — src/moses/ (__init__.py, interfaces.py,
+   utils.py; src/moses/trans/ follows the MOSES model layout)
+   Source: https://github.com/molecularsets/moses, included via
+   IBM/multitask-toxicity SE_featurization/moses/. Included unmodified.
+   License: MIT License, reproduced below.
+
+   ---------------------------------------------------------------------------
+   MIT License
+
+   Copyright (c) 2018 Insilico Medicine, Inc
+
+   Permission is hereby granted, free of charge, to any person obtaining a
+   copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to permit
+   persons to whom the Software is furnished to do so, subject to the
+   following conditions:
+
+   The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+   NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+   USE OR OTHER DEALINGS IN THE SOFTWARE.
+   ---------------------------------------------------------------------------

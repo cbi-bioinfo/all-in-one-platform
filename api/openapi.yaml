@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: SE-MTDNN Toxicity Predictor
-  description: Offline SE-MTDNN multi-task toxicity prediction (631 tasks). No authentication.
+  title: MTDNN Toxicity Predictor
+  description: MTDNN multi-task toxicity prediction (631 tasks).
   version: 1.0.0
   license:
     name: Apache-2.0
@@ -28,6 +28,177 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InfoResponse'
+  /jobs:
+    post:
+      tags:
+      - jobs
+      summary: Submit a batch job
+      description: Queue a batch prediction job and return at once with its `job_id`. Poll `GET /jobs/{job_id}` until `state`
+        is `completed` or `failed`, then download `GET /jobs/{job_id}/result`.
+      operationId: submit_job_jobs_post
+      parameters:
+      - name: input_format
+        in: query
+        required: false
+        schema:
+          enum:
+          - csv
+          - smi
+          - txt
+          - sdf
+          - mol
+          type: string
+          description: Format of a file body (ignored for application/json)
+          default: csv
+          title: Input Format
+        description: Format of a file body (ignored for application/json)
+      - name: output_format
+        in: query
+        required: false
+        schema:
+          enum:
+          - csv
+          - json
+          type: string
+          description: Result file format
+          default: csv
+          title: Output Format
+        description: Result file format
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Request Entity Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      requestBody:
+        required: true
+        description: Input file content in the format given by `input_format` (same formats as batch mode), or a JSON object
+          with a SMILES list.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobRequest'
+          text/csv:
+            schema:
+              type: string
+              format: binary
+          text/plain:
+            schema:
+              type: string
+              format: binary
+          chemical/x-daylight-smiles:
+            schema:
+              type: string
+              format: binary
+          chemical/x-mdl-sdfile:
+            schema:
+              type: string
+              format: binary
+          chemical/x-mdl-molfile:
+            schema:
+              type: string
+              format: binary
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+  /jobs/{job_id}:
+    get:
+      tags:
+      - jobs
+      summary: Job status
+      operationId: job_status_jobs__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+  /jobs/{job_id}/result:
+    get:
+      tags:
+      - jobs
+      summary: Job result
+      description: Predictions file of a completed job (same content as batch-mode `predictions.csv` / `predictions.json`).
+        409 while the job is queued, running or failed.
+      operationId: job_result_jobs__job_id__result_get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            text/csv:
+              schema:
+                type: string
+              example: index,id,input_smiles,canonical_smiles,status,...
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PredictionRecord'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
   /predict:
     post:
       summary: Predict
@@ -156,6 +327,86 @@ components:
       - standardize
       - tasks
       title: InfoResponse
+    JobStatus:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - completed
+          - failed
+          title: State
+        input_format:
+          type: string
+          title: Input Format
+        output_format:
+          type: string
+          title: Output Format
+        submitted_at:
+          type: string
+          title: Submitted At
+        started_at:
+          type: string
+          title: Started At
+          nullable: true
+        finished_at:
+          type: string
+          title: Finished At
+          nullable: true
+        elapsed_sec:
+          type: number
+          title: Elapsed Sec
+          nullable: true
+        n_total:
+          type: integer
+          title: N Total
+          description: Molecules in the input (known once the job has started)
+          nullable: true
+        n_processed:
+          type: integer
+          title: N Processed
+        progress_percent:
+          type: number
+          title: Progress Percent
+        chunks:
+          type: integer
+          title: Chunks
+          nullable: true
+        chunks_completed:
+          type: integer
+          title: Chunks Completed
+        error:
+          description: Job-level error when state is 'failed'
+          allOf:
+          - $ref: '#/components/schemas/ErrorBody'
+          nullable: true
+        summary:
+          type: object
+          title: Summary
+          description: run_summary.json of the finished run (same as batch mode)
+          nullable: true
+      type: object
+      required:
+      - job_id
+      - state
+      - input_format
+      - output_format
+      - submitted_at
+      - started_at
+      - finished_at
+      - elapsed_sec
+      - n_total
+      - n_processed
+      - progress_percent
+      - chunks
+      - chunks_completed
+      - error
+      - summary
+      title: JobStatus
     PredictRequest:
       properties:
         smiles:

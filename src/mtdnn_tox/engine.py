@@ -1,14 +1,16 @@
-"""SE-MTDNN inference engine.
+"""MTDNN inference engine.
 
-Pipeline per molecule: canonical SMILES -> SE encoder (GRU-VAE, Winter et al.
-2019; 128-dim mu) -> MTDNN (2 shared + per-task layers) -> 631 sigmoid
-probabilities. Inference runs in float64 with deterministic kernels so
-repeated runs agree far inside the 1e-6 probability tolerance.
+Pipeline per molecule: canonical SMILES -> SE encoder (GRU-VAE translation
+model, IBM/multitask-toxicity SE_featurization; 128-dim mu) -> MTDNN (2 shared
++ per-task layers) -> 631 sigmoid probabilities. Inference runs in float64
+with deterministic kernels so repeated runs agree far inside the 1e-6
+probability tolerance.
 """
 import hashlib
 import logging
 import os
 import random
+import threading
 from pathlib import Path
 
 import numpy as np
@@ -106,6 +108,7 @@ def verify_checksums(model_dir: Path, files: list[Path]) -> dict[Path, str]:
 class Predictor:
     def __init__(self, cfg):
         set_determinism(cfg.seed)
+        self.lock = threading.Lock()  # serve mode: /predict and the job worker share one model
         self.device = resolve_device(cfg.device)
         se_files = [cfg.se_encoder_dir / n for n in ("model.pt", "config.nb", "vocab.nb")]
         for f in [cfg.model_path, *se_files]:

@@ -1,14 +1,14 @@
-# SE-MTDNN Toxicity Predictor — offline, inference-only, GPU (CPU fallback)
+# MTDNN Toxicity Predictor — offline, inference-only, GPU (CPU fallback)
 #
 # Build (from the repository root, linux/amd64):
 #   docker buildx build --platform linux/amd64 \
-#     -t pzkeung/bio-synergy-platform:mtdnn-1.0.0 -t pzkeung/bio-synergy-platform:mtdnn --load .
+#     -t cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 --load .
 #
 # Run (T2 batch, no network):
 #   docker run --rm --gpus all --network none \
 #     -v $PWD/in:/data/input:ro -v $PWD/out:/data/output \
 #     -e INPUT_PATH=/data/input/molecules.csv \
-#     pzkeung/bio-synergy-platform:mtdnn-1.0.0
+#     cbibioinfolab/toxicity-prediction:mtdnn-1.0.0
 #
 # Everything the container needs at run time (code, Python packages, model
 # weights, SE encoder) is inside the image; it never downloads anything.
@@ -49,7 +49,7 @@ RUN groupadd -g ${GID} app && useradd -u ${UID} -g ${GID} -M -s /usr/sbin/nologi
 
 COPY src/ ./src/
 COPY models/ ./models/
-COPY tool.yaml README.md ./
+COPY tool.yaml README.md LICENSE NOTICE ./
 
 USER app
 

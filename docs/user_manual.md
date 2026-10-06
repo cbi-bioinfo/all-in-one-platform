@@ -1,4 +1,4 @@
-# 사용자 매뉴얼 — SE-MTDNN Toxicity Predictor 1.0.0
+# 사용자 매뉴얼 — MTDNN Toxicity Predictor 1.0.0
 
 화합물 구조(SMILES 등)를 입력하면 631개 독성 태스크(Tox21 12, ClinTox 2,
 ToxCast 617)의 양성 확률을 계산하는 오프라인 배치 분석 도구다(탑재 유형 T2).
@@ -21,15 +21,15 @@ GPU가 없어도 CPU로 실행되지만 약 100배 느리다(0.7 분자/초).
 인터넷이 되는 PC에서:
 
 ```bash
-docker pull pzkeung/bio-synergy-platform:mtdnn-1.0.0
-docker save pzkeung/bio-synergy-platform:mtdnn-1.0.0 | gzip > mtdnn-1.0.0.tar.gz
+docker pull cbibioinfolab/toxicity-prediction:mtdnn-1.0.0
+docker save cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 | gzip > mtdnn-1.0.0.tar.gz
 ```
 
 분석 서버에서:
 
 ```bash
 docker load < mtdnn-1.0.0.tar.gz
-docker run --rm --network none pzkeung/bio-synergy-platform:mtdnn-1.0.0 version
+docker run --rm --network none cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 version
 # → bsp-tox-mtdnn 1.0.0
 ```
 
@@ -44,7 +44,7 @@ docker run --rm --gpus all --network none \
   -v "$PWD/input:/data/input:ro" \
   -v "$PWD/output:/data/output" \
   -e INPUT_PATH=/data/input/molecules.csv \
-  pzkeung/bio-synergy-platform:mtdnn-1.0.0
+  cbibioinfolab/toxicity-prediction:mtdnn-1.0.0
 ```
 
 출력 디렉터리 권한을 바꾸기 어렵다면 `--user "$(id -u):$(id -g)"`를 추가해
@@ -55,7 +55,7 @@ docker run --rm --gpus all --network none \
 | 확장자 | 형식 |
 |---|---|
 | `.csv` | 헤더 행 필수. `smiles`(또는 `canonical_smiles`) 열 필수(대소문자 무관). `id`, `mol_id`, `name`, `compound_id` 중 하나가 있으면 ID로 사용 |
-| `.smi`, `.txt` | 한 줄에 `SMILES [ID]` (공백 구분, 빈 줄 무시) |
+| `.smi`, `.txt` | 한 줄에 `SMILES [ID]` (공백 구분, 빈 줄 무시). `.smi`는 RDKit·Open Babel 등이 쓰는 표준 SMILES 목록 형식(Daylight)이고 `.txt`는 같은 내용의 일반 텍스트 |
 | `.sdf` | 다중 분자. 분자 이름(첫 줄)을 ID로 사용 |
 | `.mol` | 단일 분자. 파일 이름을 ID로 사용 |
 
@@ -73,13 +73,16 @@ docker run --rm --gpus all --network none \
 | `RESUME` | `1` | 이전 체크포인트에서 이어서 실행 |
 | `MAX_CHUNKS_PER_RUN` | `0` | 1회 실행당 최대 청크 수(0=제한 없음) |
 | `CHECKPOINT_DIR` | `$OUTPUT_DIR/.checkpoint` | 체크포인트 저장 경로 |
-| `STANDARDIZE` | `0` | `1`이면 염·용매 제거 + 전하 중화 후 예측 (4.3절 참고) |
+| `STANDARDIZE` | `0` | `1`이면 염·용매 제거 + 전하 중화 후 예측 (3.4절, `docs/model_card.md` 5절 참고) |
 | `SEED` | `42` | 난수 시드 |
 | `MAX_SMILES_LENGTH` | `1000` | SMILES 최대 길이 |
 | `MODEL_DIR` | `/opt/app/models` | 가중치 디렉터리 (`SHA256SUMS` 포함) |
-| `MODEL_PATH` | `$MODEL_DIR/mtdnn_trainset_seed0.pt` | MTDNN 체크포인트 |
+| `MODEL_PATH` | `$MODEL_DIR/mtdnn_pretrained.pt` | MTDNN 체크포인트 |
 | `SE_ENCODER_DIR` | `$MODEL_DIR/se_encoder` | SE 인코더 파일 |
 | `VERIFY_CHECKSUM` | `1` | 시작 시 가중치 SHA-256 검증 |
+| `JOBS_DIR` | `$OUTPUT_DIR/jobs` | serve 모드 작업 API의 입력·결과·체크포인트 저장 경로 |
+| `JOB_MAX_UPLOAD_MB` | `1024` | `POST /jobs` 본문 최대 크기(MB) |
+| `MAX_REQUEST_ITEMS` | `100` | `POST /predict` 요청당 최대 분자 수 |
 | `LOG_LEVEL` | `INFO` | `DEBUG`/`INFO`/`WARNING`/`ERROR` |
 
 다른 가중치를 쓰려면 디렉터리를 마운트하고 `MODEL_DIR`만 바꾼다
@@ -184,7 +187,10 @@ ToxCast 617개). 태스크 목록은 출력 헤더나 serve 모드의 `GET /info
 | `E-INPUT-008` | 422 | 분자 | SDF/MOL 레코드를 읽을 수 없음 |
 | `E-INPUT-009` | 422 | 분자 | `STANDARDIZE=1` 처리 후 남은 분자가 없음 |
 | `E-INPUT-010` | 422 | 분자 | SMILES가 `MAX_SMILES_LENGTH`보다 김 |
-| `E-INPUT-011` | 422 | 요청 | serve 요청 본문이 API 스키마와 맞지 않음 |
+| `E-INPUT-011` | 422 | 요청 | serve 요청 본문·쿼리가 API 스키마와 맞지 않음 |
+| `E-INPUT-012` | 413 | 요청 | `POST /jobs` 본문이 `JOB_MAX_UPLOAD_MB` 초과 |
+| `E-JOB-001` | 404 | 요청 | 없는 `job_id` |
+| `E-JOB-002` | 409 | 요청 | 작업이 완료되지 않아 결과가 없음(`queued`/`running`/`failed`) |
 | `E-MODEL-001` | 503 | 작업 | 가중치·SE 인코더 파일 누락 또는 로드 실패 |
 | `E-MODEL-002` | 503 | 작업 | 가중치 SHA-256이 `SHA256SUMS`와 다름 |
 | `E-MODEL-003` | 500 | 분자 | SE 인코더가 사용할 수 있는 토큰이 없음 |
@@ -206,21 +212,70 @@ ToxCast 617개). 태스크 목록은 출력 헤더나 serve 모드의 `GET /info
 | `O=C1C2CC=CCC2C(=O)NSC(Cl)(Cl)Cl` (고리 번호 1 미종결) | `E-INPUT-002`: `SMILES Parse Error: unclosed ring ...` |
 | 빈 칸 | `E-INPUT-007` |
 
-## 4. serve 모드 (선택, HTTP API)
+## 4. serve 모드 (HTTP API)
+
+명세: `api/openapi.yaml` (OpenAPI 3.0.3).
+
+| 엔드포인트 | 용도 |
+|---|---|
+| `POST /jobs` | 작업 제출 (T2) — 건수 제한 없음, 백그라운드 실행 |
+| `GET /jobs/{job_id}` | 작업 상태·진행률 조회 |
+| `GET /jobs/{job_id}/result` | 작업 결과 파일 조회 |
+| `POST /predict` | 소량(1–`MAX_REQUEST_ITEMS`건) 동기 예측 |
+| `GET /health`, `GET /info` | 상태, 태스크 목록·설정 |
 
 ```bash
+mkdir -p output && chmod 777 output
 docker run -d --name mtdnn --gpus all -p 127.0.0.1:8000:8000 \
-  pzkeung/bio-synergy-platform:mtdnn-1.0.0 serve
-
+  -v "$PWD/output:/data/output" \
+  cbibioinfolab/toxicity-prediction:mtdnn-1.0.0 serve
 curl -s localhost:8000/health
+```
+
+### 4.1 작업 API (제출 → 상태 → 결과)
+
+```bash
+# ① 제출: 파일 본문 그대로 전송 (input_format: csv|smi|txt|sdf|mol, output_format: csv|json)
+curl -s -X POST 'localhost:8000/jobs?input_format=csv&output_format=csv' \
+  -H 'Content-Type: text/csv' --data-binary @molecules.csv
+# → 202 {"job_id": "3f2a...", "state": "queued", ...}   (Location: /jobs/3f2a...)
+
+#    또는 JSON SMILES 목록
+curl -s -X POST localhost:8000/jobs -H 'Content-Type: application/json' \
+  -d '{"smiles": ["CC(=O)Nc1ccc(O)cc1", "c1ccccc1"], "ids": ["acetaminophen", "benzene"]}'
+
+# ② 상태: state = queued → running → completed | failed
+curl -s localhost:8000/jobs/3f2a...
+# → {"state": "running", "n_total": 10000, "n_processed": 3000, "progress_percent": 30.0,
+#    "chunks": 10, "chunks_completed": 3, "started_at": ..., "error": null, "summary": null, ...}
+
+# ③ 결과: completed 이후 predictions 파일 (batch 모드 결과와 같은 형식)
+curl -s -o predictions.csv localhost:8000/jobs/3f2a.../result
+```
+
+* 작업은 제출 순서대로 하나씩 실행되며 batch 모드와 같은 코드(청크 단위
+  체크포인트)로 처리된다. 결과는 batch 결과와 같다(시험 사례 S9).
+* 완료 전 결과를 요청하면 `409 E-JOB-002`, 없는 `job_id`는 `404 E-JOB-001`.
+* 입력 내용 오류(예: smiles 열 없음)는 작업이 `failed`가 되고 `error`에 코드가
+  담긴다(시험 사례 S10). 분자 단위 오류는 결과 파일의 해당 행에 기록된다.
+* 작업 상태·결과는 `JOBS_DIR`(기본 `/data/output/jobs/<job_id>/`)에 저장된다.
+  위 예처럼 `/data/output`을 마운트하면 서버를 재시작해도 남아 있고, 실행 중이던
+  작업은 재시작 시 다시 대기열에 올라 완료된 청크 다음부터 이어서 처리된다.
+  끝난 작업 디렉터리는 자동으로 지우지 않는다.
+
+### 4.2 동기 예측 (`POST /predict`)
+
+```bash
 curl -s -X POST localhost:8000/predict -H 'Content-Type: application/json' \
   -d '{"smiles": ["CC(=O)Nc1ccc(O)cc1"], "ids": ["acetaminophen"]}'
 ```
 
-* 명세: `api/openapi.yaml` (OpenAPI 3.0.3). 엔드포인트 `GET /health`, `GET /info`, `POST /predict`.
-* 요청당 1–100개. 101개 이상은 `413 E-INPUT-003`.
+* 요청당 1–100개. 101개 이상은 `413 E-INPUT-003` — 많은 분자는 작업 API를 쓴다.
 * 일부 분자만 실패하면 `200`과 함께 해당 항목에 `status: error`가 담긴다.
   모든 분자가 실패하면 첫 오류 코드로 `422`(입력 오류) 또는 `500`을 반환한다.
+
+### 4.3 보안
+
 * **인증 기능이 없다.** 신뢰된 내부망에서만 쓰고, 위 예처럼 `127.0.0.1`에만
   바인딩한다. 컨테이너 코드는 외부로 접속하지 않는다.
 
@@ -229,5 +284,5 @@ curl -s -X POST localhost:8000/predict -H 'Content-Type: application/json' \
 * 시드 42 고정, 결정적 연산, float64 추론. 같은 입력·이미지·시드면 결과가 같다.
 * 허용 오차: 확률 절대오차 1×10⁻⁶ 이내, 문자열·라벨 완전 일치.
 * 실측: GPU 2회 반복, GPU와 CPU 사이 최대 차이 0(출력 8자리 기준).
-* 자체 시험: `python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:mtdnn-1.0.0`
+* 자체 시험: `python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:mtdnn-1.0.0`
   (결과서 `docs/selftest_report.md`).
