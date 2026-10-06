@@ -46,7 +46,7 @@ image:
   repository: pzkeung/bio-synergy-platform
   tag: grover-1.0.0
   alias_tags: [grover]
-  digest: null            # registry digest — recorded in docs/release_info.md at push time
+  digest: sha256:31b6b974b82bac858e5054fd0f545aef52bc1d64237a3a16eeea46140d6c8675  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
   network: none           # no network access needed at run time
