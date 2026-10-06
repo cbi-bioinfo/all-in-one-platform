@@ -1,4 +1,4 @@
 smiles,id
-NC(=O)N(O)[C@@H]1COc2cc(OCc3ccccc3)ccc21,trainset_002764
-NC(=O)N(O)[C@H]1COc2cc(OCc3ccccc3)ccc21,trainset_002764_inverted
-NC(=O)N(O)C1COc2cc(OCc3ccccc3)ccc21,trainset_002764_nostereo
+NC(=O)N(O)[C@@H]1COc2cc(OCc3ccccc3)ccc21,testset_002764
+NC(=O)N(O)[C@H]1COc2cc(OCc3ccccc3)ccc21,testset_002764_inverted
+NC(=O)N(O)C1COc2cc(OCc3ccccc3)ccc21,testset_002764_nostereo

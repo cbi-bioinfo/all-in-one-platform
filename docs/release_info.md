@@ -12,7 +12,7 @@
 | 플랫폼 | linux/amd64 |
 | 베이스 이미지 | `nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04@sha256:85fb7ac694079fff1061a0140fd5b5a641997880e12112d92589c3bbb1e8b7ca` |
 | 가중치 | `models/grover_pretrained.pt` SHA-256 `2d6a3350a2d665dfa552427ba1b6f60cf2f07635641c2a7718f254d16076fc9e` (이전 파일명 `grover_trainset_seed2.pt`, 내용 동일) |
-| 자체 시험 | 25/25 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
+| 자체 시험 | 26/26 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
 
 이 파일과 `tool.yaml`의 `image.digest`는 제출 커밋 이후에 갱신했다(이미지 push로
 digest가 정해진 뒤 기록하기 위함). 태그 `grover-v1.0.0`은 이미지를 빌드한 제출

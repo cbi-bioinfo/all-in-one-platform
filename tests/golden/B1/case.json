@@ -1,7 +1,7 @@
 {
   "id": "B1",
   "category": "boundary",
-  "title": "요청당 최대 건수 100건 (serve)",
+  "title": "경계 대표 분자 10건 (serve, 원 100건 사례에서 추출) — 짧은(8·11자)·긴(161·163자) SMILES, 전하 분자 4건(양이온 황·4급 암모늄·니트로·페놀레이트, W-STD-002), '/'·'@' 입체 표기",
   "mode": "serve",
   "request": "request.json",
   "expect": {

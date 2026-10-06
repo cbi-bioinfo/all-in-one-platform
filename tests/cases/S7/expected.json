@@ -7,7 +7,7 @@
   "results": [
     {
       "index": 0,
-      "id": "trainset_010475_raw",
+      "id": "testset_010475_raw",
       "input_smiles": "CC(C)N(C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.Br",
       "canonical_smiles": null,
       "status": "error",
@@ -21,7 +21,7 @@
     },
     {
       "index": 1,
-      "id": "trainset_010475",
+      "id": "testset_010475",
       "input_smiles": "CC(C)[N+](C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.[Br-]",
       "canonical_smiles": "CC(C)[N+](C)(CCOC(=O)C1c2ccccc2Oc2ccccc21)C(C)C.[Br-]",
       "status": "ok",

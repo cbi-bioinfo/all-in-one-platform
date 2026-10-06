@@ -1,0 +1,11 @@
+{
+  "id": "S19",
+  "category": "boundary",
+  "title": "요청당 최대 건수 100건 (serve)",
+  "mode": "serve",
+  "request": "request.json",
+  "expect": {
+    "http_status": 200,
+    "body": "expected.json"
+  }
+}

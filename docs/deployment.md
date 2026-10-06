@@ -80,5 +80,5 @@ docker compose --profile serve up -d grover-serve     # HTTP 작업 API (사용�
 ## 6. 설치 확인
 
 ```bash
-python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:grover-1.0.0   # 25/25 (골든 7건 + 보조 18건)
+python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:grover-1.0.0   # 26/26 (골든 7건 + 보조 19건)
 ```
