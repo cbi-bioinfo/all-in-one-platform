@@ -1,0 +1,279 @@
+openapi: 3.0.3
+info:
+  title: Chemprop Toxicity Predictor
+  description: Offline Chemprop D-MPNN multi-task toxicity prediction (631 tasks).
+    No authentication.
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+paths:
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /info:
+    get:
+      summary: Info
+      operationId: info_info_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoResponse'
+  /predict:
+    post:
+      summary: Predict
+      operationId: predict_predict_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictResponse'
+        '413':
+          description: Request Entity Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ErrorBody:
+      properties:
+        code:
+          type: string
+          title: Code
+        message:
+          type: string
+          title: Message
+        detail:
+          type: string
+          title: Detail
+          nullable: true
+      type: object
+      required:
+      - code
+      - message
+      title: ErrorBody
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorBody'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+    HealthResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        version:
+          type: string
+          title: Version
+        device:
+          type: string
+          title: Device
+        n_tasks:
+          type: integer
+          title: N Tasks
+      type: object
+      required:
+      - status
+      - version
+      - device
+      - n_tasks
+      title: HealthResponse
+    InfoResponse:
+      properties:
+        tool_id:
+          type: string
+          title: Tool Id
+        name:
+          type: string
+          title: Name
+        version:
+          type: string
+          title: Version
+        threshold:
+          type: number
+          title: Threshold
+        seed:
+          type: integer
+          title: Seed
+        max_request_items:
+          type: integer
+          title: Max Request Items
+        standardize:
+          type: boolean
+          title: Standardize
+        tasks:
+          items:
+            type: string
+          type: array
+          title: Tasks
+      type: object
+      required:
+      - tool_id
+      - name
+      - version
+      - threshold
+      - seed
+      - max_request_items
+      - standardize
+      - tasks
+      title: InfoResponse
+    PredictRequest:
+      properties:
+        smiles:
+          items:
+            type: string
+          type: array
+          title: Smiles
+          description: SMILES strings to predict (1..MAX_REQUEST_ITEMS)
+        ids:
+          items:
+            type: string
+          type: array
+          title: Ids
+          description: Optional identifiers, same order as `smiles`
+          nullable: true
+      type: object
+      required:
+      - smiles
+      title: PredictRequest
+      example:
+        ids:
+        - acetaminophen
+        smiles:
+        - CC(=O)Nc1ccc(O)cc1
+    PredictResponse:
+      properties:
+        tool_id:
+          type: string
+          title: Tool Id
+        version:
+          type: string
+          title: Version
+        n_items:
+          type: integer
+          title: N Items
+        n_ok:
+          type: integer
+          title: N Ok
+        n_error:
+          type: integer
+          title: N Error
+        results:
+          items:
+            $ref: '#/components/schemas/PredictionRecord'
+          type: array
+          title: Results
+      type: object
+      required:
+      - tool_id
+      - version
+      - n_items
+      - n_ok
+      - n_error
+      - results
+      title: PredictResponse
+    PredictionRecord:
+      properties:
+        index:
+          type: integer
+          title: Index
+        id:
+          type: string
+          title: Id
+        input_smiles:
+          type: string
+          title: Input Smiles
+          nullable: true
+        canonical_smiles:
+          type: string
+          title: Canonical Smiles
+          nullable: true
+        status:
+          type: string
+          title: Status
+          description: '''ok'' or ''error'''
+        error:
+          allOf:
+          - $ref: '#/components/schemas/ErrorBody'
+          nullable: true
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+        predictions:
+          additionalProperties:
+            $ref: '#/components/schemas/TaskPrediction'
+          type: object
+          title: Predictions
+          nullable: true
+      type: object
+      required:
+      - index
+      - id
+      - input_smiles
+      - canonical_smiles
+      - status
+      - error
+      - warnings
+      - predictions
+      title: PredictionRecord
+    TaskPrediction:
+      properties:
+        probability:
+          type: number
+          title: Probability
+          description: Predicted probability of the toxic/active class, 0–1
+        label:
+          type: integer
+          title: Label
+          description: 1 if probability >= 0.5 else 0
+      type: object
+      required:
+      - probability
+      - label
+      title: TaskPrediction
+servers:
+- url: http://localhost:8000
+  description: Container in serve mode (no authentication)

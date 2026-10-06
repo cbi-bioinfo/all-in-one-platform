@@ -1,0 +1,12 @@
+{
+  "smiles": [
+    "O=C(NCc1cccnc1)Nc1ccc(N(=O)=O)cc1",
+    "O=C(NCc1cccnc1)Nc1ccc([N+](=O)[O-])cc1",
+    ""
+  ],
+  "ids": [
+    "trainset_001999_raw",
+    "trainset_001999",
+    "empty"
+  ]
+}

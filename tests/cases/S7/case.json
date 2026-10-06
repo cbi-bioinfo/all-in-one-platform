@@ -1,0 +1,11 @@
+{
+  "id": "S7",
+  "category": "boundary",
+  "title": "정상·오류 혼합 요청 — 200 응답에 행별 오류 포함 (serve)",
+  "mode": "serve",
+  "request": "request.json",
+  "expect": {
+    "http_status": 200,
+    "body": "expected.json"
+  }
+}

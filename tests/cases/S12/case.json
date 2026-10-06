@@ -1,0 +1,12 @@
+{
+  "id": "S12",
+  "category": "boundary",
+  "title": "원자번호 1–36·53 밖 원소(Pb, Sn) — 공통 '기타' 원소 비트로 인코딩, W-FEAT-001",
+  "mode": "batch",
+  "input": "input.csv",
+  "env": {},
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

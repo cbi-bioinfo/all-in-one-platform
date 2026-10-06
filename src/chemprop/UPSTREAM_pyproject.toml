@@ -1,0 +1,116 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chemprop"
+description = "Molecular Property Prediction with Message Passing Neural Networks"
+version = "2.3.1"
+authors = [
+    {name = "The Chemprop Development Team (see LICENSE.txt)", email="chemprop@mit.edu"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+keywords = [
+    "chemistry",
+    "machine learning",
+    "property prediction",
+    "message passing neural network",
+    "graph neural network",
+    "drug discovery"
+]
+requires-python = ">=3.11,<3.15"
+dependencies = [
+    "lightning >= 2.0",
+    "numpy",
+    "pandas",
+    "rdkit",
+    "scikit-learn",
+    "scipy",
+    "torch >= 2.1",
+    "astartes[molecules]",
+    "ConfigArgParse",
+    "rich",
+    "descriptastorus",
+    "psutil",
+    "multiprocess",
+    "packaging",
+]
+# "psutil", "multiprocess", "packaging" added: hard top-level imports on the core
+# import path (chemprop/utils/utils.py, chemprop/featurizers/molecule.py,
+# chemprop/conf.py) that upstream's pyproject.toml does not declare directly (they
+# were presumably pulled in transitively by other upstream deps); listed explicitly
+# here so `import chemprop` is guaranteed to work from a clean install.
+# Deviation from upstream chemprop/chemprop pyproject.toml (drug_dev_platform tox_pred/chemprop):
+#   - "cuik_molmaker_pin" removed: neither it nor "cuik_molmaker" resolve on the PyPI
+#     mirror reachable from this platform's build environment (verified via
+#     `pip download cuik_molmaker_pin` / `cuik_molmaker` -> "No matching distribution").
+#     It is only NVIDIA's optional accelerated featurizer, gated behind the
+#     `--use-cuikmolmaker-featurization` CLI flag, which we never pass. The two
+#     modules that `import cuik_molmaker` unconditionally
+#     (chemprop/featurizers/molgraph/{molecule,reaction}.py) were patched to import it
+#     lazily so `import chemprop` succeeds without the package installed; only the
+#     Cuikmolmaker-specific featurizer classes would fail if actually invoked.
+#   - "myerson>=1.0.1" removed: the real PyPI package `myerson` only publishes up to
+#     0.1.8, so ">=1.0.1" is unresolvable and would break `pip install` entirely. It is
+#     used solely by the optional `chemprop.callbacks.interpret` Myerson-value
+#     explainability callback, which this platform's training/serving contract never
+#     invokes.
+
+[project.optional-dependencies]
+hpopt = ["ray[tune]", "hyperopt", "optuna", "pydantic", "setuptools < 82"]
+dev = ["black == 23.*", "bumpversion", "autopep8", "flake8", "pytest", "pytest-cov", "isort"]
+docs = ["nbsphinx", "sphinx", "sphinx-argparse != 0.5.0", "sphinx-autobuild", "sphinx-autoapi", "sphinxcontrib-bibtex", "sphinx-book-theme", "nbsphinx-link", "ipykernel", "docutils < 0.21", "readthedocs-sphinx-ext", "pandoc"]
+test = ["pytest >= 6.2", "pytest-cov"]
+notebooks = ["ipykernel", "matplotlib"]
+
+[project.urls]
+documentation = "https://chemprop.readthedocs.io/en/latest/"
+source = "https://github.com/chemprop/chemprop"
+PyPi = "https://pypi.org/project/chemprop/"
+
+[project.scripts]
+chemprop = "chemprop.cli.main:main"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+skip-magic-trailing-comma = true
+required-version = "23"
+
+[tool.autopep8]
+in_place = true
+recursive = true
+aggressive = 2
+max_line_length = 100
+
+[tool.pytest.ini_options]
+addopts = "--cov chemprop"
+markers = [
+    "integration",
+    "CLI",
+]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+force_sort_within_sections = true
+
+[tool.setuptools.packages.find]
+# NOTE (drug_dev_platform tox_pred/chemprop deviation): upstream's original
+# include = ["chemprop"] only matches the exact top-level "chemprop" package
+# name and silently excludes every subpackage (chemprop.data, chemprop.utils,
+# chemprop.featurizers, chemprop.models, chemprop.nn, chemprop.cli, ...) from
+# the built wheel -- `pip install .` "succeeds" but `import chemprop` then
+# fails with ModuleNotFoundError for any subpackage. Use a wildcard so all
+# subpackages are actually included.
+include = ["chemprop*"]
+exclude = ["tests", "examples", "docs", "requirements", ".github"]

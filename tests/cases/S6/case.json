@@ -1,0 +1,14 @@
+{
+  "id": "S6",
+  "category": "normal",
+  "title": "STANDARDIZE=1 — 염 제거·전하 중화 후 예측 (N3과 같은 입력)",
+  "mode": "batch",
+  "input": "input.smi",
+  "env": {
+    "STANDARDIZE": "1"
+  },
+  "expect": {
+    "exit_code": 0,
+    "output": "expected.csv"
+  }
+}

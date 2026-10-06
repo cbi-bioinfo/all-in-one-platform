@@ -1,0 +1,22 @@
+# Direct runtime dependencies (inference only). Lock: requirements.lock
+# Versions match the training image (constraints.txt = its `pip freeze`).
+# chemprop itself is vendored in src/chemprop (MIT) and imported via PYTHONPATH;
+# its declared dependencies (src/chemprop/UPSTREAM_pyproject.toml) are listed here.
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch==2.6.0+cu126
+lightning
+numpy
+pandas
+rdkit==2026.3.6
+scikit-learn
+scipy
+astartes[molecules]
+ConfigArgParse
+rich
+descriptastorus
+psutil
+multiprocess
+packaging
+fastapi==0.104.1
+pydantic==2.5.0
+uvicorn==0.24.0
