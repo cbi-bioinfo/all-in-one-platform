@@ -4,15 +4,15 @@
 
 | 항목 | 값 |
 |---|---|
-| 이미지 | `pzkeung/bio-synergy-platform:ssl-gcn-1.0.0` |
-| 이미지 ID | `sha256:fe237001b443663a74c40ab5d60558bcc1b438bb3eefe7bb752dec6eff658659` |
+| 이미지 | `cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0` |
+| 이미지 ID | `sha256:a4622868c06f091b1efe5794c3895d1ad16f6f8182bf42da93c8c443bd3ce8e6` |
 | 실행 장치 | GPU |
 | 네트워크 | `--network none` (모든 사례) |
-| 실행 시각 | 2026-10-06T06:06:23+09:00 |
+| 실행 시각 | 2026-10-06T15:34:19+09:00 |
 | 시험 도구 | `tests/run_tests.py` |
 | 허용 오차 | 확률값 절대오차 1e-06 이내, 문자열·판정값(라벨·상태·코드·메시지·경고·HTTP 상태·종료 코드)은 완전 일치 |
 
-**결과: 16/16 일치**
+**결과: 21/21 일치**
 
 ## 2. 골든 데이터셋 시험 결과 (`/tests/golden/`)
 
@@ -24,13 +24,18 @@
 | E2 | 오류 | 전하 표기가 빠진 4급 암모늄염 raw SMILES — 원자가 오류 행만 E-INPUT-002, 나머지 계속 | exit 0, 1 ok / 1 error, E-INPUT-002, warn W-STD-001,W-STD-002 | exit 0, 1 ok / 1 error, E-INPUT-002, warn W-STD-001,W-STD-002 | 0.0e+00 (601개) | 일치 |
 | N1 | 정상 | 단일 화합물 (captan, trainset 홀드아웃 test 분자) | exit 0, 1 ok / 0 error | exit 0, 1 ok / 0 error | 0.0e+00 (601개) | 일치 |
 | N2 | 정상 | 10건 일괄 예측 (CSV) | exit 0, 10 ok / 0 error | exit 0, 10 ok / 0 error | 0.0e+00 (6010개) | 일치 |
-| N3 | 정상 | 나트륨 염·이온화 raw SMILES (.smi 입력) — 학습과 동일하게 그대로 예측, 경고 표시 | exit 0, 1 ok / 0 error, warn W-FEAT-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 0 error, warn W-FEAT-001,W-STD-001,W-STD-002 | 0.0e+00 (601개) | 일치 |
+| N3 | 정상 | 나트륨 염·이온화 raw SMILES (.txt 입력) — 학습과 동일하게 그대로 예측, 경고 표시 | exit 0, 1 ok / 0 error, warn W-FEAT-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 0 error, warn W-FEAT-001,W-STD-001,W-STD-002 | 0.0e+00 (601개) | 일치 |
 
 ## 3. 보조 시험 결과 (`/tests/cases/`)
 
 | 사례 | 구분 | 입력 요약 | 기대 결과 | 실제 결과 | 확률 최대 오차 | 일치 |
 |---|---|---|---|---|---|---|
 | S1 | 오류 | 요청당 최대 건수 초과 101건 (serve) | HTTP 413, E-INPUT-003 | HTTP 413, E-INPUT-003 | — | 일치 |
+| S10 | 정상 | T2 작업 인터페이스 — POST /jobs 제출 → GET /jobs/{job_id} 상태 → GET /jobs/{job_id}/result 결과 (입력·기대 결과는 E2와 같음: batch와 동일 결과) | HTTP 202, job completed, 1 ok / 1 error | HTTP 202, job completed, 1 ok / 1 error | 0.0e+00 (601개) | 일치 |
+| S11 | 오류 | T2 작업 — smiles 열이 없는 CSV 제출, 작업 상태 failed + E-INPUT-005 | HTTP 202, job failed, E-INPUT-005 | HTTP 202, job failed, E-INPUT-005 | — | 일치 |
+| S12 | 오류 | 존재하지 않는 job_id 상태 조회 — 404 E-JOB-001 | HTTP 404, E-JOB-001 | HTTP 404, E-JOB-001 | — | 일치 |
+| S13 | 정상 | GET /healthz — 프로세스 생존 확인 (serve) | HTTP 200 | HTTP 200 | — | 일치 |
+| S14 | 정상 | GET /schema — 입력 형식, 결과 열, 태스크 목록(출력 순서), 오류·경고 코드 (serve) | HTTP 200 | HTTP 200 | — | 일치 |
 | S2 | 오류 | 빈 요청 목록 (serve) | HTTP 422, E-INPUT-006 | HTTP 422, E-INPUT-006 | — | 일치 |
 | S3 | 오류 | smiles 컬럼이 없는 CSV (batch) | exit 2, E-INPUT-005 | exit 2, E-INPUT-005 | — | 일치 |
 | S4 | 오류 | 지원하지 않는 입력 형식 .xlsx (batch) | exit 2, E-INPUT-004 | exit 2, E-INPUT-004 | — | 일치 |
@@ -51,13 +56,17 @@
 | 금속 착물 처리 | RDKit 2026에서 canonical SMILES가 바뀌는 5개 분자(코발라민 4, 유기납 1)를 입력 문자열에서 바로 그래프로 변환하는지 확인 | 학습 경로(`smiles_to_bigraph`)와 같은 그래프 사용 |
 | 오프라인 실행 | 모든 시험을 `--network none`으로 실행 | 정상 동작 |
 | 비루트 실행 | 이미지 `User` 설정, 출력 파일 소유자 | UID 10001 (`app`) |
-| 가중치 무결성 | 시작 시 `models/SHA256SUMS` 1,203개 항목 검증 | 모두 일치 |
+| 가중치 무결성 | 시작 시 `models/SHA256SUMS`로 `sslgcn_pretrained.pt` 검증 | 일치 |
+| 가중치 묶음 동일성 | 태스크별 `model.pth` 601개를 `sslgcn_pretrained.pt` 하나로 묶은 뒤 다시 읽어 원본과 텐서 단위 비교 | 텐서 31,853개 dtype·값 모두 동일 |
+| batch ↔ 작업 API 일치 | E2 입력을 `POST /jobs`로 제출해 받은 결과 파일과 batch 기대 결과 비교 (S10) | 파일 바이트 단위 동일 |
 | 자원 사용량 (RTX 2080 Ti, 506분자) | `docker stats`, `nvidia-smi` 1초 간격 표본 | 최대 RAM 0.63 GiB, 최대 GPU 메모리 0.7 GB, 처리량 50.3 분자/초, 시작(체크섬+모델 601개 구성) 약 60초 |
 | CPU 처리량 | 같은 506분자, `DEVICE=cpu`, 다른 작업 없는 상태 | 0.9 분자/초 (9분 59초) |
 
-결정성 측정(위 첫 두 줄)은 최종 이미지와 `src/`·가중치가 같은 직전 빌드
-(`sha256:e4867df07543…`)로 수행했다. 최종 이미지와의 차이는 `README.md`,
-`tool.yaml`, `models/README.md` 문서 파일뿐이다.
+결정성·성능 재현·자원 사용량 측정(위 표의 반복 실행 ~ 금속 착물, 자원 사용량,
+CPU 처리량)은 가중치를 묶기 전 빌드(`sha256:e4867df07543…`, 태스크별 `model.pth`)로
+수행했다. 이후 가중치는 같은 텐서를 한 파일로 묶었을 뿐이며(가중치 묶음 동일성),
+골든·보조 시험의 기대 결과가 그대로 일치함을 현재 이미지로 다시 확인했다
+(`docs/selftest_report.md`).
 
 ## 5. 사례별 파일
 
@@ -65,5 +74,6 @@
 
 * batch 사례: `input.*` → `expected.csv` (`case.json`에 환경 변수·기대 종료 코드)
 * serve 사례: `request.json` → `expected.json` (`case.json`에 기대 HTTP 상태)
+* job 사례: `input.*`를 `POST /jobs`로 제출 → `GET /jobs/{job_id}` 상태가 끝날 때까지 조회 → `GET /jobs/{job_id}/result` 결과를 `expected.csv`, 최종 상태를 `expected_job.json`과 비교
 
 재실행: `python3 tests/run_tests.py --image <이미지>` (GPU 없으면 `--cpu`).

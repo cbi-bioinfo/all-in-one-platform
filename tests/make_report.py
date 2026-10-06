@@ -15,10 +15,22 @@ CATEGORY = {"normal": "정상", "boundary": "경계", "error": "오류"}
 
 def expected_summary(case_dir: Path, case: dict) -> str:
     exp = case["expect"]
+    if "job" in exp:
+        job = json.loads((case_dir / exp["job"]).read_text())
+        parts = [f"HTTP {exp['http_status']}, job {job['state']}"]
+        if "output" in exp:
+            import csv
+            rows = list(csv.DictReader(open(case_dir / exp["output"], newline="")))
+            parts.append(f"{sum(r['status'] == 'ok' for r in rows)} ok / {sum(r['status'] == 'error' for r in rows)} error")
+        if job.get("error"):
+            parts.append(job["error"]["code"])
+        return ", ".join(parts)
     if "http_status" in exp:
         body = json.loads((case_dir / exp["body"]).read_text()) if "body" in exp else {}
         if "error" in body:
             return f"HTTP {exp['http_status']}, {body['error']['code']}"
+        if "n_ok" not in body:
+            return f"HTTP {exp['http_status']}"
         return f"HTTP {exp['http_status']}, {body.get('n_ok')} ok / {body.get('n_error')} error"
     parts = [f"exit {exp['exit_code']}"]
     if "output" in exp:
@@ -93,6 +105,8 @@ def main():
         "",
         "* batch 사례: `input.*` → `expected.csv` (`case.json`에 환경 변수·기대 종료 코드)",
         "* serve 사례: `request.json` → `expected.json` (`case.json`에 기대 HTTP 상태)",
+        "* job 사례: `input.*`를 `POST /jobs`로 제출 → `GET /jobs/{job_id}` 상태가 끝날 때까지 조회 → "
+        "`GET /jobs/{job_id}/result` 결과를 `expected.csv`, 최종 상태를 `expected_job.json`과 비교",
         "",
         "재실행: `python3 tests/run_tests.py --image <이미지>` (GPU 없으면 `--cpu`).",
         "",

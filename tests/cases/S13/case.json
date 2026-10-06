@@ -1,0 +1,12 @@
+{
+  "id": "S13",
+  "category": "normal",
+  "title": "GET /healthz — 프로세스 생존 확인 (serve)",
+  "mode": "serve",
+  "method": "GET",
+  "path": "/healthz",
+  "expect": {
+    "http_status": 200,
+    "body": "expected.json"
+  }
+}

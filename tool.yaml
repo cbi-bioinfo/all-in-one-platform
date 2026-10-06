@@ -13,21 +13,32 @@ category: toxicity-prediction
 references:
   - "SSL-GCN: Chen J. et al., J. Cheminform. 13, 93 (2021), doi:10.1186/s13321-021-00570-8"
   - "GCN implementation: DGL-LifeSci GCNPredictor (dgllife 0.3.2)"
+  - "원 저장소: https://github.com/chen709847237/SSL-GCN (평가 코드만 공개, 라이선스 없음 — 코드·가중치를 포함하지 않음)"
 
 # ── 탑재 유형 ─────────────────────────────────────────────────────────────────
 deployment:
   type_code: T2
   type_name: 배치 분석형
-  target: 대용량 입력 처리 및 장시간 수행 파이프라인
   execution: 작업 단위 가동 후 종료 (기본 명령 `batch`)
+  job_interface:            # serve 모드 HTTP API — api/openapi.yaml
+    submit: "POST /jobs — 입력 파일 본문(?input_format=csv|txt|sdf|mol) 또는 JSON SMILES 목록 → 202 + job_id"
+    status: "GET /jobs/{job_id} — state(queued/running/completed/failed), 진행률, 시작·종료 시각, 오류"
+    result: "GET /jobs/{job_id}/result — predictions.csv | predictions.json (완료 전 409)"
+  api_endpoints:            # serve 모드 전체 엔드포인트 — api/openapi.yaml
+    - "GET /healthz — 생존 확인 (모델 로딩 중에도 200)"
+    - "GET /readyz — 준비 확인 (모델 로드 완료 시 200, 로딩 중·실패 시 503)"
+    - "GET /info — 도구 id·버전·모델·설정"
+    - "GET /schema — 입력 형식, 결과 열, 태스크 목록(모델 없는 태스크 포함), 오류·경고 코드"
+    - "POST /predict — 동기 예측 (1–MAX_REQUEST_ITEMS건)"
+    - "POST /jobs, GET /jobs/{job_id}, GET /jobs/{job_id}/result — 작업 제출·상태·결과"
   progress_log: "stderr에 청크마다 '[progress] 처리/전체 (%) chunk i/n elapsed eta rate' 한 줄 출력"
   checkpoint_restart: >-
     CHUNK_SIZE 단위로 처리 결과를 CHECKPOINT_DIR에 원자적으로 저장. 같은 명령을 다시
     실행하면(RESUME=1) 완료된 청크를 건너뛰고 이어서 처리. MAX_CHUNKS_PER_RUN으로
     작업을 나누어 실행 가능(중단 시 종료 코드 5, run_summary.json status=partial).
-  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 OUTPUT_DIR/run_summary.json에 기록"
+  runtime_reporting: "시작·종료 시각과 소요 시간(elapsed_sec)을 로그와 run_summary.json(작업 API는 GET /jobs/{job_id})에 기록"
   expected_duration:
-    model_load_sec: 60                    # 601개 모델 체크섬 검증 + 구성
+    model_load_sec: 60                    # 가중치 체크섬 검증 + 601개 모델 구성 (재측정 전 값)
     gpu_throughput_mol_per_sec: 50        # RTX 2080 Ti 실측
     cpu_throughput_mol_per_sec: 0.9       # GPU 미사용 시 실측 (다른 작업 없는 상태)
     example: "10,000 분자 ≈ 4.5분 (GPU) / ≈ 3시간 (CPU)"
@@ -37,22 +48,19 @@ deployment:
     3: 모델 오류 (E-MODEL-*)
     4: 시스템·설정 오류 (E-SYS-*)
     5: MAX_CHUNKS_PER_RUN 도달로 일시 중단 — 같은 명령으로 재시작
-  optional_modes:
-    serve: "HTTP API (api/openapi.yaml, OpenAPI 3.0.3), 요청당 최대 MAX_REQUEST_ITEMS건, 인증 없음"
 
 # ── 컨테이너 · 소스 ───────────────────────────────────────────────────────────
 image:
-  repository: pzkeung/bio-synergy-platform
+  repository: cbibioinfolab/toxicity-prediction
   tag: ssl-gcn-1.0.0
-  alias_tags: [ssl-gcn]
-  digest: sha256:1ad8f0e52ff2becaa5991f1e1871e8b28c82222c5315e297de70cb349347ecb2  # registry digest (the copy inside the image has null: an image cannot contain its own digest)
+  digest: null              # push 후 docs/release_info.md 에 기록 (이미지는 자신의 digest를 담을 수 없음)
   platform: linux/amd64
   user: "10001:10001 (non-root)"
-  network: none           # no network access needed at run time
+  network: none
 source:
-  repository: https://github.com/pzkeung/DrugDevPlatform.git
-  branch: ssl-gcn
-  tag: ssl-gcn-v1.0.0     # commit hash — docs/release_info.md
+  repository: https://github.com/cbi-bioinfo/all-in-one-platform.git
+  branch: ssl-gcn           # 모델별 브랜치. 가중치는 저장소에 넣지 않음 (models/SHA256SUMS)
+  tag: ssl-gcn-v1.0.0       # 커밋 해시 — docs/release_info.md
 entrypoint: ["python", "-m", "sslgcn_tox"]
 default_command: ["batch"]
 
@@ -65,7 +73,6 @@ inputs:
     encoding: UTF-8
     formats:
       - {ext: .csv, content: "헤더 행 필수. 'smiles' 또는 'canonical_smiles' 열 필수(대소문자 무관). 'id'/'mol_id'/'name'/'compound_id' 열 선택"}
-      - {ext: .smi, content: "한 줄에 'SMILES [ID]'"}
       - {ext: .txt, content: "한 줄에 'SMILES [ID]'"}
       - {ext: .sdf, content: "다중 분자 SDF, 분자명(_Name)을 ID로 사용"}
       - {ext: .mol, content: "단일 분자 MOL"}
@@ -76,17 +83,19 @@ inputs:
     mode: serve
     type: array[string]
     required: true
-    description: "POST /predict 본문 'smiles' (1–100건)"
+    description: "POST /jobs JSON 본문 'smiles'(건수 제한 없음) 또는 POST /predict 'smiles'(1–MAX_REQUEST_ITEMS건)"
   - name: ids
     mode: serve
     type: array[string]
     required: false
+    description: "'smiles'와 같은 순서의 ID"
 
 # ── 파라미터 및 기본값 ────────────────────────────────────────────────────────
 parameters:
   - {name: OUTPUT_DIR,          type: path, default: /data/output,    description: 결과 저장 경로}
   - {name: OUTPUT_FORMAT,       type: enum, default: csv, values: [csv, json], description: 결과 파일 형식}
-  - {name: MODEL_DIR,           type: path, default: /opt/app/models, description: "tasks.json, tasks/<태스크>/{model.pth,configure.json}, SHA256SUMS"}
+  - {name: MODEL_DIR,           type: path, default: /opt/app/models, description: "가중치 디렉터리 (SHA256SUMS 포함)"}
+  - {name: MODEL_PATH,          type: path, default: /opt/app/models/sslgcn_pretrained.pt, description: "601개 태스크 모델 묶음 (태스크 순서·공통 설정·태스크별 가중치)"}
   - {name: CHECKPOINT_DIR,      type: path, default: "${OUTPUT_DIR}/.checkpoint"}
   - {name: RESUME,              type: bool, default: 1,    description: 체크포인트에서 재시작}
   - {name: CHUNK_SIZE,          type: int,  default: 1000, description: 체크포인트 단위(분자 수)}
@@ -95,7 +104,9 @@ parameters:
   - {name: SEED,                type: int,  default: 42}
   - {name: STANDARDIZE,         type: bool, default: 0,    description: "1이면 최대 유기 조각만 남기고 전하 중화 (학습 전처리와 달라 기본 끔)"}
   - {name: MAX_SMILES_LENGTH,   type: int,  default: 1000}
-  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: serve 모드 요청당 최대 분자 수}
+  - {name: MAX_REQUEST_ITEMS,   type: int,  default: 100,  description: "POST /predict 요청당 최대 분자 수"}
+  - {name: JOBS_DIR,            type: path, default: "${OUTPUT_DIR}/jobs", description: "작업 API 입력·결과·체크포인트 저장 경로"}
+  - {name: JOB_MAX_UPLOAD_MB,   type: int,  default: 1024, description: "POST /jobs 본문 최대 크기(MB)"}
   - {name: VERIFY_CHECKSUM,     type: bool, default: 1,    description: 시작 시 가중치 SHA-256 검증}
   - {name: PORT,                type: int,  default: 8000, description: serve 모드 포트}
   - {name: LOG_LEVEL,           type: enum, default: INFO, values: [DEBUG, INFO, WARNING, ERROR]}
@@ -104,7 +115,7 @@ parameters:
 outputs:
   files:
     - {name: "predictions.csv | predictions.json", description: 분자별 예측 결과}
-    - {name: run_summary.json, description: "상태(completed/partial), 건수, 시작/종료 시각, 소요 시간, 처리량, 장치, 가중치 집합 SHA-256"}
+    - {name: run_summary.json, description: "상태(completed/partial), 건수, 시작/종료 시각, 소요 시간, 처리량, 장치, 가중치 SHA-256"}
   fields:
     - {name: index,            type: integer, unit: null, description: "입력 순서 (0부터)"}
     - {name: id,               type: string,  unit: null, description: "입력 ID, 없으면 mol_<index>"}
@@ -116,7 +127,7 @@ outputs:
     - {name: warnings,         type: "string (';' 구분)", unit: null, values: [W-STD-001, W-STD-002, W-STD-003, W-FEAT-001]}
     - {name: "<task>_prob",    type: float,   unit: "probability (0–1)", count: 601, description: "해당 태스크 양성(독성/활성) 확률, 소수점 8자리"}
     - {name: "<task>_label",   type: integer, unit: "binary (0/1)",      count: 601, description: "<task>_prob ≥ 0.5 이면 1"}
-  task_list: "models/tasks.json 또는 GET /info (모델 없는 30개 태스크 목록 포함)"
+  task_list: "GET /schema 또는 predictions.csv 헤더 (모델 없는 30개 태스크 목록은 GET /schema)"
 
 # ── 성능지표 및 측정 조건 ─────────────────────────────────────────────────────
 performance:
@@ -160,7 +171,7 @@ limitations:
   - "scaffold holdout 기준 macro AUROC 약 0.60으로 성능이 제한적이다. 확률은 순위화 용도로만 쓴다."
   - "출력이 과신(overconfident) 경향을 보인다: seed0 test 출력 확률의 25%가 소수점 8자리에서 정확히 0 또는 1이다. 확률을 보정된 위험도로 해석하지 않는다."
   - "0.5 임계값에서 Tox21 민감도 0.02, ClinTox 민감도 0으로 양성을 거의 판정하지 않는다(라벨 열은 참고용)."
-  - "631개 trainset 태스크 중 30개는 seed0 검증 분할에 양성·음성이 모두 있지 않아 모델이 없으며 출력하지 않는다(models/tasks.json)."
+  - "631개 trainset 태스크 중 30개는 seed0 검증 분할에 양성·음성이 모두 있지 않아 모델이 없으며 출력하지 않는다(GET /schema의 tasks_without_model)."
   - "원자 특징(CanonicalAtomFeaturizer)에 키랄성이 없어 입체이성질체를 구별하지 못한다. 반면 대괄호 원자([C@H] 등)는 암묵 원자가가 0으로 인코딩되어 같은 분자도 표기에 따라 예측이 크게 달라질 수 있다(시험 사례 B2, 최대 0.91). RDKit canonical SMILES 입력을 권장한다."
   - "43개 원소 밖의 원소, 범위를 벗어난 차수·원자가·수소 수·혼성은 0으로 인코딩되며 W-FEAT-001 경고가 붙는다."
   - "RDKit 2026.3.1의 원자가 규칙을 따른다. 구버전 RDKit에서 유효했던 일부 구조(예: [AlH3] 알루미늄 착물 — trainset의 8개 분자)는 E-INPUT-002로 거부된다(시험 사례 S9)."

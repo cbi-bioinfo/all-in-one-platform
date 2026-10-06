@@ -1,5 +1,5 @@
-# Model weights are distributed as separate files (see models/SHA256SUMS)
-models/tasks/*/model.pth
+# Model weights are not kept in git (see models/SHA256SUMS and docs/deployment.md)
+models/*.pt
 __pycache__/
 *.pyc
 tests/_runs/

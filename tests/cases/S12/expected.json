@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "E-JOB-001",
+    "message": "Job not found",
+    "detail": "00000000000000000000000000000000"
+  }
+}

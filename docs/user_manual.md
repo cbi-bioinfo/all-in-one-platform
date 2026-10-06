@@ -24,15 +24,15 @@ GPU가 없으면 CPU로 자동 전환하지만 **느리다**(GPU 약 50 분자/�
 인터넷이 되는 PC:
 
 ```bash
-docker pull pzkeung/bio-synergy-platform:ssl-gcn-1.0.0
-docker save pzkeung/bio-synergy-platform:ssl-gcn-1.0.0 | gzip > ssl-gcn-1.0.0.tar.gz
+docker pull cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0
+docker save cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0 | gzip > ssl-gcn-1.0.0.tar.gz
 ```
 
 분석 서버:
 
 ```bash
 docker load < ssl-gcn-1.0.0.tar.gz
-docker run --rm --network none pzkeung/bio-synergy-platform:ssl-gcn-1.0.0 version
+docker run --rm --network none cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0 version
 # → tox-sslgcn 1.0.0
 ```
 
@@ -47,7 +47,7 @@ docker run --rm --gpus all --network none \
   -v "$PWD/input:/data/input:ro" \
   -v "$PWD/output:/data/output" \
   -e INPUT_PATH=/data/input/molecules.csv \
-  pzkeung/bio-synergy-platform:ssl-gcn-1.0.0
+  cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0
 ```
 
 출력 디렉터리 권한을 바꾸기 어려우면 `--user "$(id -u):$(id -g)"`를 붙여 호스트
@@ -58,7 +58,7 @@ docker run --rm --gpus all --network none \
 | 확장자 | 형식 | 분자 ID |
 |---|---|---|
 | `.csv` | 헤더 행 필수. `smiles` 또는 `canonical_smiles` 열 필수(대소문자 무관) | `id`, `mol_id`, `name`, `compound_id` 중 처음 발견된 열. 없으면 `mol_<순번>` |
-| `.smi`, `.txt` | 한 줄에 `SMILES [ID]` (공백 구분, 빈 줄 무시) | 둘째 칸, 없으면 `mol_<순번>` |
+| `.txt` | 한 줄에 `SMILES [ID]` (공백 구분, 빈 줄 무시). 표준 SMILES 목록(`.smi`) 파일은 확장자만 `.txt`로 바꿔 쓴다 | 둘째 칸, 없으면 `mol_<순번>` |
 | `.sdf` | 다중 분자 SDF | 분자 이름(첫 줄) |
 | `.mol` | 단일 분자 | 파일 이름 |
 
@@ -83,14 +83,18 @@ docker run --rm --gpus all --network none \
 | `STANDARDIZE` | `0` | `1`이면 최대 유기 조각만 남기고 전하를 중화한 뒤 예측(학습 조건과 다름, 4.2절) |
 | `MAX_SMILES_LENGTH` | `1000` | SMILES 최대 길이 |
 | `SEED` | `42` | 난수 시드 |
-| `MODEL_DIR` | `/opt/app/models` | `tasks.json`, `tasks/<태스크>/{model.pth,configure.json}`, `SHA256SUMS`가 있는 디렉터리 |
-| `VERIFY_CHECKSUM` | `1` | 시작할 때 `SHA256SUMS`의 모든 파일 해시 검증 |
+| `MODEL_DIR` | `/opt/app/models` | 가중치 디렉터리 (`SHA256SUMS` 포함) |
+| `MODEL_PATH` | `$MODEL_DIR/sslgcn_pretrained.pt` | 601개 태스크 모델 묶음 |
+| `VERIFY_CHECKSUM` | `1` | 시작할 때 가중치 SHA-256 검증 |
 | `LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
 | `HOST`, `PORT` | `0.0.0.0`, `8000` | serve 모드 바인딩 주소·포트 |
-| `MAX_REQUEST_ITEMS` | `100` | serve 모드 요청 1건당 최대 분자 수 |
+| `MAX_REQUEST_ITEMS` | `100` | `POST /predict` 요청 1건당 최대 분자 수 |
+| `JOBS_DIR` | `$OUTPUT_DIR/jobs` | serve 모드 작업 API의 입력·결과·체크포인트 저장 경로 |
+| `JOB_MAX_UPLOAD_MB` | `1024` | `POST /jobs` 본문 최대 크기(MB) |
 
-다른 가중치 세트를 쓰려면 같은 구조의 디렉터리를 마운트하고 `MODEL_DIR`을 바꾼다
-(`-v /path/models:/models:ro -e MODEL_DIR=/models`).
+다른 가중치를 쓰려면 디렉터리를 마운트하고 `MODEL_DIR`을 바꾼다
+(`-v /path/models:/models:ro -e MODEL_DIR=/models`). 이때 디렉터리에 `SHA256SUMS`가
+있어야 한다.
 
 ### 2.3 진행률·수행 시간 로그
 
@@ -137,7 +141,7 @@ INFO sslgcn_tox: Finished at <종료 시각> — elapsed 00:01:07; 506 ok, 0 err
 | 파일 | 내용 |
 |---|---|
 | `predictions.csv` (또는 `.json`) | 입력 순서대로 분자당 1행 |
-| `run_summary.json` | `status`, `n_total`, `n_ok`, `n_error`, `n_with_warnings`, 시작/종료 시각, `elapsed_sec`, 처리량, 장치, 시드, `model_sha256`(= `models/SHA256SUMS` 파일의 SHA-256, 가중치 세트 식별자), `n_tasks`(601) |
+| `run_summary.json` | `status`, `n_total`, `n_ok`, `n_error`, `n_with_warnings`, 시작/종료 시각, `elapsed_sec`, 처리량, 장치, 시드, `model_sha256`(= `sslgcn_pretrained.pt`의 SHA-256), `n_tasks`(601) |
 
 ### 3.2 `predictions.csv` 열
 
@@ -153,9 +157,9 @@ INFO sslgcn_tox: Finished at <종료 시각> — elapsed 00:01:07; 506 ok, 0 err
 | `<태스크>_prob` | 실수 0–1 | 해당 태스크 양성(독성·활성) 확률, 소수점 8자리 |
 | `<태스크>_label` | 0/1 | `_prob` ≥ 0.5이면 1 |
 
-태스크 열 순서는 `models/tasks.json`의 `tasks` 순서(trainset 열 순서)와 같다. trainset의
-631개 태스크 중 30개(`tasks_without_model`)는 학습 때 검증 분할에서 지표를 계산할 수
-없어 모델이 없으며 출력하지 않는다.
+태스크 열 순서는 trainset 열 순서와 같다(serve 모드 `GET /schema`의 `output.tasks`).
+trainset의 631개 태스크 중 30개(`GET /schema`의 `output.tasks_without_model`)는 학습 때
+검증 분할에서 지표를 계산할 수 없어 모델이 없으며 출력하지 않는다.
 
 ## 4. 결과 해석
 
@@ -210,14 +214,18 @@ seed0 test 506분자 중 23분자에서 발생했고 모두 염·이온을 포�
 | `E-INPUT-008` | 422 | 분자 | SDF/MOL 레코드를 읽을 수 없음 |
 | `E-INPUT-009` | 422 | 분자 | `STANDARDIZE=1` 처리 후 남은 분자가 없음 |
 | `E-INPUT-010` | 422 | 분자 | SMILES가 `MAX_SMILES_LENGTH`보다 김 |
-| `E-INPUT-011` | 422 | 요청 | serve 요청 본문이 API 스키마와 맞지 않음 |
-| `E-MODEL-001` | 503 | 작업 | `tasks.json` 또는 태스크 모델 파일 누락·로드 실패 |
-| `E-MODEL-002` | 503 | 작업 | `SHA256SUMS`가 없거나 파일 해시가 다름 |
+| `E-INPUT-011` | 422 | 요청 | serve 요청 본문·쿼리가 API 스키마와 맞지 않음 |
+| `E-INPUT-012` | 413 | 요청 | `POST /jobs` 본문이 `JOB_MAX_UPLOAD_MB` 초과 |
+| `E-JOB-001` | 404 | 요청 | 없는 `job_id` |
+| `E-JOB-002` | 409 | 요청 | 작업이 완료되지 않아 결과가 없음(`queued`/`running`/`failed`) |
+| `E-MODEL-001` | 503 | 작업 | 가중치 파일 누락·로드 실패 |
+| `E-MODEL-002` | 503 | 작업 | `SHA256SUMS`가 없거나 가중치 해시가 다름 |
 | `E-MODEL-003` | 500 | 분자 | 분자를 그래프로 바꿀 수 없음(방어용 검사) |
 | `E-SYS-001` | 500 | 작업 | 출력 디렉터리에 쓸 수 없음 |
 | `E-SYS-002` | 500 | 작업 | `DEVICE=cuda`인데 GPU가 보이지 않음 |
 | `E-SYS-003` | 500 | 작업 | 예기치 않은 내부 오류(로그에 상세 출력) |
 | `E-SYS-004` | 400 | 작업 | 환경 변수 값이 잘못됨(`DEVICE`, `OUTPUT_FORMAT`, `CHUNK_SIZE` 등) |
+| `E-SYS-005` | 503 | 요청 | serve 모드에서 모델 로딩 중 (`GET /readyz`가 200이 된 뒤 재시도) |
 
 '분자' 범위 오류는 해당 행만 `status=error`가 되고 나머지 분자는 계속 예측한다.
 '작업' 범위 오류는 실행을 멈추고 종료 코드 2–4를 낸다.
@@ -233,23 +241,78 @@ seed0 test 506분자 중 23분자에서 발생했고 모두 염·이온을 포�
 | 알루미늄 착물 `CC(=O)O[AlH3](O)O` | `E-INPUT-002`: `Explicit valence for atom # 4 Al, 6, is greater than permitted` (구버전 RDKit에서는 허용되던 표기) | S9 |
 | 빈 SMILES | `E-INPUT-007` | S7 |
 
-## 5. serve 모드 (선택)
+## 5. serve 모드 (HTTP API)
+
+명세: `api/openapi.yaml` (OpenAPI 3.0.3).
+
+| 엔드포인트 | 용도 |
+|---|---|
+| `GET /healthz` | 생존 확인 — 프로세스가 떠 있으면 200 (모델 로딩 중에도) |
+| `GET /readyz` | 준비 확인 — 모델 로드가 끝나면 200 `ready`, 로딩 중 503 `loading`, 로드 실패 503 `failed` |
+| `GET /info` | 도구 id·버전·가중치 SHA-256·장치·임계값·시드 등 설정 |
+| `GET /schema` | 입력 형식, 결과 열 정의, 태스크 601개 목록(출력 순서)과 모델 없는 30개 태스크, 오류·경고 코드 |
+| `POST /predict` | 소량(1–`MAX_REQUEST_ITEMS`건) 동기 예측 |
+| `POST /jobs` | 작업 제출 (T2) — 건수 제한 없음, 백그라운드 실행 |
+| `GET /jobs/{job_id}` | 작업 상태·진행률 조회 |
+| `GET /jobs/{job_id}/result` | 작업 결과 파일 조회 |
 
 ```bash
+mkdir -p output && chmod 777 output
 docker run -d --name sslgcn --gpus all -p 127.0.0.1:8000:8000 \
-  pzkeung/bio-synergy-platform:ssl-gcn-1.0.0 serve
+  -v "$PWD/output:/data/output" \
+  cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0 serve
+curl -s localhost:8000/healthz    # 바로 200
+curl -s localhost:8000/readyz     # 모델 로드(약 1분) 후 200
+```
 
-curl -s localhost:8000/health
+모델은 서버 시작 후 백그라운드에서 읽는다. 로딩 중 `/predict`·`/schema`는
+`503 E-SYS-005`를 반환하고, 그 사이 제출한 작업은 대기열에서 로드 완료를 기다린다.
+
+### 5.1 작업 API (제출 → 상태 → 결과)
+
+```bash
+# ① 제출: 파일 본문 그대로 전송 (input_format: csv|txt|sdf|mol, output_format: csv|json)
+curl -s -X POST 'localhost:8000/jobs?input_format=csv&output_format=csv' \
+  -H 'Content-Type: text/csv' --data-binary @molecules.csv
+# → 202 {"job_id": "3f2a...", "state": "queued", ...}   (Location: /jobs/3f2a...)
+
+#    또는 JSON SMILES 목록
+curl -s -X POST localhost:8000/jobs -H 'Content-Type: application/json' \
+  -d '{"smiles": ["CC(=O)Nc1ccc(O)cc1", "c1ccccc1"], "ids": ["acetaminophen", "benzene"]}'
+
+# ② 상태: state = queued → running → completed | failed
+curl -s localhost:8000/jobs/3f2a...
+# → {"state": "running", "n_total": 10000, "n_processed": 3000, "progress_percent": 30.0,
+#    "chunks": 10, "chunks_completed": 3, "started_at": ..., "error": null, "summary": null, ...}
+
+# ③ 결과: completed 이후 predictions 파일 (batch 모드 결과와 같은 형식)
+curl -s -o predictions.csv localhost:8000/jobs/3f2a.../result
+```
+
+* 작업은 제출 순서대로 하나씩 실행되며 batch 모드와 같은 코드(청크 단위
+  체크포인트)로 처리된다. 결과는 batch 결과와 같다(시험 사례 S10).
+* 완료 전 결과를 요청하면 `409 E-JOB-002`, 없는 `job_id`는 `404 E-JOB-001`.
+* 입력 내용 오류(예: smiles 열 없음)는 작업이 `failed`가 되고 `error`에 코드가
+  담긴다(시험 사례 S11). 분자 단위 오류는 결과 파일의 해당 행에 기록된다.
+* 작업 상태·결과는 `JOBS_DIR`(기본 `/data/output/jobs/<job_id>/`)에 저장된다.
+  위 예처럼 `/data/output`을 마운트하면 서버를 재시작해도 남아 있고, 실행 중이던
+  작업은 재시작 시 다시 대기열에 올라 완료된 청크 다음부터 이어서 처리된다.
+  끝난 작업 디렉터리는 자동으로 지우지 않는다.
+
+### 5.2 동기 예측 (`POST /predict`)
+
+```bash
 curl -s -X POST localhost:8000/predict -H 'Content-Type: application/json' \
   -d '{"smiles": ["CC(=O)Nc1ccc(O)cc1"], "ids": ["acetaminophen"]}'
 ```
 
-* 명세: `api/openapi.yaml` (OpenAPI 3.0.3). `GET /health`, `GET /info`(태스크 목록·설정),
-  `POST /predict`.
-* 요청 1건에 1–100개. 101개 이상이면 `413 E-INPUT-003`, 빈 목록이면 `422 E-INPUT-006`.
+* 요청 1건에 1–100개. 101개 이상이면 `413 E-INPUT-003`(많은 분자는 작업 API 사용),
+  빈 목록이면 `422 E-INPUT-006`.
 * 일부 분자만 실패하면 `200`이고 해당 항목의 `status`가 `error`다. 모든 분자가
   실패하면 첫 번째 오류 코드로 `422`(입력 오류) 또는 `500`을 반환한다.
-* 서버가 준비되기까지(모델 로드) 약 1분이 걸린다.
+
+### 5.3 보안
+
 * **인증이 없다.** 신뢰된 내부망에서만 쓰고 위 예처럼 `127.0.0.1`에만 바인딩한다.
   컨테이너 코드는 외부로 접속하지 않는다.
 
@@ -258,4 +321,4 @@ curl -s -X POST localhost:8000/predict -H 'Content-Type: application/json' \
 * 시드 42 고정, 결정적 연산, float64 추론. 같은 입력·이미지면 결과가 같다.
 * 허용 오차: 확률 절대오차 1×10⁻⁶ 이내, 문자열·라벨·코드는 완전 일치.
 * 실측 결과와 자체 시험: `docs/selftest_report.md`.
-  재실행: `python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:ssl-gcn-1.0.0`.
+  재실행: `python3 tests/run_tests.py --image cbibioinfolab/toxicity-prediction:ssl-gcn-1.0.0`.

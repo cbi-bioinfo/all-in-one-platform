@@ -11,7 +11,7 @@
 | 학습 방법 | Mean Teacher 반지도학습: 라벨 있는 분자로 지도 손실, 같은 태스크에 라벨이 없는 trainset 분자로 일관성 손실(학생·교사 출력의 MSE). 제출 가중치는 **teacher** 모델 |
 | 원 논문 | Chen J. et al., "Chemical toxicity prediction based on semi-supervised learning and graph convolutional neural network", J. Cheminform. 13, 93 (2021), doi:10.1186/s13321-021-00570-8 |
 | 구현 | 원 저장소(chen709847237/SSL-GCN)는 평가 코드만 공개하여, 학습 루프는 논문 식·설명으로 재구성했다. 모델 구조·저장 형식은 원 저장소와 같다. 추론 코드는 본 과제에서 dgllife로 새로 작성했다 |
-| 가중치 | `models/tasks/<태스크>/model.pth` 601개 (합계 238 MB) |
+| 가중치 | `models/sslgcn_pretrained.pt` (241 MB) — 601개 태스크 모델(Mean-Teacher teacher)과 공통 설정을 한 파일로 묶음 |
 | 용도 | 연구용 독성 스크리닝 — 화합물 우선순위 선별 |
 | 비용도 | 규제 판단, 임상 의사결정, 실험 독성평가 대체 |
 
@@ -36,10 +36,10 @@ Tox21, ClinTox, ToxCast를 병합하고 canonical SMILES 기준으로 중복을 
 | 조기 종료 | 최대 500 epoch, 태스크별 val AUROC 기준 patience 30 — val AUROC가 가장 높은 epoch의 teacher 가중치 저장 |
 | 시드 | 42 |
 | 모델 선정 | 분할 seed 0–4로 각각 학습한 5개 실행 중 **val macro AUROC가 가장 높은 seed 0** 선정. test macro AUROC로도 seed 0이 가장 높다(4.2절) |
-| 모델이 없는 태스크 | 30개. seed 0 val 분할에서 해당 태스크 라벨이 한 클래스뿐이거나 거의 없어(양성 0개 20태스크, 라벨 1–3개 등) val AUROC를 계산할 수 없어 체크포인트가 저장되지 않음. 목록: `models/tasks.json` |
+| 모델이 없는 태스크 | 30개. seed 0 val 분할에서 해당 태스크 라벨이 한 클래스뿐이거나 거의 없어(양성 0개 20태스크, 라벨 1–3개 등) val AUROC를 계산할 수 없어 체크포인트가 저장되지 않음. 목록: 가중치 묶음의 `tasks_without_model`, serve 모드 `GET /schema` |
 
-하이퍼파라미터는 각 태스크의 `configure.json`에 기록되어 있으며 601개 모두 같다
-(원 논문 NR-AR SSL 최적 설정).
+하이퍼파라미터는 학습 때 태스크마다 `configure.json`으로 기록되었고 601개 모두 같다
+(가중치 묶음의 `config`; 원 논문 NR-AR SSL 최적 설정).
 
 ## 4. 성능
 
@@ -94,7 +94,7 @@ ClinTox: FDA_APPROVED 0.758, CT_TOX 0.720.
    1이다. 확률 크기를 보정된 위험도로 해석하지 않는다.
 3. **임계값 판정 부적합.** 0.5에서 Tox21 민감도 0.02, ClinTox 민감도 0(두 태스크
    모두 전 분자를 음성 판정)이다. `_label`은 참고용이며 확률 순위로 사용한다.
-4. **모델 없는 태스크 30개**는 출력하지 않는다(`models/tasks.json`).
+4. **모델 없는 태스크 30개**는 출력하지 않는다(`GET /schema`의 `tasks_without_model`).
 5. **SMILES 표기 민감성.** 원자 특징에 키랄성이 없어 입체이성질체를 구별하지 못한다.
    반면 대괄호로 쓴 원자(예: 입체중심 `[C@H]`)는 수소가 명시적으로 처리되어 '암묵
    원자가' 특징이 0이 되므로, 같은 분자라도 `[C@H](O)`와 `C(O)`의 예측이 크게 다를

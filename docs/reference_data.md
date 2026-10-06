@@ -4,12 +4,12 @@
 
 | 이름 | 종류 | 경로 | 용량 | 출처 | 라이선스 |
 |---|---|---|--:|---|---|
-| 태스크 목록 | JSON | `models/tasks.json` | 약 17 KB | 본 과제 (trainset 열 순서, 모델 없는 30개 태스크 목록) | 미기재 |
-| 태스크별 모델 설정 | JSON × 601 | `models/tasks/*/configure.json` | 약 300 KB | 본 과제 학습 산출물 | 미기재 |
+| 모델 가중치 묶음 | PyTorch 파일 (dict: `tasks`, `tasks_without_model`, `note`, `config`, `state_dicts`) | `models/sslgcn_pretrained.pt` | 240,980,132 B | 본 과제 학습 산출물 (trainset holdout seed 0, 601개 태스크 모델과 공통 설정, 태스크 순서·모델 없는 30개 태스크 목록 포함) | 미기재 |
 | 원자 특징화기 정의 | 라이브러리 코드 | dgllife 0.3.2 `CanonicalAtomFeaturizer` (pip 패키지) | — | DGL-LifeSci | Apache-2.0 |
 
-모델 가중치 자체(`models/tasks/*/model.pth`)는 `models/README.md`에 정리했다. 추론에는
-그 밖의 데이터베이스, 사전 계산 값, 외부 서비스가 필요 없다.
+가중치 파일은 용량 때문에 소스 저장소에 넣지 않고 이미지에만 포함한다(빌드 시
+배치 방법은 `docs/deployment.md` 1.1절). 체크섬은 `models/SHA256SUMS`에 있다.
+추론에는 그 밖의 데이터베이스, 사전 계산 값, 외부 서비스가 필요 없다.
 
 ## 2. 학습 데이터 (trainset) — 패키지에 포함하지 않음
 
