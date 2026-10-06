@@ -1,5 +1,5 @@
 {
-  "tool_id": "bsp-tox-chemprop",
+  "tool_id": "tox-chemprop",
   "version": "1.0.0",
   "n_items": 3,
   "n_ok": 2,

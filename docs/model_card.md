@@ -4,7 +4,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| 기술 식별자 | `bsp-tox-chemprop` 1.0.0 |
+| 기술 식별자 | `tox-chemprop` 1.0.0 |
 | 과제 | 화합물 독성 다중작업 이진 분류 — 631개 태스크의 양성 확률 |
 | 입력 | SMILES → RDKit 분자 → 분자 그래프 (원자 특징 72차원, 결합 특징 14차원) |
 | 구조 | Chemprop 2.3.1 D-MPNN: 방향성 결합 메시지 전달(`BondMessagePassing`, 깊이 3, 은닉 300) → 원자 벡터 합/100 (`NormAggregation`) → FFN 300 → 300 → ReLU → 631, sigmoid. 파라미터 507,931개 |

@@ -33,7 +33,7 @@ docker save pzkeung/bio-synergy-platform:chemprop-1.0.0 | gzip > chemprop-1.0.0.
 ```bash
 docker load < chemprop-1.0.0.tar.gz
 docker run --rm --network none pzkeung/bio-synergy-platform:chemprop-1.0.0 version
-# → bsp-tox-chemprop 1.0.0
+# → tox-chemprop 1.0.0
 ```
 
 ## 2. 배치 실행 (기본)

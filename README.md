@@ -1,4 +1,4 @@
-# Chemprop Toxicity Predictor 1.0.0 (`bsp-tox-chemprop`)
+# Chemprop Toxicity Predictor 1.0.0 (`tox-chemprop`)
 
 Offline, inference-only container that predicts the probability of 631 toxicity
 endpoints (Tox21 12 · ClinTox 2 · ToxCast 617) for small molecules given as

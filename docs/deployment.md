@@ -96,7 +96,7 @@ docker compose --profile serve up -d chemprop-serve     # 선택: HTTP API
 
 ```bash
 docker run --rm --network none pzkeung/bio-synergy-platform:chemprop-1.0.0 version
-# → bsp-tox-chemprop 1.0.0
+# → tox-chemprop 1.0.0
 python3 tests/run_tests.py --image pzkeung/bio-synergy-platform:chemprop-1.0.0
 # → 19/19 passed (골든 7건 + 보조 12건)
 ```
