@@ -8,20 +8,20 @@
 | 이미지 ID | `sha256:7d0ce779100f85ceed27e490a11b86fcb9a812727dd1b7e3a7597ac3c5b5696a` |
 | 실행 장치 | GPU |
 | 네트워크 | `--network none` (모든 사례) |
-| 실행 시각 | 2026-10-06T13:23:15+09:00 |
+| 실행 시각 | 2026-10-06T18:38:48+09:00 |
 | 시험 도구 | `tests/run_tests.py` |
 | 허용 오차 | 확률값 절대오차 1e-06 이내, 문자열·판정값(라벨·상태·코드·메시지·경고·HTTP 상태·종료 코드)은 완전 일치 |
 
-**결과: 20/20 일치**
+**결과: 21/21 일치**
 
 ## 2. 골든 데이터셋 시험 결과 (`/tests/golden/`)
 
 | 사례 | 구분 | 입력 요약 | 기대 결과 | 실제 결과 | 확률 최대 오차 | 일치 |
 |---|---|---|---|---|---|---|
-| B1 | 경계 | 요청당 최대 건수 100건 (serve) | HTTP 200, 100 ok / 0 error | HTTP 200, 100 ok / 0 error | 0.0e+00 (63100개) | 일치 |
+| B1 | 경계 | 경계 대표 분자 10건 (serve) — 짧은·긴 SMILES, 금속 착물, 전하, '/'·'@' 표기(W-ENC-001), SMILES 길이 상한 1,000자 | HTTP 200, 10 ok / 0 error | HTTP 200, 10 ok / 0 error | 0.0e+00 (6310개) | 일치 |
 | B2 | 경계 | 입체 표기(@) 포함 분자 vs 입체 제거 분자 — '@'는 SE 어휘에 없어 <unk>로 인코딩, 두 예측이 다름(W-ENC-001) | exit 0, 2 ok / 0 error, warn W-ENC-001 | exit 0, 2 ok / 0 error, warn W-ENC-001 | 0.0e+00 (1262개) | 일치 |
 | E1 | 오류 | 고리 미종결 SMILES (serve, 단일 요청) | HTTP 422, E-INPUT-002 | HTTP 422, E-INPUT-002 | — | 일치 |
-| E2 | 오류 | 전하 표기가 빠진 4급 암모늄염 raw SMILES — 원자가 오류 행만 E-INPUT-002, 나머지 계속 | exit 0, 1 ok / 1 error, E-INPUT-002, warn W-ENC-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 1 error, E-INPUT-002, warn W-ENC-001,W-STD-001,W-STD-002 | 0.0e+00 (631개) | 일치 |
+| E2 | 오류 | 분자 단위 오류 8종 + 대조 1건 (batch) — 원자가 초과·괄호·원소 기호·케쿨레·대괄호 E-INPUT-002, 빈 SMILES E-INPUT-007, 1,001자 E-INPUT-010; 오류 행만 기록하고 나머지 계속 | exit 0, 1 ok / 8 error, E-INPUT-002,E-INPUT-007,E-INPUT-010, warn W-ENC-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 8 error, E-INPUT-002,E-INPUT-007,E-INPUT-010, warn W-ENC-001,W-STD-001,W-STD-002 | 0.0e+00 (631개) | 일치 |
 | N1 | 정상 | 단일 화합물 (captan, trainset 홀드아웃 test 분자) | exit 0, 1 ok / 0 error | exit 0, 1 ok / 0 error | 0.0e+00 (631개) | 일치 |
 | N2 | 정상 | 10건 일괄 예측 (CSV) | exit 0, 10 ok / 0 error | exit 0, 10 ok / 0 error | 0.0e+00 (6310개) | 일치 |
 | N3 | 정상 | 나트륨 염·이온화 raw SMILES (.txt 입력) — 학습과 동일하게 그대로 예측, 경고 표시 | exit 0, 1 ok / 0 error, warn W-ENC-001,W-STD-001,W-STD-002 | exit 0, 1 ok / 0 error, warn W-ENC-001,W-STD-001,W-STD-002 | 0.0e+00 (631개) | 일치 |
@@ -35,6 +35,7 @@
 | S11 | 오류 | 존재하지 않는 job_id 상태 조회 — 404 E-JOB-001 | HTTP 404, E-JOB-001 | HTTP 404, E-JOB-001 | — | 일치 |
 | S12 | 정상 | GET /healthz — 프로세스 생존 확인 (serve) | HTTP 200 | HTTP 200 | — | 일치 |
 | S13 | 정상 | GET /schema — 입력 형식, 결과 열, 631개 태스크 목록(출력 순서), 오류·경고 코드 (serve) | HTTP 200 | HTTP 200 | — | 일치 |
+| S14 | 경계 | 요청당 최대 건수 100건 (serve) | HTTP 200, 100 ok / 0 error | HTTP 200, 100 ok / 0 error | 0.0e+00 (63100개) | 일치 |
 | S2 | 오류 | 빈 요청 목록 (serve) | HTTP 422, E-INPUT-006 | HTTP 422, E-INPUT-006 | — | 일치 |
 | S3 | 오류 | smiles 컬럼이 없는 CSV (batch) | exit 2, E-INPUT-005 | exit 2, E-INPUT-005 | — | 일치 |
 | S4 | 오류 | 지원하지 않는 입력 형식 .xlsx (batch) | exit 2, E-INPUT-004 | exit 2, E-INPUT-004 | — | 일치 |
@@ -42,7 +43,7 @@
 | S6 | 정상 | STANDARDIZE=1 — 염 제거·전하 중화 후 예측 (N3과 같은 입력) | exit 0, 1 ok / 0 error, warn W-STD-001,W-STD-002,W-STD-003 | exit 0, 1 ok / 0 error, warn W-STD-001,W-STD-002,W-STD-003 | 0.0e+00 (631개) | 일치 |
 | S7 | 경계 | 정상·오류 혼합 요청 — 200 응답에 행별 오류 포함 (serve) | HTTP 200, 2 ok / 1 error | HTTP 200, 2 ok / 1 error | 0.0e+00 (1262개) | 일치 |
 | S8 | 정상 | 전하 분리 없이 표기한 니트로기 raw SMILES — RDKit이 [N+](=O)[O-]로 자동 정규화, 올바른 표기와 동일 예측 | exit 0, 2 ok / 0 error, warn W-STD-002 | exit 0, 2 ok / 0 error, warn W-STD-002 | 0.0e+00 (1262개) | 일치 |
-| S9 | 정상 | T2 작업 인터페이스 — POST /jobs 제출 → GET /jobs/{job_id} 상태 → GET /jobs/{job_id}/result 결과 (입력·기대 결과는 E2와 같음: batch와 동일 결과) | HTTP 202, job completed, 1 ok / 1 error | HTTP 202, job completed, 1 ok / 1 error | 0.0e+00 (631개) | 일치 |
+| S9 | 정상 | T2 작업 인터페이스 — POST /jobs 제출 → GET /jobs/{job_id} 상태 → GET /jobs/{job_id}/result 결과 (입력: 전하 표기 누락 4급 암모늄 raw + 정상 표기 2건, batch와 동일 결과) | HTTP 202, job completed, 1 ok / 1 error | HTTP 202, job completed, 1 ok / 1 error | 0.0e+00 (631개) | 일치 |
 
 ## 4. 추가 검증 (재현성·정확성)
 
@@ -50,8 +51,8 @@
 |---|---|---|
 | 반복 실행 결정성 (GPU) | seed0 test 506분자 × 631태스크를 같은 이미지로 2회 batch 실행해 비교 | 최대 절대오차 **0** (319,286개 확률값) |
 | 장치 간 결정성 (GPU ↔ CPU) | 같은 입력을 `DEVICE=cuda`와 `DEVICE=cpu`로 실행해 비교 | 최대 절대오차 **0**, 라벨 불일치 0 |
-| batch ↔ serve 일치 | B1(100건) serve 응답과 같은 분자의 batch 결과 비교 | 최대 절대오차 **0**, 라벨 일치 |
-| batch ↔ 작업 API 일치 | E2 입력을 `POST /jobs`로 제출해 받은 결과 파일과 batch 기대 결과 비교 (S9) | 파일 바이트 단위 동일 |
+| batch ↔ serve 일치 | S14(100건) serve 응답과 같은 분자의 batch 결과 비교 | 최대 절대오차 **0**, 라벨 일치 |
+| batch ↔ 작업 API 일치 | S9 입력(4급 암모늄 raw + 정상 표기)을 `POST /jobs`로 제출해 받은 결과 파일과 batch 기대 결과 비교 (S9) | 파일 바이트 단위 동일 |
 | 작업 API 재시작 이어하기 | 3,000분자 작업(`CHUNK_SIZE=200`, 15청크)을 5청크 처리 후 서버 중지 → 같은 `JOBS_DIR`로 재시작 | 재시작 시 자동 재대기열, 6번째 청크부터 처리, `chunks_resumed=5`, 3,000건 완료 |
 | 평가 성능 재현 | 컨테이너 예측으로 seed0 test 지표를 다시 계산해 학습 환경 평가값과 비교 | macro AUROC 0.699450 / F1 0.263334 / 민감도 0.254221 / 특이도 0.871793 — 소수점 6자리까지 일치 |
 | 오프라인 실행 | 모든 시험을 `--network none`으로 실행 | 정상 동작 |

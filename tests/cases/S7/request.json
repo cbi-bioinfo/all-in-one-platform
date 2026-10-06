@@ -5,8 +5,8 @@
     ""
   ],
   "ids": [
-    "trainset_001999_raw",
-    "trainset_001999",
+    "testset_001999_raw",
+    "testset_001999",
     "empty"
   ]
 }

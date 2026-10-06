@@ -12,7 +12,7 @@
 | 플랫폼 | linux/amd64 |
 | 베이스 이미지 | `python:3.10-slim@sha256:c1aaf3d03e14944a039a1647e0b3f6f34c6bee517bac6ff380215ee099c4e808` |
 | 가중치 체크섬 | `models/SHA256SUMS` |
-| 자체 시험 | 20/20 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
+| 자체 시험 | 21/21 일치 (`docs/selftest_report.md`, 2026-10-06, 위 이미지 ID) |
 
 이 파일과 `tool.yaml`의 `image.digest`는 제출 커밋 이후에 갱신했다(이미지 push로
 digest가 정해진 뒤 기록하기 위함). 태그 `mtdnn-v1.0.0`은 이미지를 빌드한 제출

@@ -1,7 +1,7 @@
 {
   "id": "B1",
   "category": "boundary",
-  "title": "요청당 최대 건수 100건 (serve)",
+  "title": "경계 대표 분자 10건 (serve) — 짧은·긴 SMILES, 금속 착물, 전하, '/'·'@' 표기(W-ENC-001), SMILES 길이 상한 1,000자",
   "mode": "serve",
   "request": "request.json",
   "expect": {

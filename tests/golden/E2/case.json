@@ -1,7 +1,7 @@
 {
   "id": "E2",
   "category": "error",
-  "title": "전하 표기가 빠진 4급 암모늄염 raw SMILES — 원자가 오류 행만 E-INPUT-002, 나머지 계속",
+  "title": "분자 단위 오류 8종 + 대조 1건 (batch) — 원자가 초과·괄호·원소 기호·케쿨레·대괄호 E-INPUT-002, 빈 SMILES E-INPUT-007, 1,001자 E-INPUT-010; 오류 행만 기록하고 나머지 계속",
   "mode": "batch",
   "input": "input.csv",
   "env": {},

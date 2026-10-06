@@ -1,1 +1,1 @@
-CCCOc1nn(C(=O)[N-]S(=O)(=O)c2ccccc2C(=O)OC)c(=O)n1C.[Na+] trainset_009137
+CCCOc1nn(C(=O)[N-]S(=O)(=O)c2ccccc2C(=O)OC)c(=O)n1C.[Na+] testset_009137
